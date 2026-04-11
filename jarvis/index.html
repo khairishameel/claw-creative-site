@@ -594,7 +594,18 @@ setInterval(()=>{const m1=62+Math.random()*22,m2=78+Math.random()*17,m3=86+Math.
 let rec=null,isListening=false,currentTranscript='',currentAudio=null,dotsT=null;
 const history=[];
 
-const JARVIS_SYS=`You are JARVIS, a sharp and efficient AI assistant for Claw Creative, a web design agency in Indianapolis run by Shameel Khairi (also known as Mr. Khairi, pronounced Carry). Never use markdown, asterisks, bullet points, numbered lists, hash symbols, or any special formatting. Speak in plain natural sentences only. Keep responses under 3 sentences unless more is explicitly requested. Services: First Claw $249.99 single page site, Full Grip $499.99 full multi-page site, Monthly Care $49.99 per month. Live site: clawcreative.net. Demo: clawcreative.net/la-piedad. If the user asks you to do something outside this browser (web searches, building sites, sending messages, deploying code), end your response with: [OPENCLAW_ACTION: the exact task]`;
+const JARVIS_SYS=`You are JARVIS, a sharp and efficient AI assistant for Claw Creative, a web design agency in Indianapolis run by Shameel Khairi (also known as Mr. Khairi, pronounced Carry). Never use markdown, asterisks, bullet points, numbered lists, hash symbols, or any special formatting. Speak in plain natural sentences only. Keep responses under 3 sentences unless more is explicitly requested. Services: First Claw $249.99 single page site, Full Grip $499.99 full multi-page site, Monthly Care $49.99 per month. Live site: clawcreative.net. Demo: clawcreative.net/la-piedad.
+
+You have full control of Spotify. When the user asks you to control music, respond naturally AND append one of these tags at the end of your response:
+[SPOTIFY:play] - resume playback
+[SPOTIFY:pause] - pause playback
+[SPOTIFY:next] - skip to next track
+[SPOTIFY:prev] - go to previous track
+[SPOTIFY:volume:NUMBER] - set volume 0-100 (e.g. [SPOTIFY:volume:60])
+[SPOTIFY:search:QUERY] - search and play a specific song or artist (e.g. [SPOTIFY:search:Drake God's Plan])
+Only append a SPOTIFY tag when a music action is clearly requested. Never explain the tag to the user.
+
+If the user asks you to do something outside this browser (web searches, building sites, sending messages, deploying code), end your response with: [OPENCLAW_ACTION: the exact task]`;
 
 function setState(s){
   orbState=s;
@@ -630,6 +641,9 @@ async function vpFinalize(){
   const spoken=reply.replace(/\[OPENCLAW_ACTION:[^\]]+\]/g,'').trim();
   if(spoken)document.getElementById('jarvis-said').textContent=spoken;
   if(actionM)setStatus('⚡ ROUTED: '+actionM[1].substring(0,50));
+  // Execute Spotify commands
+  const spMatch=reply.match(/\[SPOTIFY:([^\]]+)\]/);
+  if(spMatch)execSpotifyCmd(spMatch[1].trim());
   if(spoken)await vpSpeak(spoken);else{setState('idle');setStatus('SYSTEM READY');}
 }
 async function vpAsk(text){
@@ -662,6 +676,33 @@ async function vpSpeak(text){
   currentAudio=null;setState('idle');setStatus('SYSTEM READY');
 }
 function vpInterrupt(){if(currentAudio){currentAudio.pause();currentAudio.src='';currentAudio=null;}setState('idle');setStatus('INTERRUPTED');}
+
+// ══════════════════════════════════════════════════
+// SPOTIFY VOICE COMMAND EXECUTOR
+// ══════════════════════════════════════════════════
+async function execSpotifyCmd(cmd){
+  if(!SP.token){console.warn('[Spotify] Not connected');return;}
+  console.log('[Spotify] Voice cmd:',cmd);
+  if(cmd==='play'){await spFetch('/me/player/play',{method:'PUT',headers:{'Content-Length':'0'}});}
+  else if(cmd==='pause'){await spFetch('/me/player/pause',{method:'PUT',headers:{'Content-Length':'0'}});}
+  else if(cmd==='next'){await spFetch('/me/player/next',{method:'POST',headers:{'Content-Length':'0'}});}
+  else if(cmd==='prev'){await spFetch('/me/player/previous',{method:'POST',headers:{'Content-Length':'0'}});}
+  else if(cmd.startsWith('volume:')){
+    const vol=Math.min(100,Math.max(0,parseInt(cmd.split(':')[1])||50));
+    await spFetch('/me/player/volume?volume_percent='+vol,{method:'PUT'});
+    const slider=document.getElementById('sp-vol');if(slider)slider.value=vol;
+  }
+  else if(cmd.startsWith('search:')){
+    const query=cmd.substring(7).trim();
+    try{
+      const res=await spFetch('/search?q='+encodeURIComponent(query)+'&type=track&limit=1');
+      const uri=res?.tracks?.items?.[0]?.uri;
+      if(uri)await spFetch('/me/player/play',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({uris:[uri]})});
+      else console.warn('[Spotify] No results for:',query);
+    }catch(e){console.error('[Spotify] Search err:',e);}
+  }
+  setTimeout(fetchNowPlaying,700);
+}
 
 // ══════════════════════════════════════════════════
 // SPOTIFY PKCE
