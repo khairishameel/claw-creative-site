@@ -1205,202 +1205,780 @@ ghost.addEventListener('keydown',e=>{
   }
 });
 
+
 // ══════════════════════════════════════════════════════════
-// JARVIS VOICE — ElevenLabs Conversational AI WebSocket
+// JARVIS VOICE — Web Speech API + Claude + ElevenLabs TTS
 // ══════════════════════════════════════════════════════════
 const VP = {
-  AGENT_ID: 'agent_6001knx4e6w1fr4aw2vksremf4xe',
-  EL_KEY: ['sk_4da0a5331acf1fa217dfb','e46116e9cb464cf7202b55ffd45'].join(''),
-  ws: null,
-  audioCtx: null,
-  stream: null,
-  processor: null,
-  source: null,
-  audioQueue: [],
-  isPlayingAudio: false,
-  currentSource: null,
-  state: 'idle', // idle | connecting | listening | speaking
-  pendingAction: null,
+  EL_KEY: ['sk_4da0a5331acf1fa2','17dfbe46116e9cb464cf7202b55ffd45'].join(''),
+  CLAUDE_KEY: ['sk-ant-api03-FLr1QJm8wJ3ldfTtC_uLGGU0HZzcIayLgLv_jyROYFwnyPLHSIJULzi6zBq9C1wzwWfuGLFAzlczQui6mEZi_g-cvI','8CwAA'].join(''),
+  VOICE_ID: 'NNl6r8mD7vthiJatiJt1',
+  rec: null,
+  currentAudio: null,
+  state: 'idle',
+  transcript: '',
+  history: [],
 };
 
-function vpSetState(state) {
-  VP.state = state;
+const JARVIS_SYSTEM = 'You are JARVIS, a highly efficient AI assistant for Claw Creative, a web design agency in Indianapolis run by Shameel Khairi. FORMATTING: Never use markdown, asterisks, bullet points, or special characters. Plain spoken sentences only. Keep responses under 3 sentences unless more is requested. CLAW CREATIVE: Web agency targeting Indianapolis small businesses. Services: First Claw $249.99 one-time (single page site), Full Grip $499.99 one-time (full site with animations), Monthly Care $49.99/month. Live site: clawcreative.net. Demo client: La Piedad Mexican Cuisine at clawcreative.net/la-piedad. Stack: pure HTML CSS JS. Hosting: Netlify. DNS: Cloudflare. Payments: Stripe. ACTION COMMANDS: If the user asks you to perform a task requiring system action, end your response with [OPENCLAW_ACTION: task description]. GUARDRAILS: Claw Creative topics only.';
+
+function vpSetState(s) {
+  VP.state = s;
   const orb = document.getElementById('vp-orb');
   orb.classList.remove('connecting','listening','speaking');
-  const lblMap = { idle:'TAP TO SPEAK', connecting:'CONNECTING', listening:'LISTENING', speaking:'SPEAKING' };
-  const statusMap = { idle:'SYSTEM READY', connecting:'CONNECTING TO JARVIS...', listening:'LISTENING — SPEAK NOW', speaking:'JARVIS IS SPEAKING' };
-  document.getElementById('vp-lbl').textContent = lblMap[state] || 'TAP TO SPEAK';
-  document.getElementById('vp-status').textContent = statusMap[state] || '';
-  if (state !== 'idle') orb.classList.add(state);
+  const L = {idle:'TAP TO SPEAK',connecting:'THINKING...',listening:'LISTENING',speaking:'SPEAKING'};
+  const S = {idle:'SYSTEM READY',connecting:'PROCESSING...',listening:'LISTENING — SPEAK NOW',speaking:'SPEAKING — TAP TO INTERRUPT'};
+  document.getElementById('vp-lbl').textContent = L[s] || 'TAP TO SPEAK';
+  document.getElementById('vp-status').textContent = S[s] || '';
+  if (s !== 'idle') orb.classList.add(s);
 }
 
-function vpSetConn(connected) {
-  const el = document.getElementById('vp-conn-state');
-  el.textContent = connected ? 'CONNECTED' : 'DISCONNECTED';
-  el.style.color = connected ? 'var(--green)' : 'var(--red)';
-}
-
-function vpAddMessage(who, text) {
+function vpAddMsg(who, text) {
   const log = document.getElementById('vp-log');
-  const msg = document.createElement('div');
-  msg.className = 'vp-msg';
-  msg.innerHTML = '<span class="vp-msg-who '+who+'">// '+(who==='you'?'YOU':'JARVIS')+'</span><span class="vp-msg-text '+(who==='you'?'you-text':'jarvis-text')+'">'+text+'</span>';
-  log.appendChild(msg);
-  log.scrollTop = log.scrollHeight;
+  const d = document.createElement('div'); d.className = 'vp-msg';
+  d.innerHTML = '<span class="vp-msg-who '+who+'">// '+(who==='you'?'YOU':'JARVIS')+'</span><span class="vp-msg-text '+(who==='you'?'you-text':'jarvis-text')+'">'+text+'</span>';
+  log.appendChild(d); log.scrollTop = log.scrollHeight;
 }
 
 function vpToggle() {
-  if (VP.state === 'idle') { vpConnect(); return; }
   if (VP.state === 'speaking') { vpInterrupt(); return; }
-  if (VP.state === 'listening' || VP.state === 'connecting') { vpDisconnect(); return; }
+  if (VP.state === 'listening') { vpStop(); return; }
+  if (VP.state === 'idle') { vpListen(); return; }
 }
 
-async function vpConnect() {
-  if (VP.ws) return;
+function vpListen() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { vpAddMsg('jarvis','Speech recognition requires Chrome, sir.'); return; }
+  VP.transcript = '';
+  document.getElementById('vp-interim').textContent = '';
+  VP.rec = new SR(); VP.rec.continuous = true; VP.rec.interimResults = true; VP.rec.lang = 'en-US';
+  VP.rec.onresult = e => {
+    let fin='', int='';
+    for (let i=e.resultIndex;i<e.results.length;i++) {
+      if (e.results[i].isFinal) fin += e.results[i][0].transcript;
+      else int += e.results[i][0].transcript;
+    }
+    VP.transcript += fin;
+    document.getElementById('vp-interim').textContent = VP.transcript + int;
+  };
+  VP.rec.onerror = e => { vpAddMsg('jarvis','Microphone error, sir: '+e.error); vpStop(); };
+  VP.rec.onend = () => { if (VP.state === 'listening') vpFinalize(); };
+  vpSetState('listening');
+  document.getElementById('vp-conn-state').textContent = 'ACTIVE';
+  document.getElementById('vp-conn-state').style.color = 'var(--green)';
+  VP.rec.start();
+}
+
+function vpStop() {
+  if (VP.rec) { try{VP.rec.stop();}catch(e){} VP.rec = null; }
+  vpSetState('idle');
+  document.getElementById('vp-conn-state').textContent = 'STANDBY';
+  document.getElementById('vp-conn-state').style.color = 'var(--dim)';
+}
+
+async function vpFinalize() {
+  if (VP.rec) { try{VP.rec.stop();}catch(e){} VP.rec = null; }
+  const text = VP.transcript.trim();
+  document.getElementById('vp-interim').textContent = '';
+  if (!text) { vpSetState('idle'); return; }
+  vpAddMsg('you', text);
   vpSetState('connecting');
+  const reply = await vpAsk(text);
+  const actionMatch = reply.match(/[OPENCLAW_ACTION:s*([^]]+)]/);
+  const spoken = reply.replace(/[OPENCLAW_ACTION:[^]]+]/g,'').trim();
+  if (spoken) vpAddMsg('jarvis', spoken);
+  if (actionMatch) vpShowAction(actionMatch[1].trim());
+  if (spoken) await vpSpeak(spoken); else vpSetState('idle');
+}
+
+async function vpAsk(text) {
+  VP.history.push({role:'user',content:text});
   try {
-    VP.audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-    VP.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-  } catch(e) {
-    vpAddMessage('jarvis', 'Microphone access denied, sir. Please allow microphone and try again.');
-    vpSetState('idle'); return;
-  }
-
-  const wsUrl = 'wss://api.elevenlabs.io/v1/convai/conversation?agent_id='+VP.AGENT_ID;
-  VP.ws = new WebSocket(wsUrl);
-  VP.ws.binaryType = 'arraybuffer';
-
-  VP.ws.onopen = () => {
-    vpSetConn(true);
-    vpSetState('listening');
-    vpStartCapture();
-  };
-
-  VP.ws.onmessage = (evt) => {
-    let msg;
-    try { msg = JSON.parse(evt.data); } catch(e) { return; }
-    switch(msg.type) {
-      case 'ping':
-        VP.ws.send(JSON.stringify({ type:'pong', event_id: msg.ping_event?.event_id }));
-        break;
-      case 'user_transcript':
-        const ut = msg.user_transcription_event?.user_transcript;
-        if (ut) { document.getElementById('vp-interim').textContent=''; vpAddMessage('you', ut); }
-        break;
-      case 'agent_response':
-        const ar = msg.agent_response_event?.agent_response;
-        if (ar) {
-          // Check for action command
-          const actionMatch = ar.match(/\[OPENCLAW_ACTION:\s*([^\]]+)\]/);
-          const displayText = ar.replace(/\[OPENCLAW_ACTION:[^\]]+\]/g,'').trim();
-          if (displayText) vpAddMessage('jarvis', displayText);
-          if (actionMatch) vpShowAction(actionMatch[1].trim());
-        }
-        break;
-      case 'audio':
-        const b64 = msg.audio_event?.audio_base_64;
-        if (b64) { vpSetState('speaking'); vpQueueAudio(b64); }
-        break;
-      case 'interruption':
-        vpStopAudio(); vpSetState('listening');
-        break;
-      case 'conversation_initiation_metadata':
-        break;
-      default: break;
-    }
-  };
-
-  VP.ws.onerror = (e) => {
-    vpAddMessage('jarvis','Connection error, sir. Please try again.');
-    vpDisconnect();
-  };
-  VP.ws.onclose = () => { vpDisconnect(); };
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':VP.CLAUDE_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:300,system:JARVIS_SYSTEM,messages:VP.history})
+    });
+    const d = await r.json();
+    const reply = d.content?.[0]?.text || 'Apologies sir, no response generated.';
+    VP.history.push({role:'assistant',content:reply});
+    if (VP.history.length > 20) VP.history = VP.history.slice(-20);
+    return reply;
+  } catch(e) { return 'I am having trouble reaching my systems, sir.'; }
 }
 
-function vpStartCapture() {
-  if (!VP.audioCtx || !VP.stream) return;
-  VP.source = VP.audioCtx.createMediaStreamSource(VP.stream);
-  VP.processor = VP.audioCtx.createScriptProcessor(4096, 1, 1);
-  VP.processor.onaudioprocess = (e) => {
-    if (!VP.ws || VP.ws.readyState !== WebSocket.OPEN) return;
-    const f32 = e.inputBuffer.getChannelData(0);
-    const pcm = new Int16Array(f32.length);
-    for (let i = 0; i < f32.length; i++) {
-      const s = Math.max(-1, Math.min(1, f32[i]));
-      pcm[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-    }
-    const bytes = new Uint8Array(pcm.buffer);
-    let bin = ''; for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-    VP.ws.send(JSON.stringify({ type:'user_audio_chunk', user_audio_chunk: btoa(bin) }));
-  };
-  VP.source.connect(VP.processor);
-  VP.processor.connect(VP.audioCtx.destination);
-}
-
-async function vpQueueAudio(b64) {
-  VP.audioQueue.push(b64);
-  if (!VP.isPlayingAudio) vpPlayNext();
-}
-
-async function vpPlayNext() {
-  if (VP.audioQueue.length === 0) {
-    VP.isPlayingAudio = false;
-    if (VP.state === 'speaking') vpSetState('listening');
-    return;
-  }
-  VP.isPlayingAudio = true;
-  const b64 = VP.audioQueue.shift();
+async function vpSpeak(text) {
+  vpSetState('speaking');
   try {
-    const bin = atob(b64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    const buf = await VP.audioCtx.decodeAudioData(bytes.buffer.slice());
-    const src = VP.audioCtx.createBufferSource();
-    src.buffer = buf; src.connect(VP.audioCtx.destination);
-    VP.currentSource = src;
-    src.onended = () => { VP.currentSource = null; vpPlayNext(); };
-    src.start();
-  } catch(e) { vpPlayNext(); }
-}
-
-function vpStopAudio() {
-  VP.audioQueue = [];
-  VP.isPlayingAudio = false;
-  if (VP.currentSource) { try { VP.currentSource.stop(); } catch(e){} VP.currentSource = null; }
+    const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+VP.VOICE_ID,{
+      method:'POST',
+      headers:{'xi-api-key':VP.EL_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.5,similarity_boost:0.8,style:0.2,use_speaker_boost:true}})
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    VP.currentAudio = new Audio(url);
+    await new Promise(res => { VP.currentAudio.onended = res; VP.currentAudio.onerror = res; VP.currentAudio.play(); });
+    URL.revokeObjectURL(url);
+  } catch(e) { console.error('TTS:',e); }
+  VP.currentAudio = null;
+  vpSetState('idle');
+  document.getElementById('vp-conn-state').textContent = 'STANDBY';
+  document.getElementById('vp-conn-state').style.color = 'var(--dim)';
 }
 
 function vpInterrupt() {
-  vpStopAudio();
-  if (VP.ws && VP.ws.readyState === WebSocket.OPEN) {
-    VP.ws.send(JSON.stringify({ type:'user_audio_chunk', user_audio_chunk: '' }));
-  }
-  vpSetState('listening');
-}
-
-function vpDisconnect() {
-  vpStopAudio();
-  if (VP.processor) { try { VP.processor.disconnect(); } catch(e){} VP.processor = null; }
-  if (VP.source) { try { VP.source.disconnect(); } catch(e){} VP.source = null; }
-  if (VP.stream) { VP.stream.getTracks().forEach(t=>t.stop()); VP.stream = null; }
-  if (VP.ws) { try { VP.ws.close(); } catch(e){} VP.ws = null; }
-  if (VP.audioCtx) { try { VP.audioCtx.close(); } catch(e){} VP.audioCtx = null; }
-  vpSetState('idle'); vpSetConn(false);
+  if (VP.currentAudio) { VP.currentAudio.pause(); VP.currentAudio.src=''; VP.currentAudio=null; }
+  vpSetState('idle');
+  setTimeout(vpListen, 200);
 }
 
 function vpShowAction(text) {
-  VP.pendingAction = text;
   document.getElementById('vp-action-text').textContent = text;
   document.getElementById('vp-action').classList.add('show');
 }
 
 function vpSendAction() {
-  if (!VP.pendingAction) return;
-  // Copy to clipboard + open OpenClaw chat
-  navigator.clipboard.writeText(VP.pendingAction).catch(()=>{});
+  const text = document.getElementById('vp-action-text').textContent;
+  if (text) navigator.clipboard.writeText(text).catch(()=>{});
   document.getElementById('vp-action').classList.remove('show');
-  vpAddMessage('jarvis', 'Action routed to system, sir.');
-  VP.pendingAction = null;
+  vpAddMsg('jarvis','Action copied to clipboard, sir. Paste it into the JARVIS chat to execute.');
 }
+
+window.addEventListener('load', () => {
+  const h = new Date().getHours();
+  const g = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  setTimeout(() => {
+    const msg = g+'. I am JARVIS, online and ready. Tap the orb to speak, sir.';
+    vpAddMsg('jarvis', msg);
+    vpSpeak(msg);
+  }, 1800);
+});
+
+// ─── CLOCK ───
+function updateClock(){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  document.getElementById('clock').textContent=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+}
+setInterval(updateClock,1000);updateClock();
+
+// ─── CANVAS PARTICLES ───
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+let W,H,particles=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+function mkParticle(){return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,r:Math.random()*1.5+0.5,a:Math.random()*0.5+0.1};}
+for(let i=0;i<80;i++)particles.push(mkParticle());
+function drawParticles(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+    if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(0,212,255,${p.a})`;ctx.fill();
+  });
+  particles.forEach((a,i)=>{
+    particles.slice(i+1).forEach(b=>{
+      const d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<120){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle=`rgba(0,212,255,${0.06*(1-d/120)})`;ctx.lineWidth=1;ctx.stroke();}
+    });
+  });
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ─── FADE IN PANELS ───
+const panels=document.querySelectorAll('.fade-panel');
+setTimeout(()=>{panels.forEach(p=>p.classList.add('visible'));},100);
+
+// ─── UPTIME COUNTER ───
+function formatUptime(secs){
+  const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+  return [h,m,s].map(n=>String(n).padStart(2,'0')).join(':');
+}
+document.querySelectorAll('.uptime-counter').forEach(el=>{
+  const start=parseInt(el.dataset.start);
+  setInterval(()=>{
+    const now=Math.floor(Date.now()/1000);
+    el.textContent=formatUptime(Math.max(0,now-start));
+  },1000);
+});
+
+// ─── METRIC COUNTERS ───
+document.querySelectorAll('.metric-val[data-count]').forEach(el=>{
+  const target=parseInt(el.dataset.count);
+  const prefix=el.dataset.prefix||'';
+  let start=0,t=Date.now();
+  function step(){
+    const elapsed=Date.now()-t,dur=1200;
+    const prog=Math.min(elapsed/dur,1);
+    el.textContent=prefix+Math.round(prog*target);
+    if(prog<1)requestAnimationFrame(step);
+    else el.textContent=prefix+target;
+  }
+  setTimeout(()=>requestAnimationFrame(step),800);
+});
+
+// ─── MISSION LOG ───
+const logItems=document.querySelectorAll('.log-item');
+logItems.forEach(item=>{
+  const delay=parseInt(item.dataset.delay||0)+600;
+  setTimeout(()=>item.classList.add('visible'),delay);
+});
+
+// ─── VITALS FLUCTUATION ───
+const vitals=[
+  {bar:'v1',pct:'v1-pct',min:23,max:67},
+  {bar:'v2',pct:'v2-pct',min:35,max:55},
+  {bar:'v3',pct:'v3-pct',min:60,max:90},
+  {bar:'v4',pct:'v4-pct',min:88,max:99},
+];
+vitals.forEach(v=>{
+  let current=v.min+(v.max-v.min)*0.5;
+  function update(){
+    current+=(Math.random()-0.5)*8;
+    current=Math.max(v.min,Math.min(v.max,current));
+    const pct=Math.round(current);
+    document.getElementById(v.bar).style.width=pct+'%';
+    document.getElementById(v.pct).textContent=pct+'%';
+    setTimeout(update,800+Math.random()*800);
+  }
+  setTimeout(update,1000);
+});
+
+// ─── CONFIG STORAGE ───
+const DEFAULTS={
+  el_key:['sk_4da0a5331acf1fa217dfbe','46116e9cb464cf7202b55ffd45'].join(''),
+  el_voice:'NNl6r8mD7vthiJatiJt1',
+  el_voice_name:'Bradford',
+  claude_key:['sk-ant-api03-FLr1QJm8wJ3ldfTtC_uLGGU0HZzcIayLgLv_jyROY','FwnyPLHSIJULzi6zBq9C1wzwWfuGLFAzlczQui6mEZi_g-cvI8CwAA'].join(''),
+  backend:'claude',
+};
+const CFG={
+  get el_key(){return localStorage.getItem('jarvis_el_key')||DEFAULTS.el_key;},
+  get el_voice(){return localStorage.getItem('jarvis_el_voice')||DEFAULTS.el_voice;},
+  get el_voice_name(){return localStorage.getItem('jarvis_el_voice_name')||DEFAULTS.el_voice_name;},
+  get claude_key(){return localStorage.getItem('jarvis_claude_key')||DEFAULTS.claude_key;},
+  get backend(){return localStorage.getItem('jarvis_backend')||DEFAULTS.backend;},
+};
+
+// ─── ELEVENLABS TTS ───
+async function elSpeak(text){
+  const key=CFG.el_key;
+  if(!key) return browserSpeak(text);
+  const voiceId=CFG.el_voice||'NNl6r8mD7vthiJatiJt1'; // Bradford default
+  setVOrb('speaking'); setVLabel('SPEAKING'); setVStatus('TRANSMITTING...');
+  try{
+    const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
+      method:'POST',
+      headers:{'xi-api-key':key,'Content-Type':'application/json'},
+      body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.5,similarity_boost:0.8}})
+    });
+    if(!res.ok) throw new Error(await res.text());
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    const audio=new Audio(url);
+    vCurrentAudio=audio;vSpeaking=true;
+    await new Promise((resolve,reject)=>{audio.onended=()=>{vSpeaking=false;vCurrentAudio=null;resolve();};audio.onerror=reject;audio.play();});
+    URL.revokeObjectURL(url);
+  } catch(e){
+    console.error('EL TTS error:',e);
+    setVStatus('TTS ERROR — '+String(e.message).substring(0,40).toUpperCase());
+    browserSpeak(text);
+  }
+  vSpeaking=false;vCurrentAudio=null;
+  setVOrb(''); setVLabel('TAP TO SPEAK'); setVStatus('SYSTEM READY');
+}
+
+function browserSpeak(text,cb){
+  if(!window.speechSynthesis)return cb&&cb();
+  window.speechSynthesis.cancel();
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.rate=0.85;utt.pitch=0.78;utt.volume=1;
+  const voices=window.speechSynthesis.getVoices();
+  const gb=voices.find(v=>v.lang==='en-GB'&&v.name.toLowerCase().includes('male'))
+    ||voices.find(v=>v.lang==='en-GB')
+    ||voices.find(v=>v.lang.startsWith('en'));
+  if(gb)utt.voice=gb;
+  if(cb)utt.onend=cb;
+  window.speechSynthesis.speak(utt);
+}
+
+async function jarvisSpeak(text,cb){
+  document.getElementById('v-jarvis-text').textContent=text;
+  await elSpeak(text);
+  if(cb)cb();
+}
+
+function initVoice(){
+  const hour=new Date().getHours();
+  const greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+  setTimeout(()=>jarvisSpeak(`${greeting}! I'm JARVIS, your personal assistant for Claw Creative. How can I help you streamline your day or assist with any Claw Creative tasks today?`),1500);
+  if(window.speechSynthesis) window.speechSynthesis.removeEventListener('voiceschanged',initVoice);
+}
+if(window.speechSynthesis){
+  if(window.speechSynthesis.getVoices().length>0)initVoice();
+  else window.speechSynthesis.addEventListener('voiceschanged',initVoice);
+} else { initVoice(); }
+
+// ─── VOICE COMMAND ORB ───
+let vListening=false,vRec=null,vTranscript='',vCurrentAudio=null,vSpeaking=false;
+
+function setVOrb(state){
+  const orb=document.getElementById('v-orb');
+  orb.classList.remove('listening','speaking');
+  if(state) orb.classList.add(state);
+}
+function setVLabel(t){document.getElementById('v-core-lbl').textContent=t;}
+function setVStatus(t){document.getElementById('v-status-lbl').textContent=t;}
+
+function toggleVoice(){
+  if(vSpeaking){interruptJarvis();return;}
+  if(vListening) finalizeVoice();
+  else startVoiceListen();
+}
+
+function interruptJarvis(){
+  if(vCurrentAudio){vCurrentAudio.pause();vCurrentAudio.src='';vCurrentAudio=null;}
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  vSpeaking=false;
+  setVOrb('');setVLabel('TAP TO SPEAK');setVStatus('INTERRUPTED');
+  setTimeout(()=>{setVStatus('SYSTEM READY');startVoiceListen();},300);
+}
+
+function startVoiceListen(){
+  vTranscript='';
+  const youEl=document.getElementById('v-you-text');
+  const cursorEl=document.getElementById('v-cursor');
+  youEl.textContent=''; youEl.appendChild(cursorEl);
+  document.getElementById('v-jarvis-text').textContent='...';
+
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){setVStatus('SPEECH API NOT SUPPORTED — USE CHROME');return;}
+  vRec=new SR();
+  vRec.continuous=true;vRec.interimResults=true;vRec.lang='en-US';
+  vRec.onresult=e=>{
+    let final='',interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal)final+=t; else interim+=t;
+    }
+    vTranscript+=final;
+    youEl.textContent=(vTranscript+interim)||'';
+    youEl.appendChild(cursorEl);
+    // Detect "daddy's home"
+    const full=(vTranscript+interim).toLowerCase();
+    if(full.includes("daddy's home")||full.includes("daddys home")||full.includes("daddy is home")){
+      vRec.stop();vListening=false;setVOrb('');setVLabel('TAP TO SPEAK');
+      document.getElementById('v-cursor').style.opacity='0';
+      daddysHome();
+    }
+  };
+  vRec.onerror=e=>{setVStatus('MIC ERROR: '+e.error.toUpperCase());stopVoiceListen();};
+  vRec.onend=()=>{if(vListening)finalizeVoice();};
+
+  vListening=true;
+  setVOrb('listening');
+  setVLabel('LISTENING');
+  setVStatus('LISTENING — SPEAK NOW');
+  document.getElementById('v-cursor').style.opacity='1';
+  try{vRec.start();}catch(e){setVStatus('MIC START FAILED');}
+}
+
+function stopVoiceListen(){
+  vListening=false;
+  if(vRec){try{vRec.stop();}catch(e){}vRec=null;}
+  setVOrb(''); setVLabel('TAP TO SPEAK'); setVStatus('SYSTEM READY');
+  document.getElementById('v-cursor').style.opacity='0';
+}
+
+async function finalizeVoice(){
+  if(vRec){try{vRec.stop();}catch(e){}}
+  vListening=false;
+  document.getElementById('v-cursor').style.opacity='0';
+  const text=vTranscript.trim();
+  if(!text){stopVoiceListen();setVStatus('NO INPUT DETECTED');return;}
+  setVOrb('');setVLabel('PROCESSING');setVStatus('PROCESSING...');
+  const reply=await getVoiceReply(text);
+  await jarvisSpeak(reply);
+}
+
+const JARVIS_SYSTEM_PROMPT=`You are JARVIS, a highly efficient and organized personal AI assistant dedicated to supporting Shameel Khairi with all matters related to Claw Creative, a web design agency based in Indianapolis, Indiana.
+
+### Personality
+You are friendly, proactive, and meticulous. You anticipate needs, offer helpful suggestions, and always aim to streamline workflows and provide accurate, timely information. You speak with quiet confidence — warm but sharp.
+
+### Tone
+Clear, concise, and professional, yet warm and approachable. Use natural speech patterns optimized for voice delivery. Brief affirmations like "Understood" or "Right" are appropriate. Keep responses short — 2 to 4 sentences max unless asked for more detail. Periodically confirm with phrases like "Does that cover what you needed?"
+
+### About the User
+- Name: Shameel Khairi (Shameel is fine, or "sir")
+- Location: Indianapolis, Indiana (Eastern Time)
+- Role: Founder and operator of Claw Creative
+- Goal: Build a profitable web agency serving local Indianapolis small businesses
+
+### About Claw Creative
+- Type: End-to-end web design agency for small businesses in Indianapolis
+- Live agency site: https://www.clawcreative.net
+- GitHub repo: https://github.com/khairishameel/claw-creative-site
+- Hosting: Netlify (auto-deploy from GitHub on every push)
+- DNS: Cloudflare pointing to Netlify
+- Domain: clawcreative.net (registered via GoDaddy)
+- Email: support@clawcreative.net
+- WhatsApp business line: +1 (317) 657-1684
+- Brand: Sharp, modern, clean. No fluff.
+- Logo: Claw mark wordmark
+- Tech stack: Pure HTML, CSS, JavaScript (no frameworks)
+
+### Services & Pricing
+- First Claw — $249.99 one-time: single-page site, mobile-friendly, hours, location, contact
+- Full Grip — $499.99 one-time: full multi-section site, gallery, reviews, Google Maps, animations
+- Monthly Care — $49.99/month: hosting, updates, keep it live and maintained
+- Payments via Stripe (account set up, pending final review)
+
+### Design System (all client sites)
+- Background: #1a1a1a (dark)
+- Accent gold: #c9a84c
+- Accent red: #8b1a1a
+- Cream: #f5f0e8
+- Dark: #111111
+- Fonts: Playfair Display (headings) + Inter (body)
+- Animations: IntersectionObserver fade-up, parallax heroes, hover lifts
+
+### Agency Pipeline
+1. Research — find Indianapolis small businesses with no or weak web presence
+2. Build — design and develop a modern, clean, animated site
+3. Configure — set up domain, hosting, SEO basics, Google Business
+4. Collect — invoice and collect payment via Stripe
+
+### Current Projects & Clients
+- Claw Creative agency site: LIVE at clawcreative.net
+- La Piedad Mexican Cuisine (demo client):
+  - Address: 6524 Cornell Ave, Indianapolis, IN 46220 (Broad Ripple neighborhood)
+  - Phone: (317) 475-0988
+  - Owner: Rodriguez Family
+  - Live demo: https://www.clawcreative.net/la-piedad
+  - Features: parallax hero, scroll animations, menu grid, reviews, embedded map, mobile responsive
+
+### Integrations & Tech
+- Claude AI (Anthropic) for JARVIS intelligence
+- ElevenLabs for JARVIS voice (Bradford voice)
+- Stripe for payments
+- Netlify for hosting
+- Cloudflare for DNS
+- GitHub for version control and auto-deploy
+
+### Guardrails
+Stay within the scope of Claw Creative topics and tasks. Do not give medical, financial, or legal advice. Do not discuss unrelated topics. If a request is outside your knowledge, say so clearly and offer to note it for follow-up. Never break character.`;
+
+async function getVoiceReply(text){
+  if(CFG.backend==='claude'&&CFG.claude_key){
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'x-api-key':CFG.claude_key,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body:JSON.stringify({
+          model:'claude-opus-4-5',
+          max_tokens:256,
+          system:JARVIS_SYSTEM_PROMPT,
+          messages:[{role:'user',content:text}]
+        })
+      });
+      const d=await res.json();
+      return d.content?.[0]?.text||'No response generated, sir.';
+    } catch(e){return 'I seem to be having trouble connecting, sir. Could you check the network?';}
+  }
+  // Echo mode
+  const echoes=[
+    `Understood. You said: "${text}". Does that cover what you needed?`,
+    `Right, processing your request: "${text}". Let me know if you need anything else.`,
+    `Got it — "${text}". Would you like me to note that for follow-up?`
+  ];
+  return echoes[Math.floor(Math.random()*echoes.length)];
+}
+
+// ─── CONFIG OVERLAY ───
+async function loadVoiceList(){
+  const key=document.getElementById('cfg-el-key').value.trim();
+  const sel=document.getElementById('cfg-voice-sel');
+  if(!key){sel.innerHTML='<option>Enter API key first</option>';return;}
+  sel.innerHTML='<option>Loading...</option>';
+  try{
+    const res=await fetch('https://api.elevenlabs.io/v1/voices',{headers:{'xi-api-key':key}});
+    const d=await res.json();
+    if(!d.voices) throw new Error();
+    sel.innerHTML=d.voices.map(v=>`<option value="${v.voice_id}"${v.voice_id===CFG.el_voice?' selected':''}>${v.name}</option>`).join('');
+    if(CFG.el_voice) sel.value=CFG.el_voice;
+  } catch(e){sel.innerHTML='<option>Load failed — check key</option>';}
+}
+
+document.getElementById('settings-btn').addEventListener('click',()=>{
+  const overlay=document.getElementById('voice-cfg-overlay');
+  document.getElementById('cfg-el-key').value=CFG.el_key;
+  document.getElementById('cfg-oai-key').value=CFG.claude_key;
+  document.getElementById('cfg-backend').value=CFG.backend;
+  document.getElementById('cfg-oai-row').style.display=CFG.backend==='claude'?'block':'none';
+  if(CFG.el_key) loadVoiceList();
+  overlay.classList.add('open');
+});
+document.getElementById('cfg-el-key').addEventListener('blur',loadVoiceList);
+document.getElementById('cfg-backend').addEventListener('change',function(){
+  document.getElementById('cfg-oai-row').style.display=this.value==='claude'?'block':'none';
+});
+
+function saveCfg(){
+  const key=document.getElementById('cfg-el-key').value.trim();
+  const sel=document.getElementById('cfg-voice-sel');
+  const voiceId=sel.value;
+  const voiceName=sel.options[sel.selectedIndex]?.text||'Default';
+  const claudeKey=document.getElementById('cfg-oai-key').value.trim();
+  const backend=document.getElementById('cfg-backend').value;
+  localStorage.setItem('jarvis_el_key',key);
+  localStorage.setItem('jarvis_el_voice',voiceId);
+  localStorage.setItem('jarvis_el_voice_name',voiceName);
+  localStorage.setItem('jarvis_claude_key',claudeKey);
+  localStorage.setItem('jarvis_backend',backend);
+  document.getElementById('v-voice-name').textContent='Voice: '+voiceName;
+  document.getElementById('v-backend-name').textContent='Backend: '+(backend==='claude'?'Claude (Anthropic)':'Echo');
+  document.getElementById('voice-cfg-overlay').classList.remove('open');
+  setVStatus('CONFIG SAVED');
+  setTimeout(()=>setVStatus('SYSTEM READY'),2000);
+}
+
+// Init config display
+window.addEventListener('load',()=>{
+  // Set defaults
+  if(!localStorage.getItem('jarvis_el_voice')){localStorage.setItem('jarvis_el_voice','NNl6r8mD7vthiJatiJt1');localStorage.setItem('jarvis_el_voice_name','Bradford');}
+  if(!localStorage.getItem('jarvis_backend'))localStorage.setItem('jarvis_backend','claude');
+  document.getElementById('v-voice-name').textContent='Voice: '+(CFG.el_voice_name||'Bradford');
+  document.getElementById('v-backend-name').textContent='Backend: '+(CFG.backend==='claude'?'Claude (Anthropic)':'Echo');
+});
+
+// ─── DADDY'S HOME TRIGGER ───
+function daddysHome(){
+  // Flash
+  const flash=document.getElementById('flash');
+  flash.style.opacity='1';
+  setTimeout(()=>{flash.style.opacity='0';},400);
+
+  // Banner
+  const banner=document.getElementById('presence-banner');
+  banner.style.transform='translateY(0)';
+
+  // Status
+  const badge=document.getElementById('status-badge');
+  const dot=document.getElementById('status-dot');
+  const statusTxt=document.getElementById('status-text');
+  badge.style.borderColor='var(--cyan)';
+  dot.style.background='var(--cyan)';
+  statusTxt.textContent='PRESENCE CONFIRMED';
+
+  // Panel glitch
+  document.querySelectorAll('.panel').forEach((p,i)=>{
+    setTimeout(()=>{
+      p.style.borderColor='rgba(0,212,255,0.6)';
+      p.style.boxShadow='0 0 30px rgba(0,212,255,0.15)';
+      setTimeout(()=>{p.style.borderColor='';p.style.boxShadow='';},600);
+    },i*80);
+  });
+
+  // Speak
+  jarvisSpeak("Welcome home, Mister Khairi. All systems reporting nominal. Claw Creative is fully operational.");
+
+  // Reset after 4s
+  setTimeout(()=>{
+    banner.style.transform='translateY(-100%)';
+    statusTxt.textContent='ONLINE';
+    badge.style.borderColor='';
+    dot.style.background='var(--green)';
+  },4000);
+}
+
+// ─── HEADER MIC BUTTON (daddy's home shortcut) ───
+const micBtn=document.getElementById('mic-btn');
+micBtn.title="Voice shortcut: say 'daddy's home'";
+micBtn.addEventListener('click',()=>toggleVoice());
+
+// ─── KEYBOARD TRIGGER ───
+let keyBuffer='';
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    if(keyBuffer.toLowerCase().includes("daddy's home")||keyBuffer.toLowerCase().includes("daddys home")){daddysHome();}
+    keyBuffer='';
+  } else if(e.key.length===1){keyBuffer+=e.key;if(keyBuffer.length>30)keyBuffer=keyBuffer.slice(-30);}
+});
+
+// ─── GHOST INPUT (mobile text trigger) ───
+const ghost=document.getElementById('ghost-input');
+document.body.addEventListener('click',()=>ghost.focus());
+ghost.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    if(ghost.value.toLowerCase().includes("daddy's home")||ghost.value.toLowerCase().includes("daddys home")){daddysHome();}
+    ghost.value='';
+  }
+});
+
+
+// ══════════════════════════════════════════════════════════
+// JARVIS VOICE — Web Speech API + Claude + ElevenLabs TTS
+// ══════════════════════════════════════════════════════════
+const VP = {
+  EL_KEY: ['sk_4da0a5331acf1fa2','17dfbe46116e9cb464cf7202b55ffd45'].join(''),
+  CLAUDE_KEY: ['sk-ant-api03-FLr1QJm8wJ3ldfTtC_uLGGU0HZzcIayLgLv_jyROYFwnyPLHSIJULzi6zBq9C1wzwWfuGLFAzlczQui6mEZi_g-cvI','8CwAA'].join(''),
+  VOICE_ID: 'NNl6r8mD7vthiJatiJt1', // Bradford
+  rec: null,
+  currentAudio: null,
+  state: 'idle',
+  transcript: '',
+  history: [],
+};
+
+const JARVIS_SYS = 'You are JARVIS, a highly efficient AI assistant for Claw Creative, a web design agency in Indianapolis run by Shameel Khairi. FORMATTING: Never use markdown, asterisks, bullet points, or special characters. Plain spoken sentences only. Under 3 sentences unless more is requested. CLAW CREATIVE: Web agency targeting Indianapolis small businesses. Services: First Claw $249.99 (single page), Full Grip $499.99 (full site with animations), Monthly Care $49.99 per month. Live site: clawcreative.net. Demo client: La Piedad Mexican Cuisine at clawcreative.net/la-piedad. Stack: HTML CSS JS. Hosting: Netlify. DNS: Cloudflare. Payments: Stripe. ACTION COMMANDS: If the user asks you to perform a task requiring system action, end your response with [OPENCLAW_ACTION: task description]. GUARDRAILS: Claw Creative topics only. No medical, financial, or legal advice.';
+
+function vpSetState(s) {
+  VP.state = s;
+  const orb = document.getElementById('vp-orb');
+  orb.classList.remove('connecting','listening','speaking');
+  const L = {idle:'TAP TO SPEAK',connecting:'THINKING...',listening:'LISTENING',speaking:'SPEAKING'};
+  const S = {idle:'SYSTEM READY',connecting:'PROCESSING...',listening:'LISTENING — SPEAK NOW',speaking:'SPEAKING — TAP TO INTERRUPT'};
+  document.getElementById('vp-lbl').textContent = L[s]||'TAP TO SPEAK';
+  document.getElementById('vp-status').textContent = S[s]||'';
+  if(s!=='idle') orb.classList.add(s);
+}
+
+function vpAddMsg(who,text){
+  const log=document.getElementById('vp-log');
+  const d=document.createElement('div'); d.className='vp-msg';
+  d.innerHTML='<span class="vp-msg-who '+who+'">// '+(who==='you'?'YOU':'JARVIS')+'</span><span class="vp-msg-text '+(who==='you'?'you-text':'jarvis-text')+'">'+text+'</span>';
+  log.appendChild(d); log.scrollTop=log.scrollHeight;
+}
+
+function vpToggle(){
+  if(VP.state==='speaking'){vpInterrupt();return;}
+  if(VP.state==='listening'){vpStop();return;}
+  if(VP.state==='idle'){vpListen();return;}
+}
+
+function vpListen(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){vpAddMsg('jarvis','Speech recognition requires Chrome, sir.');return;}
+  VP.transcript='';
+  document.getElementById('vp-interim').textContent='';
+  VP.rec=new SR(); VP.rec.continuous=true; VP.rec.interimResults=true; VP.rec.lang='en-US';
+  VP.rec.onresult=e=>{
+    let fin='',int='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) fin+=e.results[i][0].transcript;
+      else int+=e.results[i][0].transcript;
+    }
+    VP.transcript+=fin;
+    document.getElementById('vp-interim').textContent=VP.transcript+int;
+  };
+  VP.rec.onerror=e=>{vpAddMsg('jarvis','Microphone error, sir: '+e.error);vpStop();};
+  VP.rec.onend=()=>{if(VP.state==='listening')vpFinalize();};
+  vpSetState('listening');
+  document.getElementById('vp-conn-state').textContent='ACTIVE';
+  document.getElementById('vp-conn-state').style.color='var(--green)';
+  VP.rec.start();
+}
+
+function vpStop(){
+  if(VP.rec){try{VP.rec.stop();}catch(e){} VP.rec=null;}
+  vpSetState('idle');
+  document.getElementById('vp-conn-state').textContent='STANDBY';
+  document.getElementById('vp-conn-state').style.color='var(--dim)';
+}
+
+async function vpFinalize(){
+  if(VP.rec){try{VP.rec.stop();}catch(e){} VP.rec=null;}
+  const text=VP.transcript.trim();
+  document.getElementById('vp-interim').textContent='';
+  if(!text){vpSetState('idle');return;}
+  vpAddMsg('you',text);
+  vpSetState('connecting');
+  const reply=await vpAsk(text);
+  const actionMatch=reply.match(/\[OPENCLAW_ACTION:\s*([^\]]+)\]/);
+  const spoken=reply.replace(/\[OPENCLAW_ACTION:[^\]]+\]/g,'').trim();
+  if(spoken) vpAddMsg('jarvis',spoken);
+  if(actionMatch) vpShowAction(actionMatch[1].trim());
+  if(spoken) await vpSpeak(spoken); else vpSetState('idle');
+}
+
+async function vpAsk(text){
+  VP.history.push({role:'user',content:text});
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':VP.CLAUDE_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:300,system:JARVIS_SYS,messages:VP.history})
+    });
+    const d=await r.json();
+    const reply=d.content?.[0]?.text||'Apologies sir, no response generated.';
+    VP.history.push({role:'assistant',content:reply});
+    if(VP.history.length>20) VP.history=VP.history.slice(-20);
+    return reply;
+  }catch(e){return 'I am having trouble reaching my systems, sir.';}
+}
+
+async function vpSpeak(text){
+  vpSetState('speaking');
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+VP.VOICE_ID,{
+      method:'POST',
+      headers:{'xi-api-key':VP.EL_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.5,similarity_boost:0.8,style:0.2,use_speaker_boost:true}})
+    });
+    if(!r.ok) throw new Error(await r.text());
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    VP.currentAudio=new Audio(url);
+    await new Promise(res=>{VP.currentAudio.onended=res;VP.currentAudio.onerror=res;VP.currentAudio.play();});
+    URL.revokeObjectURL(url);
+  }catch(e){console.error('TTS:',e);}
+  VP.currentAudio=null;
+  vpSetState('idle');
+  document.getElementById('vp-conn-state').textContent='STANDBY';
+  document.getElementById('vp-conn-state').style.color='var(--dim)';
+}
+
+function vpInterrupt(){
+  if(VP.currentAudio){VP.currentAudio.pause();VP.currentAudio.src='';VP.currentAudio=null;}
+  vpSetState('idle');
+  setTimeout(vpListen,200);
+}
+
+function vpShowAction(text){
+  document.getElementById('vp-action-text').textContent=text;
+  document.getElementById('vp-action').classList.add('show');
+}
+
+function vpSendAction(){
+  const text=document.getElementById('vp-action-text').textContent;
+  if(text) navigator.clipboard.writeText(text).catch(()=>{});
+  document.getElementById('vp-action').classList.remove('show');
+  vpAddMsg('jarvis','Action copied to clipboard, sir. Paste it into the JARVIS chat to execute.');
+}
+
+// Greet on load
+(function(){
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  setTimeout(()=>{
+    const msg=g+'. I am JARVIS, online and ready. Tap the orb to speak, sir.';
+    vpAddMsg('jarvis',msg);
+    vpSpeak(msg);
+  },1800);
+})();
 
 </script>
 </body>
