@@ -246,10 +246,161 @@ header::before{
   header{flex-direction:column;gap:16px;text-align:center;}
   .hd-right{justify-content:center;}
   .wrapper{padding:12px;}
+  .voice-layout{flex-direction:column!important;}
+  .voice-orb-col{border-right:none!important;border-bottom:1px solid var(--border);padding-bottom:24px!important;}
 }
+
+/* ── VOICE COMMAND PANEL ── */
+.voice-layout{display:flex;gap:0;align-items:stretch;}
+.voice-orb-col{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px 40px;gap:16px;flex-shrink:0;
+  border-right:1px solid var(--border);
+}
+.voice-transcript-col{flex:1;padding:24px;display:flex;flex-direction:column;gap:16px;}
+
+/* Orb rings */
+.v-orb{position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.v-ring{position:absolute;border-radius:50%;border:1px solid transparent;}
+.v-ring-1{width:200px;height:200px;border-top-color:rgba(0,212,255,0.6);border-right-color:rgba(0,212,255,0.15);animation:rotCW 3s linear infinite;}
+.v-ring-2{width:165px;height:165px;border-bottom-color:var(--cyan);border-left-color:rgba(0,212,255,0.1);animation:rotCW 2s linear infinite reverse;}
+.v-ring-3{width:134px;height:134px;border-top-color:rgba(0,212,255,0.5);border-bottom-color:rgba(0,212,255,0.5);animation:rotCW 4.5s linear infinite;}
+.v-dots{position:absolute;width:200px;height:200px;animation:rotCW 3s linear infinite;}
+.v-dot{position:absolute;width:5px;height:5px;background:var(--cyan);border-radius:50%;box-shadow:0 0 6px var(--cyan);top:50%;left:50%;transform-origin:0 0;}
+.v-dot:nth-child(1){transform:rotate(0deg) translateX(97px) translateY(-2px);}
+.v-dot:nth-child(2){transform:rotate(90deg) translateX(97px) translateY(-2px);}
+.v-dot:nth-child(3){transform:rotate(180deg) translateX(97px) translateY(-2px);}
+.v-dot:nth-child(4){transform:rotate(270deg) translateX(97px) translateY(-2px);}
+.v-core{
+  width:98px;height:98px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,rgba(0,40,60,1),rgba(0,5,10,1));
+  border:1.5px solid rgba(0,212,255,0.4);
+  box-shadow:0 0 20px rgba(0,212,255,0.2),inset 0 0 20px rgba(0,212,255,0.07);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;
+  transition:all 0.25s ease;
+}
+.v-core-icon{font-size:1.5rem;}
+.v-core-lbl{font-family:var(--font);font-size:0.5rem;letter-spacing:0.18em;color:rgba(0,212,255,0.6);}
+.v-status-lbl{font-family:var(--font);font-size:0.6rem;letter-spacing:0.2em;color:var(--dim);}
+
+/* Sound bars */
+.v-bars{display:none;gap:3px;align-items:flex-end;height:22px;}
+.v-bar{width:3px;background:var(--cyan);border-radius:2px;box-shadow:0 0 4px var(--cyan);animation:vBounce 0.4s ease-in-out infinite alternate;}
+.v-bar:nth-child(1){height:6px;animation-delay:0s;}
+.v-bar:nth-child(2){height:14px;animation-delay:.1s;}
+.v-bar:nth-child(3){height:22px;animation-delay:.05s;}
+.v-bar:nth-child(4){height:10px;animation-delay:.15s;}
+.v-bar:nth-child(5){height:18px;animation-delay:.08s;}
+.v-bar:nth-child(6){height:8px;animation-delay:.12s;}
+.v-bar:nth-child(7){height:16px;animation-delay:.03s;}
+@keyframes vBounce{from{transform:scaleY(0.3);opacity:.5;}to{transform:scaleY(1);opacity:1;}}
+
+/* Listening state */
+.v-orb.listening .v-ring-1{animation-duration:.9s;border-top-color:var(--green);}
+.v-orb.listening .v-ring-2{animation-duration:.6s;border-bottom-color:var(--green);}
+.v-orb.listening .v-core{box-shadow:0 0 40px rgba(0,255,136,0.35),inset 0 0 30px rgba(0,255,136,0.1);border-color:var(--green);}
+.v-orb.listening .v-dot{background:var(--green);box-shadow:0 0 8px var(--green);}
+.v-orb.listening .v-status-lbl{color:var(--green);}
+
+/* Speaking state */
+.v-orb.speaking .v-ring-1{animation-duration:1s;border-top-color:#ff9500;border-right-color:rgba(255,149,0,0.15);}
+.v-orb.speaking .v-ring-2{animation-duration:.7s;border-bottom-color:#ff9500;}
+.v-orb.speaking .v-core{box-shadow:0 0 40px rgba(255,149,0,0.35),inset 0 0 20px rgba(255,149,0,0.1);border-color:#ff9500;}
+.v-orb.speaking .v-dot{background:#ff9500;box-shadow:0 0 8px #ff9500;}
+.v-orb.speaking .v-bars{display:flex;}
+.v-orb.speaking .v-core-icon{display:none;}
+.v-orb.speaking .v-bar{background:#ff9500;box-shadow:0 0 4px #ff9500;}
+.v-orb.speaking .v-status-lbl{color:#ff9500;}
+.v-orb.speaking .v-core-lbl{color:rgba(255,149,0,0.7);}
+
+/* Transcript */
+.v-transcript-block{display:flex;flex-direction:column;gap:6px;}
+.v-t-label{font-family:var(--font);font-size:0.58rem;letter-spacing:0.3em;color:var(--dim);opacity:0.6;}
+.v-t-text{font-size:0.9rem;color:var(--text);line-height:1.55;min-height:1.4em;}
+.v-t-text.jarvis-text{color:#ff9500;}
+.v-cursor{display:inline-block;width:8px;height:0.9em;background:var(--green);margin-left:2px;vertical-align:middle;opacity:0;}
+.v-orb.listening~* .v-cursor,.listening-active .v-cursor{opacity:1;animation:blink 0.7s step-end infinite;}
+
+/* Config overlay */
+#voice-cfg-overlay{
+  display:none;position:fixed;inset:0;z-index:9990;
+  background:rgba(0,5,10,0.92);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
+}
+#voice-cfg-overlay.open{display:flex;}
+.cfg-modal{
+  width:min(520px,95vw);padding:32px;
+  border:1px solid var(--border);background:rgba(0,20,30,0.95);
+  position:relative;
+}
+.cfg-title{font-family:var(--font);font-size:0.75rem;letter-spacing:0.3em;color:var(--cyan);margin-bottom:24px;}
+.cfg-close{position:absolute;top:16px;right:16px;background:none;border:1px solid var(--border);color:var(--dim);cursor:pointer;width:32px;height:32px;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.cfg-close:hover{border-color:var(--cyan);color:var(--cyan);}
+.cfg-field{margin-bottom:18px;}
+.cfg-field label{display:block;font-size:0.6rem;letter-spacing:0.25em;color:var(--dim);margin-bottom:6px;}
+.cfg-field input,.cfg-field select{
+  width:100%;background:rgba(0,212,255,0.05);border:1px solid var(--border);
+  color:var(--text);padding:10px 12px;font-family:var(--mono);font-size:0.8rem;
+  outline:none;border-radius:0;
+}
+.cfg-field input:focus,.cfg-field select:focus{border-color:rgba(0,212,255,0.5);}
+.cfg-field select option{background:#050a0e;}
+.cfg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cfg-save{
+  width:100%;padding:12px;margin-top:8px;
+  font-family:var(--font);font-size:0.7rem;letter-spacing:0.25em;
+  background:rgba(0,212,255,0.1);border:1px solid var(--cyan);
+  color:var(--cyan);cursor:pointer;transition:all 0.2s;
+}
+.cfg-save:hover{background:rgba(0,212,255,0.2);box-shadow:0 0 20px rgba(0,212,255,0.3);}
+.cfg-hint{font-size:0.62rem;color:var(--dim);margin-top:6px;opacity:0.6;}
+
+/* Settings button in header */
+#settings-btn{
+  width:44px;height:44px;border:1px solid var(--border);background:transparent;
+  color:var(--cyan);cursor:pointer;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.3s;
+}
+#settings-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,0.1);box-shadow:0 0 20px rgba(0,212,255,0.3);}
 </style>
 </head>
 <body>
+
+<!-- VOICE CONFIG OVERLAY -->
+<div id="voice-cfg-overlay">
+  <div class="cfg-modal">
+    <div class="panel-inner-tl" style="top:8px;left:8px;"></div>
+    <div class="panel-inner-br" style="bottom:8px;right:8px;"></div>
+    <button class="cfg-close" onclick="document.getElementById('voice-cfg-overlay').classList.remove('open')">✕</button>
+    <div class="cfg-title">// VOICE CONFIGURATION</div>
+    <div class="cfg-field">
+      <label>ELEVENLABS API KEY</label>
+      <input type="password" id="cfg-el-key" placeholder="sk_..." autocomplete="off"/>
+      <div class="cfg-hint">Get it at elevenlabs.io → Profile → API Keys</div>
+    </div>
+    <div class="cfg-row">
+      <div class="cfg-field">
+        <label>VOICE</label>
+        <select id="cfg-voice-sel"><option value="">Enter key first</option></select>
+        <div class="cfg-hint">Browse at elevenlabs.io → Voices</div>
+      </div>
+      <div class="cfg-field">
+        <label>AI BACKEND</label>
+        <select id="cfg-backend">
+          <option value="echo">Echo mode (no AI key)</option>
+          <option value="openai">OpenAI GPT-4o</option>
+        </select>
+      </div>
+    </div>
+    <div class="cfg-field" id="cfg-oai-row" style="display:none">
+      <label>OPENAI API KEY</label>
+      <input type="password" id="cfg-oai-key" placeholder="sk-..." autocomplete="off"/>
+      <div class="cfg-hint">Get it at platform.openai.com → API Keys → Create new secret key</div>
+    </div>
+    <button class="cfg-save" onclick="saveCfg()">SAVE CONFIGURATION</button>
+  </div>
+</div>
 
 <canvas id="canvas"></canvas>
 <div class="arc arc-tl"></div>
@@ -277,6 +428,7 @@ header::before{
         <div class="status-dot" id="status-dot"></div>
         <span id="status-text">ONLINE</span>
       </div>
+      <button id="settings-btn" title="Voice settings">⚙</button>
       <button id="mic-btn" title="Activate voice: say 'daddy's home'">🎙️</button>
     </div>
   </header>
@@ -393,6 +545,61 @@ header::before{
       </div>
     </div>
 
+  </div>
+
+  <!-- VOICE COMMAND PANEL -->
+  <div class="panel fade-panel" style="transition-delay:0.35s;margin-bottom:20px;">
+    <div class="panel-inner-tl"></div><div class="panel-inner-br"></div>
+    <div class="scanline" style="animation-delay:5s"></div>
+    <div class="panel-title">VOICE COMMAND INTERFACE</div>
+    <div class="voice-layout">
+
+      <!-- ORB -->
+      <div class="voice-orb-col">
+        <div class="v-orb" id="v-orb" onclick="toggleVoice()">
+          <div class="v-ring v-ring-1"></div>
+          <div class="v-ring v-ring-2"></div>
+          <div class="v-ring v-ring-3"></div>
+          <div class="v-dots">
+            <div class="v-dot"></div><div class="v-dot"></div>
+            <div class="v-dot"></div><div class="v-dot"></div>
+          </div>
+          <div class="v-core">
+            <span class="v-core-icon">🎙</span>
+            <div class="v-bars">
+              <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+              <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+              <div class="v-bar"></div>
+            </div>
+            <span class="v-core-lbl" id="v-core-lbl">TAP TO SPEAK</span>
+          </div>
+        </div>
+        <div class="v-status-lbl" id="v-status-lbl">SYSTEM READY</div>
+      </div>
+
+      <!-- TRANSCRIPT -->
+      <div class="voice-transcript-col">
+        <div class="v-transcript-block">
+          <div class="v-t-label">// YOU</div>
+          <div class="v-t-text" id="v-you-text">—<span class="v-cursor" id="v-cursor"></span></div>
+        </div>
+        <div class="v-transcript-block">
+          <div class="v-t-label">// JARVIS</div>
+          <div class="v-t-text jarvis-text" id="v-jarvis-text">Awaiting input, sir.</div>
+        </div>
+        <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border);">
+          <div style="font-size:0.62rem;color:var(--dim);opacity:0.5;line-height:1.6">
+            Tap the orb to speak. JARVIS will respond in your configured voice.<br/>
+            <span id="v-voice-name" style="color:var(--cyan);opacity:0.8;">Voice: loading...</span>
+            &nbsp;·&nbsp;
+            <span id="v-backend-name" style="color:var(--cyan);opacity:0.8;">Backend: Echo</span>
+            &nbsp;·&nbsp;
+            <span style="cursor:pointer;text-decoration:underline;" onclick="document.getElementById('voice-cfg-overlay').classList.add('open')">Configure ⚙</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- ROW 2 -->
@@ -541,8 +748,42 @@ vitals.forEach(v=>{
   setTimeout(update,1000);
 });
 
-// ─── TTS JARVIS VOICE ───
-function jarvisSpeak(text,cb){
+// ─── CONFIG STORAGE ───
+const CFG={
+  get el_key(){return localStorage.getItem('jarvis_el_key')||'';},
+  get el_voice(){return localStorage.getItem('jarvis_el_voice')||'';},
+  get el_voice_name(){return localStorage.getItem('jarvis_el_voice_name')||'Default';},
+  get oai_key(){return localStorage.getItem('jarvis_oai_key')||'';},
+  get backend(){return localStorage.getItem('jarvis_backend')||'echo';},
+};
+
+// ─── ELEVENLABS TTS ───
+async function elSpeak(text){
+  const key=CFG.el_key;
+  if(!key) return browserSpeak(text);
+  const voiceId=CFG.el_voice||'pNInz6obpgDQGcFmaJgB'; // Adam default
+  setVOrb('speaking'); setVLabel('SPEAKING'); setVStatus('TRANSMITTING...');
+  try{
+    const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
+      method:'POST',
+      headers:{'xi-api-key':key,'Content-Type':'application/json'},
+      body:JSON.stringify({text,model_id:'eleven_monolingual_v1',voice_settings:{stability:0.5,similarity_boost:0.75}})
+    });
+    if(!res.ok) throw new Error(await res.text());
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    const audio=new Audio(url);
+    await new Promise((resolve,reject)=>{audio.onended=resolve;audio.onerror=reject;audio.play();});
+    URL.revokeObjectURL(url);
+  } catch(e){
+    console.error('EL TTS error:',e);
+    setVStatus('TTS ERROR — '+String(e.message).substring(0,40).toUpperCase());
+    browserSpeak(text);
+  }
+  setVOrb(''); setVLabel('TAP TO SPEAK'); setVStatus('SYSTEM READY');
+}
+
+function browserSpeak(text,cb){
   if(!window.speechSynthesis)return cb&&cb();
   window.speechSynthesis.cancel();
   const utt=new SpeechSynthesisUtterance(text);
@@ -555,14 +796,172 @@ function jarvisSpeak(text,cb){
   if(cb)utt.onend=cb;
   window.speechSynthesis.speak(utt);
 }
+
+async function jarvisSpeak(text,cb){
+  document.getElementById('v-jarvis-text').textContent=text;
+  await elSpeak(text);
+  if(cb)cb();
+}
+
 function initVoice(){
-  setTimeout(()=>jarvisSpeak("Good evening. All systems are online. Welcome back, Mister Khai."),1500);
-  window.speechSynthesis.removeEventListener('voiceschanged',initVoice);
+  setTimeout(()=>jarvisSpeak("Good evening. All systems are online. Welcome back, Mister Khairi."),1500);
+  if(window.speechSynthesis) window.speechSynthesis.removeEventListener('voiceschanged',initVoice);
 }
 if(window.speechSynthesis){
   if(window.speechSynthesis.getVoices().length>0)initVoice();
   else window.speechSynthesis.addEventListener('voiceschanged',initVoice);
+} else { initVoice(); }
+
+// ─── VOICE COMMAND ORB ───
+let vListening=false,vRec=null,vTranscript='';
+
+function setVOrb(state){
+  const orb=document.getElementById('v-orb');
+  orb.classList.remove('listening','speaking');
+  if(state) orb.classList.add(state);
 }
+function setVLabel(t){document.getElementById('v-core-lbl').textContent=t;}
+function setVStatus(t){document.getElementById('v-status-lbl').textContent=t;}
+
+function toggleVoice(){
+  if(vListening) finalizeVoice();
+  else startVoiceListen();
+}
+
+function startVoiceListen(){
+  vTranscript='';
+  const youEl=document.getElementById('v-you-text');
+  const cursorEl=document.getElementById('v-cursor');
+  youEl.textContent=''; youEl.appendChild(cursorEl);
+  document.getElementById('v-jarvis-text').textContent='...';
+
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){setVStatus('SPEECH API NOT SUPPORTED — USE CHROME');return;}
+  vRec=new SR();
+  vRec.continuous=true;vRec.interimResults=true;vRec.lang='en-US';
+  vRec.onresult=e=>{
+    let final='',interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal)final+=t; else interim+=t;
+    }
+    vTranscript+=final;
+    youEl.textContent=(vTranscript+interim)||'';
+    youEl.appendChild(cursorEl);
+    // Detect "daddy's home"
+    const full=(vTranscript+interim).toLowerCase();
+    if(full.includes("daddy's home")||full.includes("daddys home")||full.includes("daddy is home")){
+      vRec.stop();vListening=false;setVOrb('');setVLabel('TAP TO SPEAK');
+      document.getElementById('v-cursor').style.opacity='0';
+      daddysHome();
+    }
+  };
+  vRec.onerror=e=>{setVStatus('MIC ERROR: '+e.error.toUpperCase());stopVoiceListen();};
+  vRec.onend=()=>{if(vListening)finalizeVoice();};
+
+  vListening=true;
+  setVOrb('listening');
+  setVLabel('LISTENING');
+  setVStatus('LISTENING — SPEAK NOW');
+  document.getElementById('v-cursor').style.opacity='1';
+  try{vRec.start();}catch(e){setVStatus('MIC START FAILED');}
+}
+
+function stopVoiceListen(){
+  vListening=false;
+  if(vRec){try{vRec.stop();}catch(e){}vRec=null;}
+  setVOrb(''); setVLabel('TAP TO SPEAK'); setVStatus('SYSTEM READY');
+  document.getElementById('v-cursor').style.opacity='0';
+}
+
+async function finalizeVoice(){
+  if(vRec){try{vRec.stop();}catch(e){}}
+  vListening=false;
+  document.getElementById('v-cursor').style.opacity='0';
+  const text=vTranscript.trim();
+  if(!text){stopVoiceListen();setVStatus('NO INPUT DETECTED');return;}
+  setVOrb('');setVLabel('PROCESSING');setVStatus('PROCESSING...');
+  const reply=await getVoiceReply(text);
+  await jarvisSpeak(reply);
+}
+
+async function getVoiceReply(text){
+  if(CFG.backend==='openai'&&CFG.oai_key){
+    try{
+      const res=await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+CFG.oai_key},
+        body:JSON.stringify({model:'gpt-4o',messages:[
+          {role:'system',content:'You are JARVIS — the AI from Iron Man. Respond in JARVIS style: helpful, precise, slightly dry wit, concise (2 sentences max). Address Shameel as "sir" or "Mr. Khai".'},
+          {role:'user',content:text}
+        ]})
+      });
+      const d=await res.json();
+      return d.choices?.[0]?.message?.content||'No response generated, sir.';
+    } catch(e){return 'OpenAI connection failed, sir. Check your key.';}
+  }
+  // Echo mode
+  const echoes=[
+    `Understood, sir. You said: "${text}".`,
+    `Processing your request, sir: "${text}".`,
+    `Acknowledged. Running that now — "${text}".`
+  ];
+  return echoes[Math.floor(Math.random()*echoes.length)];
+}
+
+// ─── CONFIG OVERLAY ───
+async function loadVoiceList(){
+  const key=document.getElementById('cfg-el-key').value.trim();
+  const sel=document.getElementById('cfg-voice-sel');
+  if(!key){sel.innerHTML='<option>Enter API key first</option>';return;}
+  sel.innerHTML='<option>Loading...</option>';
+  try{
+    const res=await fetch('https://api.elevenlabs.io/v1/voices',{headers:{'xi-api-key':key}});
+    const d=await res.json();
+    if(!d.voices) throw new Error();
+    sel.innerHTML=d.voices.map(v=>`<option value="${v.voice_id}"${v.voice_id===CFG.el_voice?' selected':''}>${v.name}</option>`).join('');
+    if(CFG.el_voice) sel.value=CFG.el_voice;
+  } catch(e){sel.innerHTML='<option>Load failed — check key</option>';}
+}
+
+document.getElementById('settings-btn').addEventListener('click',()=>{
+  const overlay=document.getElementById('voice-cfg-overlay');
+  document.getElementById('cfg-el-key').value=CFG.el_key;
+  document.getElementById('cfg-oai-key').value=CFG.oai_key;
+  document.getElementById('cfg-backend').value=CFG.backend;
+  document.getElementById('cfg-oai-row').style.display=CFG.backend==='openai'?'block':'none';
+  if(CFG.el_key) loadVoiceList();
+  overlay.classList.add('open');
+});
+document.getElementById('cfg-el-key').addEventListener('blur',loadVoiceList);
+document.getElementById('cfg-backend').addEventListener('change',function(){
+  document.getElementById('cfg-oai-row').style.display=this.value==='openai'?'block':'none';
+});
+
+function saveCfg(){
+  const key=document.getElementById('cfg-el-key').value.trim();
+  const sel=document.getElementById('cfg-voice-sel');
+  const voiceId=sel.value;
+  const voiceName=sel.options[sel.selectedIndex]?.text||'Default';
+  const oaiKey=document.getElementById('cfg-oai-key').value.trim();
+  const backend=document.getElementById('cfg-backend').value;
+  localStorage.setItem('jarvis_el_key',key);
+  localStorage.setItem('jarvis_el_voice',voiceId);
+  localStorage.setItem('jarvis_el_voice_name',voiceName);
+  localStorage.setItem('jarvis_oai_key',oaiKey);
+  localStorage.setItem('jarvis_backend',backend);
+  document.getElementById('v-voice-name').textContent='Voice: '+voiceName;
+  document.getElementById('v-backend-name').textContent='Backend: '+(backend==='openai'?'OpenAI GPT-4o':'Echo');
+  document.getElementById('voice-cfg-overlay').classList.remove('open');
+  setVStatus('CONFIG SAVED');
+  setTimeout(()=>setVStatus('SYSTEM READY'),2000);
+}
+
+// Init config display
+window.addEventListener('load',()=>{
+  document.getElementById('v-voice-name').textContent='Voice: '+(CFG.el_voice_name||'Not set — click Configure');
+  document.getElementById('v-backend-name').textContent='Backend: '+(CFG.backend==='openai'?'OpenAI GPT-4o':'Echo');
+});
 
 // ─── DADDY'S HOME TRIGGER ───
 function daddysHome(){
@@ -593,7 +992,7 @@ function daddysHome(){
   });
 
   // Speak
-  jarvisSpeak("Welcome home, Mister Khai. All systems reporting nominal. Claw Creative is fully operational.");
+  jarvisSpeak("Welcome home, Mister Khairi. All systems reporting nominal. Claw Creative is fully operational.");
 
   // Reset after 4s
   setTimeout(()=>{
@@ -604,28 +1003,10 @@ function daddysHome(){
   },4000);
 }
 
-// ─── MIC BUTTON ───
+// ─── HEADER MIC BUTTON (daddy's home shortcut) ───
 const micBtn=document.getElementById('mic-btn');
-let recognition=null;
-if('SpeechRecognition' in window||'webkitSpeechRecognition' in window){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition=new SR();
-  recognition.continuous=true;recognition.lang='en-US';
-  recognition.onresult=e=>{
-    const t=Array.from(e.results).map(r=>r[0].transcript).join(' ').toLowerCase();
-    if(t.includes("daddy's home")||t.includes("daddy is home")||t.includes("daddys home")){
-      recognition.stop();micBtn.classList.remove('listening');daddysHome();
-    }
-  };
-  recognition.onend=()=>micBtn.classList.remove('listening');
-  micBtn.addEventListener('click',()=>{
-    if(micBtn.classList.contains('listening')){recognition.stop();micBtn.classList.remove('listening');}
-    else{recognition.start();micBtn.classList.add('listening');}
-  });
-} else {
-  micBtn.title='Voice not supported in this browser';
-  micBtn.style.opacity='0.4';
-}
+micBtn.title="Voice shortcut: say 'daddy's home'";
+micBtn.addEventListener('click',()=>toggleVoice());
 
 // ─── KEYBOARD TRIGGER ───
 let keyBuffer='';
