@@ -389,14 +389,14 @@ header::before{
         <label>AI BACKEND</label>
         <select id="cfg-backend">
           <option value="echo">Echo mode (no AI key)</option>
-          <option value="openai">OpenAI GPT-4o</option>
+          <option value="claude">Claude (Anthropic)</option>
         </select>
       </div>
     </div>
     <div class="cfg-field" id="cfg-oai-row" style="display:none">
-      <label>OPENAI API KEY</label>
-      <input type="password" id="cfg-oai-key" placeholder="sk-..." autocomplete="off"/>
-      <div class="cfg-hint">Get it at platform.openai.com → API Keys → Create new secret key</div>
+      <label>ANTHROPIC (CLAUDE) API KEY</label>
+      <input type="password" id="cfg-oai-key" placeholder="sk-ant-..." autocomplete="off"/>
+      <div class="cfg-hint">Get it at console.anthropic.com → API Keys → Create Key</div>
     </div>
     <button class="cfg-save" onclick="saveCfg()">SAVE CONFIGURATION</button>
   </div>
@@ -753,7 +753,7 @@ const CFG={
   get el_key(){return localStorage.getItem('jarvis_el_key')||'';},
   get el_voice(){return localStorage.getItem('jarvis_el_voice')||'';},
   get el_voice_name(){return localStorage.getItem('jarvis_el_voice_name')||'Default';},
-  get oai_key(){return localStorage.getItem('jarvis_oai_key')||'';},
+  get claude_key(){return localStorage.getItem('jarvis_claude_key')||'';},
   get backend(){return localStorage.getItem('jarvis_backend')||'echo';},
 };
 
@@ -806,7 +806,7 @@ async function jarvisSpeak(text,cb){
 function initVoice(){
   const hour=new Date().getHours();
   const greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
-  setTimeout(()=>jarvisSpeak(`${greeting}! I'm Clara, your personal assistant for Claw Creative. How can I help you streamline your day or assist with any Claw Creative tasks today?`),1500);
+  setTimeout(()=>jarvisSpeak(`${greeting}! I'm JARVIS, your personal assistant for Claw Creative. How can I help you streamline your day or assist with any Claw Creative tasks today?`),1500);
   if(window.speechSynthesis) window.speechSynthesis.removeEventListener('voiceschanged',initVoice);
 }
 if(window.speechSynthesis){
@@ -887,8 +887,8 @@ async function finalizeVoice(){
   await jarvisSpeak(reply);
 }
 
-const CLARA_SYSTEM_PROMPT=`### Personality
-You are Clara, a highly efficient and organized personal AI assistant dedicated to supporting the user with all matters related to Claw Creative. You are friendly, proactive, and meticulous, always aiming to streamline workflows and provide accurate, timely information. You anticipate needs and offer helpful suggestions.
+const JARVIS_SYSTEM_PROMPT=`### Personality
+You are JARVIS, a highly efficient and organized personal AI assistant dedicated to supporting the user with all matters related to Claw Creative. You are friendly, proactive, and meticulous, always aiming to streamline workflows and provide accurate, timely information. You anticipate needs and offer helpful suggestions.
 
 ### Environment
 You are interacting with the user via a voice interface, likely in a hands-free scenario. The user expects quick, precise responses to manage their daily tasks and information needs concerning Claw Creative projects, team members, and schedules. You have access to a comprehensive, up-to-date database of Claw Creative's operations, projects, and resources.
@@ -911,19 +911,26 @@ Claw Creative is a web agency based in Indianapolis targeting small businesses. 
 Always remain within the scope of Claw Creative related topics and tasks. Do not engage in personal opinions, provide medical, financial, or legal advice, or discuss unrelated topics. Maintain a helpful and professional demeanor at all times. Never disclose sensitive or confidential information unless explicitly instructed.`;
 
 async function getVoiceReply(text){
-  if(CFG.backend==='openai'&&CFG.oai_key){
+  if(CFG.backend==='claude'&&CFG.claude_key){
     try{
-      const res=await fetch('https://api.openai.com/v1/chat/completions',{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+CFG.oai_key},
-        body:JSON.stringify({model:'gpt-4o',messages:[
-          {role:'system',content:CLARA_SYSTEM_PROMPT},
-          {role:'user',content:text}
-        ]})
+        headers:{
+          'Content-Type':'application/json',
+          'x-api-key':CFG.claude_key,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body:JSON.stringify({
+          model:'claude-opus-4-5',
+          max_tokens:256,
+          system:JARVIS_SYSTEM_PROMPT,
+          messages:[{role:'user',content:text}]
+        })
       });
       const d=await res.json();
-      return d.choices?.[0]?.message?.content||'No response generated.';
-    } catch(e){return 'I seem to be having trouble connecting, Shameel. Could you check the network?';}
+      return d.content?.[0]?.text||'No response generated, sir.';
+    } catch(e){return 'I seem to be having trouble connecting, sir. Could you check the network?';}
   }
   // Echo mode
   const echoes=[
@@ -952,15 +959,15 @@ async function loadVoiceList(){
 document.getElementById('settings-btn').addEventListener('click',()=>{
   const overlay=document.getElementById('voice-cfg-overlay');
   document.getElementById('cfg-el-key').value=CFG.el_key;
-  document.getElementById('cfg-oai-key').value=CFG.oai_key;
+  document.getElementById('cfg-oai-key').value=CFG.claude_key;
   document.getElementById('cfg-backend').value=CFG.backend;
-  document.getElementById('cfg-oai-row').style.display=CFG.backend==='openai'?'block':'none';
+  document.getElementById('cfg-oai-row').style.display=CFG.backend==='claude'?'block':'none';
   if(CFG.el_key) loadVoiceList();
   overlay.classList.add('open');
 });
 document.getElementById('cfg-el-key').addEventListener('blur',loadVoiceList);
 document.getElementById('cfg-backend').addEventListener('change',function(){
-  document.getElementById('cfg-oai-row').style.display=this.value==='openai'?'block':'none';
+  document.getElementById('cfg-oai-row').style.display=this.value==='claude'?'block':'none';
 });
 
 function saveCfg(){
@@ -968,15 +975,15 @@ function saveCfg(){
   const sel=document.getElementById('cfg-voice-sel');
   const voiceId=sel.value;
   const voiceName=sel.options[sel.selectedIndex]?.text||'Default';
-  const oaiKey=document.getElementById('cfg-oai-key').value.trim();
+  const claudeKey=document.getElementById('cfg-oai-key').value.trim();
   const backend=document.getElementById('cfg-backend').value;
   localStorage.setItem('jarvis_el_key',key);
   localStorage.setItem('jarvis_el_voice',voiceId);
   localStorage.setItem('jarvis_el_voice_name',voiceName);
-  localStorage.setItem('jarvis_oai_key',oaiKey);
+  localStorage.setItem('jarvis_claude_key',claudeKey);
   localStorage.setItem('jarvis_backend',backend);
   document.getElementById('v-voice-name').textContent='Voice: '+voiceName;
-  document.getElementById('v-backend-name').textContent='Backend: '+(backend==='openai'?'OpenAI GPT-4o':'Echo');
+  document.getElementById('v-backend-name').textContent='Backend: '+(backend==='claude'?'Claude (Anthropic)':'Echo');
   document.getElementById('voice-cfg-overlay').classList.remove('open');
   setVStatus('CONFIG SAVED');
   setTimeout(()=>setVStatus('SYSTEM READY'),2000);
@@ -985,7 +992,7 @@ function saveCfg(){
 // Init config display
 window.addEventListener('load',()=>{
   document.getElementById('v-voice-name').textContent='Voice: '+(CFG.el_voice_name||'Not set — click Configure');
-  document.getElementById('v-backend-name').textContent='Backend: '+(CFG.backend==='openai'?'OpenAI GPT-4o':'Echo');
+  document.getElementById('v-backend-name').textContent='Backend: '+(CFG.backend==='claude'?'Claude (Anthropic)':'Echo');
 });
 
 // ─── DADDY'S HOME TRIGGER ───
