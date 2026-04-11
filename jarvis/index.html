@@ -3,276 +3,195 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>J.A.R.V.I.S — Claw Creative Command</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<title>J.A.R.V.I.S — Claw Creative</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#050a0e;
+  --bg:#030810;
   --cyan:#00d4ff;
-  --cyan2:#0088bb;
   --green:#00ff88;
-  --orange:#ff8800;
+  --amber:#ffb347;
   --yellow:#ffcc00;
   --red:#ff3366;
-  --amber:#ffb347;
+  --border:rgba(0,212,255,0.18);
   --panel:rgba(0,212,255,0.04);
-  --border:rgba(0,212,255,0.14);
   --text:#c8f0ff;
-  --dim:rgba(200,240,255,0.4);
+  --dim:rgba(200,240,255,0.45);
   --font:'Orbitron',sans-serif;
   --mono:'Share Tech Mono',monospace;
 }
-html,body{height:100%;overflow:hidden;}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--mono);
-  display:flex;
-  flex-direction:column;
-}
-
-/* CANVAS BACKGROUND */
+body{background:var(--bg);color:var(--text);font-family:var(--mono);overflow-x:hidden;min-height:100vh;}
 #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:1;}
 
-/* SCANLINE */
-body::after{
-  content:'';position:fixed;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
-  pointer-events:none;z-index:1;
-}
+/* ── TOPBAR ── */
+#topbar{position:fixed;top:0;left:0;right:0;height:50px;z-index:200;background:rgba(3,8,16,0.96);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;backdrop-filter:blur(12px);}
+#tb-logo{font-family:var(--font);font-weight:900;font-size:15px;letter-spacing:6px;color:var(--cyan);text-shadow:0 0 16px rgba(0,212,255,0.8);}
+#tb-center{display:flex;gap:24px;}
+.tbi{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:2px;color:var(--dim);}
+.tbd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);animation:pd 2.5s ease-in-out infinite;}
+.tbd.y{background:var(--yellow);box-shadow:0 0 7px var(--yellow);}
+.tbd.r{background:var(--red);box-shadow:0 0 7px var(--red);}
+@keyframes pd{0%,100%{opacity:1;}50%{opacity:0.3;}}
+#tb-clock{font-family:var(--font);font-size:16px;letter-spacing:3px;color:var(--cyan);text-shadow:0 0 10px rgba(0,212,255,0.6);}
 
-/* ── TOP BAR ── */
-#topbar{
-  position:relative;z-index:100;
-  height:44px;flex-shrink:0;
-  background:rgba(5,10,14,0.95);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;
-  backdrop-filter:blur(10px);
-}
-#topbar-logo{font-family:var(--font);font-weight:900;font-size:13px;letter-spacing:5px;color:var(--cyan);text-shadow:0 0 14px rgba(0,212,255,0.7);}
-#topbar-center{display:flex;gap:18px;align-items:center;}
-.tb-ind{display:flex;align-items:center;gap:5px;font-size:9px;letter-spacing:2px;color:var(--dim);}
-.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pdot 2s ease-in-out infinite;}
-.tb-dot.warn{background:var(--yellow);box-shadow:0 0 6px var(--yellow);}
-@keyframes pdot{0%,100%{opacity:1;}50%{opacity:0.3;}}
-#clock{font-family:var(--font);font-size:14px;letter-spacing:3px;color:var(--cyan);text-shadow:0 0 8px rgba(0,212,255,0.5);}
+/* ── PAGE CONTENT ── */
+#page{position:relative;z-index:10;padding-top:58px;}
 
-/* ── CONVERSATION PANELS (prominent, top) ── */
-#conv-row{
-  position:relative;z-index:10;
-  flex-shrink:0;
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;
-  padding:10px 16px 8px;
-  background:rgba(5,10,14,0.6);
-  border-bottom:1px solid var(--border);
-}
-.conv-panel{
-  background:rgba(0,212,255,0.04);
-  border:1px solid var(--border);
-  border-radius:3px;
-  padding:10px 14px;
-  position:relative;
-  min-height:80px;
-}
-.conv-panel::before,.conv-panel::after{content:'';position:absolute;width:10px;height:10px;border-color:var(--cyan);border-style:solid;}
-.conv-panel::before{top:0;left:0;border-width:1px 0 0 1px;}
-.conv-panel::after{bottom:0;right:0;border-width:0 1px 1px 0;}
-.conv-lbl{font-size:8px;letter-spacing:3px;color:rgba(0,212,255,0.4);margin-bottom:6px;font-family:var(--font);}
-#you-said{font-size:15px;line-height:1.5;color:rgba(200,240,255,0.85);min-height:1.5em;}
-#jarvis-said{font-size:15px;line-height:1.5;color:rgba(255,179,71,0.9);min-height:1.5em;}
+/* ── SECTION WRAPPER ── */
+.sec{padding:24px 28px;}
+.sec-title{font-family:var(--font);font-size:10px;letter-spacing:5px;color:rgba(0,212,255,0.4);margin-bottom:18px;display:flex;align-items:center;gap:12px;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* ── MAIN AREA ── */
-#main-area{
-  position:relative;z-index:10;
-  flex:1;overflow:hidden;
-  display:grid;
-  grid-template-columns:1fr 360px 1fr;
-  gap:10px;
-  padding:10px 16px;
-}
+/* ── CONVERSATION ── */
+#conv-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px 28px;}
+.cp{background:rgba(0,212,255,0.05);border:1px solid var(--border);border-radius:4px;padding:18px 22px;position:relative;min-height:90px;}
+.cp::before,.cp::after{content:'';position:absolute;width:12px;height:12px;border-color:rgba(0,212,255,0.6);border-style:solid;}
+.cp::before{top:0;left:0;border-width:1.5px 0 0 1.5px;}
+.cp::after{bottom:0;right:0;border-width:0 1.5px 1.5px 0;}
+.cp-lbl{font-size:9px;letter-spacing:4px;color:rgba(0,212,255,0.4);margin-bottom:10px;font-family:var(--font);}
+#you-said{font-size:18px;line-height:1.6;color:rgba(200,240,255,0.9);}
+#jarvis-said{font-size:18px;line-height:1.6;color:rgba(255,179,71,0.95);}
 
-/* ── SIDE PANELS ── */
-.side-col{display:flex;flex-direction:column;gap:10px;}
-.hud-panel{
-  background:rgba(0,212,255,0.03);
-  border:1px solid var(--border);
-  border-radius:3px;
-  padding:12px 14px;
-  flex:1;
-  position:relative;
-  overflow:hidden;
-}
-.hud-panel::before,.hud-panel::after{content:'';position:absolute;width:8px;height:8px;border-color:rgba(0,212,255,0.4);border-style:solid;}
-.hud-panel::before{top:0;left:0;border-width:1px 0 0 1px;}
-.hud-panel::after{bottom:0;right:0;border-width:0 1px 1px 0;}
-.hp-title{font-family:var(--font);font-size:8px;letter-spacing:3px;color:rgba(0,212,255,0.5);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.hp-title::after{content:'';flex:1;height:1px;background:rgba(0,212,255,0.12);}
-
-/* waveform */
-#wf-canvas{width:100%;height:56px;display:block;}
-/* signal bars */
-#sig-bars{display:flex;align-items:flex-end;gap:2px;height:46px;padding:4px 0;}
-.sig-bar{flex:1;background:var(--cyan);border-radius:1px;min-height:2px;box-shadow:0 0 3px var(--cyan);transition:height 0.1s ease;}
-/* history log */
-#history-log{overflow-y:auto;max-height:100%;display:flex;flex-direction:column;gap:5px;}
-#history-log::-webkit-scrollbar{width:3px;}
-#history-log::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);}
-.log-e{font-size:10px;line-height:1.5;color:rgba(200,240,255,0.45);border-bottom:1px solid rgba(0,212,255,0.06);padding-bottom:4px;}
-.log-e .lr{font-size:9px;color:rgba(0,212,255,0.3);letter-spacing:1px;}
-/* metrics */
-.met-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(0,212,255,0.06);font-size:10px;}
-.met-row:last-child{border-bottom:none;}
-.met-lbl{color:rgba(200,240,255,0.45);letter-spacing:1px;}
-.met-right{display:flex;align-items:center;gap:8px;}
-.met-bar{width:60px;height:2px;background:rgba(0,212,255,0.1);border-radius:1px;overflow:hidden;}
-.met-fill{height:100%;background:var(--cyan);box-shadow:0 0 4px var(--cyan);border-radius:1px;transition:width 1s ease;}
-.met-val{font-size:11px;color:var(--cyan);text-shadow:0 0 6px var(--cyan);min-width:36px;text-align:right;}
-/* radar */
-#radar-canvas{display:block;margin:0 auto;}
-/* latency chart */
-#lat-canvas{width:100%;height:60px;display:block;}
-
-/* ── CENTER COLUMN ── */
-#center-col{
-  display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:10px;
-}
-#orb-wrap{
-  position:relative;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-}
-#orb-wrap::before,#orb-wrap::after{
-  content:'';position:absolute;width:16px;height:16px;
-  border-color:rgba(0,212,255,0.5);border-style:solid;
-  z-index:2;pointer-events:none;
-}
-#orb-wrap::before{top:-4px;left:-4px;border-width:1.5px 0 0 1.5px;}
-#orb-wrap::after{bottom:-4px;right:-4px;border-width:0 1.5px 1.5px 0;}
-.orb-corner{position:absolute;width:16px;height:16px;border-color:rgba(0,212,255,0.5);border-style:solid;pointer-events:none;z-index:2;}
-.orb-corner.tr{top:-4px;right:-4px;border-width:1.5px 1.5px 0 0;}
-.orb-corner.bl{bottom:-4px;left:-4px;border-width:0 0 1.5px 1.5px;}
-#orb-canvas{display:block;border-radius:50%;}
-#orb-state{font-family:var(--font);font-size:11px;letter-spacing:4px;color:var(--cyan);text-shadow:0 0 10px var(--cyan);text-align:center;}
-#orb-status{font-size:9px;letter-spacing:2px;color:rgba(0,212,255,0.45);text-align:center;}
-/* sound bars under orb when speaking */
-#sound-bars{display:none;align-items:flex-end;gap:3px;height:20px;margin-top:-4px;}
+/* ── ORB SECTION ── */
+#orb-sec{display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 28px 24px;}
+#orb-outer{position:relative;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+/* corner brackets */
+#orb-outer::before,#orb-outer::after,.oc{position:absolute;width:20px;height:20px;border-color:rgba(0,212,255,0.6);border-style:solid;pointer-events:none;}
+#orb-outer::before{top:-6px;left:-6px;border-width:2px 0 0 2px;}
+#orb-outer::after{bottom:-6px;right:-6px;border-width:0 2px 2px 0;}
+.oc.tr{top:-6px;right:-6px;border-width:2px 2px 0 0;}
+.oc.bl{bottom:-6px;left:-6px;border-width:0 0 2px 2px;}
+#orb-canvas{display:block;}
+#orb-info{text-align:center;}
+#orb-state-lbl{font-family:var(--font);font-size:16px;letter-spacing:6px;color:var(--cyan);text-shadow:0 0 14px rgba(0,212,255,0.7);margin-bottom:6px;}
+#orb-status-lbl{font-size:11px;letter-spacing:3px;color:rgba(0,212,255,0.5);}
+#sound-bars{display:none;align-items:flex-end;gap:4px;height:24px;margin-top:8px;justify-content:center;}
 #sound-bars.show{display:flex;}
-.sbar{width:3px;border-radius:2px;background:var(--amber);box-shadow:0 0 4px var(--amber);animation:sdance 0.4s ease-in-out infinite alternate;}
-.sbar:nth-child(1){height:6px;animation-delay:0s;}
-.sbar:nth-child(2){height:14px;animation-delay:0.1s;}
-.sbar:nth-child(3){height:20px;animation-delay:0.05s;}
-.sbar:nth-child(4){height:10px;animation-delay:0.15s;}
-.sbar:nth-child(5){height:16px;animation-delay:0.08s;}
-.sbar:nth-child(6){height:8px;animation-delay:0.12s;}
-.sbar:nth-child(7){height:18px;animation-delay:0.03s;}
-@keyframes sdance{from{transform:scaleY(0.3);}to{transform:scaleY(1);}}
-
-/* loading dots */
-#loading-dots{font-size:16px;color:var(--yellow);letter-spacing:4px;height:20px;text-align:center;display:none;}
+.sbar{width:4px;border-radius:2px;background:var(--amber);box-shadow:0 0 5px var(--amber);animation:sb .4s ease-in-out infinite alternate;}
+.sbar:nth-child(1){height:7px;animation-delay:0s;}
+.sbar:nth-child(2){height:15px;animation-delay:.1s;}
+.sbar:nth-child(3){height:24px;animation-delay:.05s;}
+.sbar:nth-child(4){height:11px;animation-delay:.15s;}
+.sbar:nth-child(5){height:18px;animation-delay:.08s;}
+.sbar:nth-child(6){height:9px;animation-delay:.12s;}
+.sbar:nth-child(7){height:20px;animation-delay:.03s;}
+@keyframes sb{from{transform:scaleY(.3);}to{transform:scaleY(1);}}
+#loading-dots{font-size:20px;color:var(--yellow);letter-spacing:6px;text-align:center;margin-top:6px;display:none;}
 #loading-dots.show{display:block;}
 
-/* ── STATUS GRID (bottom, below main area) ── */
-#status-row{
-  position:relative;z-index:10;
-  flex-shrink:0;
-  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
-  padding:0 16px 8px;
-  max-height:180px;
-  overflow:hidden;
-}
-.sp{
-  background:rgba(0,212,255,0.03);
-  border:1px solid var(--border);
-  border-radius:3px;
-  padding:10px 14px;
-  overflow:hidden;
-  position:relative;
-}
-.sp::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0.3;}
-.sp-title{font-family:var(--font);font-size:8px;letter-spacing:3px;color:var(--cyan);margin-bottom:8px;}
-.sr{display:flex;justify-content:space-between;font-size:10px;padding:3px 0;border-bottom:1px solid rgba(0,212,255,0.06);}
+/* ── CHARTS ROW ── */
+#charts-row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:0 28px 24px;}
+.chart-panel{background:rgba(0,212,255,0.03);border:1px solid var(--border);border-radius:4px;padding:16px 18px;position:relative;}
+.chart-panel::before,.chart-panel::after{content:'';position:absolute;width:8px;height:8px;border-color:rgba(0,212,255,0.35);border-style:solid;}
+.chart-panel::before{top:0;left:0;border-width:1px 0 0 1px;}
+.chart-panel::after{bottom:0;right:0;border-width:0 1px 1px 0;}
+.cp-title{font-family:var(--font);font-size:9px;letter-spacing:3px;color:rgba(0,212,255,0.45);margin-bottom:12px;}
+#wf-canvas{width:100%;height:70px;display:block;}
+#sig-bars{display:flex;align-items:flex-end;gap:2.5px;height:70px;}
+.sb2{flex:1;border-radius:1px;min-height:3px;background:var(--cyan);box-shadow:0 0 3px var(--cyan);transition:height .1s;}
+#radar-canvas{display:block;margin:0 auto;}
+
+/* ── METRICS + LATENCY ROW ── */
+#metrics-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 28px 24px;}
+.met-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,212,255,0.07);font-size:12px;}
+.met-row:last-child{border-bottom:none;}
+.met-lbl{color:var(--dim);letter-spacing:1px;}
+.met-right{display:flex;align-items:center;gap:10px;}
+.met-bar{width:80px;height:3px;background:rgba(0,212,255,0.1);border-radius:2px;overflow:hidden;}
+.met-fill{height:100%;background:var(--cyan);box-shadow:0 0 5px var(--cyan);border-radius:2px;transition:width 1.2s ease;}
+.met-val{font-size:13px;color:var(--cyan);text-shadow:0 0 6px var(--cyan);min-width:38px;text-align:right;}
+#lat-canvas{width:100%;height:80px;display:block;}
+
+/* ── SPOTIFY ── */
+#spotify-sec{padding:0 28px 24px;}
+.sp-panel{background:rgba(0,212,255,0.03);border:1px solid var(--border);border-radius:4px;padding:20px 24px;position:relative;}
+.sp-panel::before,.sp-panel::after{content:'';position:absolute;width:10px;height:10px;border-color:rgba(0,212,255,0.4);border-style:solid;}
+.sp-panel::before{top:0;left:0;border-width:1.5px 0 0 1.5px;}
+.sp-panel::after{bottom:0;right:0;border-width:0 1.5px 1.5px 0;}
+/* connect state */
+#spotify-connect{display:flex;flex-direction:column;gap:14px;}
+.sp-instruct{font-size:12px;line-height:1.7;color:var(--dim);}
+.sp-instruct a{color:var(--cyan);}
+.sp-input-row{display:flex;gap:10px;align-items:center;}
+#sp-client-id{background:rgba(0,212,255,0.06);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:var(--mono);font-size:13px;border-radius:3px;flex:1;outline:none;}
+#sp-client-id:focus{border-color:var(--cyan);}
+.sp-btn{font-family:var(--font);font-size:10px;letter-spacing:2px;padding:10px 22px;background:transparent;border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;border-radius:3px;transition:all .2s;}
+.sp-btn:hover{background:var(--cyan);color:#030810;}
+.sp-btn.small{font-size:9px;padding:8px 16px;}
+.sp-btn.red{border-color:var(--red);color:var(--red);}
+.sp-btn.red:hover{background:var(--red);color:#030810;}
+/* player state */
+#spotify-player{display:none;}
+#sp-now-row{display:flex;align-items:center;gap:20px;}
+#sp-art{width:90px;height:90px;border-radius:4px;border:1px solid var(--border);object-fit:cover;background:rgba(0,212,255,0.05);flex-shrink:0;}
+#sp-info{flex:1;min-width:0;}
+#sp-track{font-family:var(--font);font-size:16px;letter-spacing:1px;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#sp-artist{font-size:13px;color:var(--cyan);margin-bottom:2px;}
+#sp-album{font-size:11px;color:rgba(0,212,255,0.45);}
+#sp-time{font-size:11px;color:rgba(0,212,255,0.4);margin-top:4px;}
+#sp-prog-bg{width:100%;height:3px;background:rgba(0,212,255,0.12);border-radius:2px;margin-top:8px;overflow:hidden;}
+#sp-progress{height:100%;background:var(--cyan);border-radius:2px;transition:width .5s linear;box-shadow:0 0 6px var(--cyan);}
+#sp-controls{display:flex;align-items:center;gap:12px;margin-top:14px;}
+.sp-ctrl{font-size:20px;background:transparent;border:1px solid var(--border);color:var(--cyan);width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.sp-ctrl:hover{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,212,255,0.3);}
+.sp-ctrl.main{width:52px;height:52px;font-size:22px;border-color:var(--cyan);box-shadow:0 0 8px rgba(0,212,255,0.2);}
+#sp-vol-row{display:flex;align-items:center;gap:8px;margin-left:auto;}
+#sp-vol-lbl{font-size:10px;color:var(--dim);}
+#sp-vol{accent-color:var(--cyan);width:80px;}
+.sp-notplaying{font-size:14px;color:rgba(0,212,255,0.4);margin-top:8px;}
+#sp-disconnect{margin-top:14px;}
+
+/* ── STATUS PANELS ── */
+#status-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:0 28px 24px;}
+.sp2{background:rgba(0,212,255,0.03);border:1px solid var(--border);border-radius:4px;padding:16px 18px;position:relative;}
+.sp2::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0.25;}
+.sp2-title{font-family:var(--font);font-size:9px;letter-spacing:4px;color:var(--cyan);margin-bottom:12px;}
+.sr{display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid rgba(0,212,255,0.07);}
 .sr:last-child{border-bottom:none;}
-.sl{color:rgba(200,240,255,0.45);}
+.sl{color:var(--dim);}
 .sv{color:var(--text);}
 .sv.g{color:var(--green);}
 .sv.y{color:var(--yellow);}
-.le{display:flex;gap:8px;font-size:10px;padding:3px 0;border-bottom:1px solid rgba(0,212,255,0.06);}
+.le{display:flex;gap:10px;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(0,212,255,0.07);}
 .le:last-child{border-bottom:none;}
 .lt{color:var(--cyan);flex-shrink:0;}
-.lm{color:rgba(200,240,255,0.4);}
+.lm{color:var(--dim);}
 
-/* ── STATUS BAR ── */
-#statusbar{
-  position:relative;z-index:100;
-  height:28px;flex-shrink:0;
-  background:rgba(5,10,14,0.95);
-  border-top:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;
-  font-size:9px;letter-spacing:2px;color:rgba(0,212,255,0.4);
-}
-#main-status{color:var(--cyan);text-shadow:0 0 6px var(--cyan);}
+/* ── FOOTER ── */
+footer{text-align:center;padding:20px 28px 32px;font-size:10px;letter-spacing:3px;color:rgba(0,212,255,0.25);border-top:1px solid var(--border);}
 </style>
 </head>
 <body>
-
 <canvas id="bg-canvas"></canvas>
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <div id="topbar">
-  <div id="topbar-logo">J.A.R.V.I.S</div>
-  <div id="topbar-center">
-    <div class="tb-ind"><div class="tb-dot"></div>NEURAL LINK</div>
-    <div class="tb-ind"><div class="tb-dot"></div>VOICE ONLINE</div>
-    <div class="tb-ind"><div class="tb-dot warn" id="claude-dot"></div><span id="claude-status">CLAUDE LINK</span></div>
-    <div class="tb-ind"><div class="tb-dot warn" id="voice-dot"></div><span id="voice-status">VOICE LOAD</span></div>
+  <div id="tb-logo">J.A.R.V.I.S</div>
+  <div id="tb-center">
+    <div class="tbi"><div class="tbd"></div>NEURAL LINK</div>
+    <div class="tbi"><div class="tbd" id="voice-dot"></div><span id="voice-status">VOICE LOAD</span></div>
+    <div class="tbi"><div class="tbd y" id="claude-dot"></div><span id="claude-status">CLAUDE LINK</span></div>
+    <div class="tbi"><div class="tbd y" id="sp-dot"></div><span id="sp-status">SPOTIFY</span></div>
   </div>
-  <div id="clock">--:--:--</div>
+  <div id="tb-clock">--:--:--</div>
 </div>
 
-<!-- CONVERSATION PANELS -->
-<div id="conv-row">
-  <div class="conv-panel">
-    <div class="conv-lbl">▸ YOU SAID</div>
-    <div id="you-said">—</div>
-  </div>
-  <div class="conv-panel">
-    <div class="conv-lbl">▸ JARVIS RESPONSE</div>
-    <div id="jarvis-said">Awaiting your command, sir.</div>
-  </div>
-</div>
+<div id="page">
 
-<!-- MAIN AREA -->
-<div id="main-area">
-
-  <!-- LEFT COLUMN -->
-  <div class="side-col">
-    <div class="hud-panel" style="flex:0 0 auto">
-      <div class="hp-title">AUDIO WAVEFORM</div>
-      <canvas id="wf-canvas" width="300" height="56"></canvas>
-    </div>
-    <div class="hud-panel" style="flex:0 0 auto">
-      <div class="hp-title">SIGNAL ANALYSIS</div>
-      <div id="sig-bars"></div>
-    </div>
-    <div class="hud-panel">
-      <div class="hp-title">CONVERSATION LOG</div>
-      <div id="history-log">
-        <div class="log-e"><span class="lr">SYSTEM ·</span> Interface initialized. Voice engine loading...</div>
-      </div>
-    </div>
+  <!-- CONVERSATION -->
+  <div id="conv-row">
+    <div class="cp"><div class="cp-lbl">▸ YOU SAID</div><div id="you-said">—</div></div>
+    <div class="cp"><div class="cp-lbl">▸ JARVIS RESPONSE</div><div id="jarvis-said">Awaiting your command, sir.</div></div>
   </div>
 
-  <!-- CENTER COLUMN -->
-  <div id="center-col">
-    <div id="orb-wrap" onclick="vpToggle()">
-      <div class="orb-corner tr"></div>
-      <div class="orb-corner bl"></div>
-      <canvas id="orb-canvas" width="320" height="320"></canvas>
+  <!-- ORB -->
+  <div id="orb-sec">
+    <div id="orb-outer" onclick="vpToggle()">
+      <div class="oc tr"></div>
+      <div class="oc bl"></div>
+      <canvas id="orb-canvas" width="500" height="500"></canvas>
     </div>
     <div id="sound-bars">
       <div class="sbar"></div><div class="sbar"></div><div class="sbar"></div>
@@ -280,279 +199,300 @@ body::after{
       <div class="sbar"></div>
     </div>
     <div id="loading-dots">· · ·</div>
-    <div id="orb-state">TAP TO SPEAK</div>
-    <div id="orb-status">SYSTEM READY</div>
+    <div id="orb-info">
+      <div id="orb-state-lbl">TAP TO SPEAK</div>
+      <div id="orb-status-lbl">SYSTEM READY</div>
+    </div>
   </div>
 
-  <!-- RIGHT COLUMN -->
-  <div class="side-col">
-    <div class="hud-panel" style="flex:0 0 auto">
-      <div class="hp-title">SYSTEM METRICS</div>
+  <!-- CHARTS -->
+  <div id="charts-row">
+    <div class="chart-panel">
+      <div class="cp-title">AUDIO WAVEFORM</div>
+      <canvas id="wf-canvas" width="600" height="70"></canvas>
+    </div>
+    <div class="chart-panel">
+      <div class="cp-title">SIGNAL ANALYSIS</div>
+      <div id="sig-bars"></div>
+    </div>
+    <div class="chart-panel" style="display:flex;flex-direction:column;align-items:center;">
+      <div class="cp-title" style="width:100%">NEURAL RADAR</div>
+      <canvas id="radar-canvas" width="140" height="140"></canvas>
+    </div>
+  </div>
+
+  <!-- METRICS + LATENCY -->
+  <div id="metrics-row">
+    <div class="chart-panel">
+      <div class="cp-title">SYSTEM METRICS</div>
       <div class="met-row"><span class="met-lbl">NEURAL LOAD</span><div class="met-right"><div class="met-bar"><div class="met-fill" id="m1" style="width:72%"></div></div><span class="met-val" id="m1v">72%</span></div></div>
       <div class="met-row"><span class="met-lbl">VOICE SYNC</span><div class="met-right"><div class="met-bar"><div class="met-fill" id="m2" style="width:88%"></div></div><span class="met-val" id="m2v">88%</span></div></div>
       <div class="met-row"><span class="met-lbl">RESPONSE</span><div class="met-right"><div class="met-bar"><div class="met-fill" id="m3" style="width:95%"></div></div><span class="met-val" id="m3v">95%</span></div></div>
       <div class="met-row"><span class="met-lbl">SESSION</span><div class="met-right"><span class="met-val" id="uptime">00:00:00</span></div></div>
     </div>
-    <div class="hud-panel" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;">
-      <div class="hp-title" style="width:100%">NEURAL RADAR</div>
-      <canvas id="radar-canvas" width="150" height="150"></canvas>
-    </div>
-    <div class="hud-panel">
-      <div class="hp-title">RESPONSE LATENCY</div>
-      <canvas id="lat-canvas" width="300" height="60"></canvas>
+    <div class="chart-panel">
+      <div class="cp-title">RESPONSE LATENCY</div>
+      <canvas id="lat-canvas" width="400" height="80"></canvas>
     </div>
   </div>
 
-</div>
+  <!-- SPOTIFY -->
+  <div id="spotify-sec">
+    <div class="sp-panel">
+      <div class="sec-title" style="margin-bottom:14px;">◎ SPOTIFY LINK</div>
 
-<!-- STATUS GRID -->
-<div id="status-row">
-  <div class="sp">
-    <div class="sp-title">⬡ GATEWAY STATUS</div>
-    <div class="sr"><span class="sl">OpenClaw Gateway</span><span class="sv g">ONLINE</span></div>
-    <div class="sr"><span class="sl">WhatsApp</span><span class="sv">+13176571684</span></div>
-    <div class="sr"><span class="sl">Webchat</span><span class="sv g">ACTIVE</span></div>
-    <div class="sr"><span class="sl">Model</span><span class="sv">claude-sonnet-4-6</span></div>
-    <div class="sr"><span class="sl">Netlify</span><span class="sv g">LIVE</span></div>
-    <div class="sr"><span class="sl">Stripe</span><span class="sv y">PENDING</span></div>
-  </div>
-  <div class="sp">
-    <div class="sp-title">◈ AGENCY METRICS</div>
-    <div class="sr"><span class="sl">Sites Built</span><span class="sv">1 (La Piedad)</span></div>
-    <div class="sr"><span class="sl">Active Domains</span><span class="sv">clawcreative.net</span></div>
-    <div class="sr"><span class="sl">First Claw</span><span class="sv">$249.99</span></div>
-    <div class="sr"><span class="sl">Full Grip</span><span class="sv">$499.99</span></div>
-    <div class="sr"><span class="sl">Monthly Care</span><span class="sv">$49.99/mo</span></div>
-    <div class="sr"><span class="sl">Status</span><span class="sv g">OPERATIONAL</span></div>
-  </div>
-  <div class="sp">
-    <div class="sp-title">◎ MISSION LOG</div>
-    <div class="le"><span class="lt">[APR-10]</span><span class="lm">Identity initialized. JARVIS online.</span></div>
-    <div class="le"><span class="lt">[APR-10]</span><span class="lm">Claw Creative site built & deployed.</span></div>
-    <div class="le"><span class="lt">[APR-10]</span><span class="lm">clawcreative.net live on Cloudflare.</span></div>
-    <div class="le"><span class="lt">[APR-10]</span><span class="lm">La Piedad demo site deployed.</span></div>
-    <div class="le"><span class="lt">[APR-11]</span><span class="lm">JARVIS HUD v3.0 — full redesign.</span></div>
-  </div>
-</div>
+      <!-- CONNECT STATE -->
+      <div id="spotify-connect">
+        <div class="sp-instruct">
+          To connect Spotify: <a href="https://developer.spotify.com/dashboard" target="_blank">developer.spotify.com/dashboard</a> → Create App → Add redirect URI: <strong>https://www.clawcreative.net/jarvis/</strong> → paste Client ID below.
+        </div>
+        <div class="sp-input-row">
+          <input id="sp-client-id" type="text" placeholder="Paste Spotify Client ID here..."/>
+          <button class="sp-btn" onclick="spotifyLogin()">CONNECT</button>
+        </div>
+      </div>
 
-<!-- STATUS BAR -->
-<div id="statusbar">
-  <span>CLAW CREATIVE · JARVIS HUD v3.0</span>
-  <span id="main-status">SYSTEM READY</span>
-  <span id="session-time">SESSION: 00:00:00</span>
+      <!-- PLAYER STATE -->
+      <div id="spotify-player">
+        <div id="sp-now-row">
+          <img id="sp-art" src="" alt="Album art"/>
+          <div id="sp-info">
+            <div id="sp-track">—</div>
+            <div id="sp-artist">—</div>
+            <div id="sp-album"></div>
+            <div id="sp-time">0:00 / 0:00</div>
+            <div id="sp-prog-bg"><div id="sp-progress" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div id="sp-controls">
+          <button class="sp-ctrl" onclick="spotifyControl('prev')" title="Previous">⏮</button>
+          <button class="sp-ctrl main" id="sp-play-btn" onclick="togglePlayPause()" title="Play/Pause">▶</button>
+          <button class="sp-ctrl" onclick="spotifyControl('next')" title="Next">⏭</button>
+          <div id="sp-vol-row">
+            <span id="sp-vol-lbl">VOL</span>
+            <input id="sp-vol" type="range" min="0" max="100" value="80" oninput="setVolume(this.value)"/>
+          </div>
+          <button class="sp-btn small red" id="sp-disconnect" onclick="disconnectSpotify()">DISCONNECT</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STATUS PANELS -->
+  <div id="status-row">
+    <div class="sp2">
+      <div class="sp2-title">⬡ GATEWAY STATUS</div>
+      <div class="sr"><span class="sl">OpenClaw Gateway</span><span class="sv g">ONLINE</span></div>
+      <div class="sr"><span class="sl">WhatsApp</span><span class="sv">+13176571684</span></div>
+      <div class="sr"><span class="sl">Webchat</span><span class="sv g">ACTIVE</span></div>
+      <div class="sr"><span class="sl">Model</span><span class="sv">claude-sonnet-4-6</span></div>
+      <div class="sr"><span class="sl">Netlify</span><span class="sv g">LIVE</span></div>
+      <div class="sr"><span class="sl">Stripe</span><span class="sv y">PENDING</span></div>
+    </div>
+    <div class="sp2">
+      <div class="sp2-title">◈ AGENCY METRICS</div>
+      <div class="sr"><span class="sl">Sites Built</span><span class="sv">1 (La Piedad)</span></div>
+      <div class="sr"><span class="sl">Domain</span><span class="sv">clawcreative.net</span></div>
+      <div class="sr"><span class="sl">First Claw</span><span class="sv">$249.99</span></div>
+      <div class="sr"><span class="sl">Full Grip</span><span class="sv">$499.99</span></div>
+      <div class="sr"><span class="sl">Monthly Care</span><span class="sv">$49.99/mo</span></div>
+      <div class="sr"><span class="sl">Status</span><span class="sv g">OPERATIONAL</span></div>
+    </div>
+    <div class="sp2">
+      <div class="sp2-title">◎ MISSION LOG</div>
+      <div class="le"><span class="lt">[APR-10]</span><span class="lm">Identity initialized.</span></div>
+      <div class="le"><span class="lt">[APR-10]</span><span class="lm">Claw Creative site deployed.</span></div>
+      <div class="le"><span class="lt">[APR-10]</span><span class="lm">clawcreative.net on Cloudflare.</span></div>
+      <div class="le"><span class="lt">[APR-10]</span><span class="lm">La Piedad demo live.</span></div>
+      <div class="le"><span class="lt">[APR-11]</span><span class="lm">JARVIS HUD v4 + Spotify.</span></div>
+    </div>
+  </div>
+
+  <footer>CLAW CREATIVE &nbsp;·&nbsp; JARVIS HUD v4.0 &nbsp;·&nbsp; ALL SYSTEMS NOMINAL</footer>
 </div>
 
 <script>
 // ══════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════
-const EL_KEY = 'sk_4da0a5331acf1fa217dfbe46116e9cb464cf7202b55ffd45';
-const CLAUDE_KEY = 'sk-ant-api03-FLr1QJm8wJ3ldfTtC_uLGGU0HZzcIayLgLv_jyROYFwnyPLHSIJULzi' +
-                   '6zBq9C1wzwWfuGLFAzlczQui6mEZi_g-cvI8CwAA';
-let voiceId = null;
-const sessionStart = Date.now();
+const EL_KEY='sk_4da0a5331acf1fa217dfbe46116e9cb464cf7202b55ffd45';
+const CLAUDE_KEY='sk-ant-api03-FLr1QJm8wJ3ldfTtC_uLGGU0HZzcIayLgLv_jyROYFwnyPLHSIJULzi'+'6zBq9C1wzwWfuGLFAzlczQui6mEZi_g-cvI8CwAA';
+const sessionStart=Date.now();
+let voiceId=null;
+let orbState='idle';
 
 // ══════════════════════════════════════════════════
-// CLOCK + UPTIME
+// UTILS
 // ══════════════════════════════════════════════════
-function pad(n){return String(n).padStart(2,'0');}
-function fmtTime(d){return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());}
-function fmtDur(ms){const s=Math.floor(ms/1000);return pad(Math.floor(s/3600))+':'+pad(Math.floor((s%3600)/60))+':'+pad(s%60);}
+const pad=n=>String(n).padStart(2,'0');
+const fmtTime=d=>pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+const fmtDur=ms=>{const s=Math.floor(ms/1000);return pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60);};
+const fmtMs=ms=>{const s=Math.floor(ms/1000);return pad(Math.floor(s/60))+':'+pad(s%60);};
 setInterval(()=>{
-  document.getElementById('clock').textContent=fmtTime(new Date());
+  document.getElementById('tb-clock').textContent=fmtTime(new Date());
   document.getElementById('uptime').textContent=fmtDur(Date.now()-sessionStart);
-  document.getElementById('session-time').textContent='SESSION: '+fmtDur(Date.now()-sessionStart);
 },1000);
 
 // ══════════════════════════════════════════════════
-// LOAD VOICES FROM ELEVENLABS
+// LOAD VOICES
 // ══════════════════════════════════════════════════
-async function loadVoices(){
+(async()=>{
   try{
     const r=await fetch('https://api.elevenlabs.io/v1/voices',{headers:{'xi-api-key':EL_KEY}});
     const d=await r.json();
-    if(!d.voices) throw new Error('No voices in response');
-    const bradford=d.voices.find(v=>v.name==='Bradford');
-    const adam=d.voices.find(v=>v.name==='Adam');
-    const chosen=bradford||adam||d.voices[0];
-    voiceId=chosen?.voice_id||null;
-    console.log('[JARVIS] Voice loaded:',chosen?.name,'ID:',voiceId);
-    document.getElementById('voice-dot').style.background='var(--green)';
-    document.getElementById('voice-dot').style.boxShadow='0 0 6px var(--green)';
-    document.getElementById('voice-status').textContent=(chosen?.name||'VOICE')+' READY';
-    addLog('SYSTEM','Voice engine online. '+chosen?.name+' selected.');
-  }catch(e){
-    console.error('[JARVIS] Voice load failed:',e);
-    document.getElementById('voice-status').textContent='VOICE FAIL';
-    addLog('ERROR','Voice engine failed: '+e.message);
-  }
-}
-loadVoices();
+    const v=d.voices?.find(v=>v.name==='Bradford')||d.voices?.find(v=>v.name==='Adam')||d.voices?.[0];
+    voiceId=v?.voice_id||null;
+    setDot('voice-dot','g');setEl('voice-status',(v?.name||'VOICE')+' READY');
+    console.log('[JARVIS] Voice:',v?.name,voiceId);
+  }catch(e){setDot('voice-dot','r');setEl('voice-status','VOICE FAIL');console.error('[JARVIS] Voice fail:',e);}
+})();
+
+function setDot(id,col){const d=document.getElementById(id);d.className='tbd'+(col==='g'?' ':col==='r'?' r':' y');}
+function setEl(id,txt){const e=document.getElementById(id);if(e)e.textContent=txt;}
 
 // ══════════════════════════════════════════════════
 // PARTICLE BACKGROUND
 // ══════════════════════════════════════════════════
-(function(){
+(()=>{
   const cv=document.getElementById('bg-canvas');
   const ctx=cv.getContext('2d');
   let pts=[];
-  const N=50,CONN=130;
-  function resize(){cv.width=innerWidth;cv.height=innerHeight;}
-  resize();window.addEventListener('resize',()=>{resize();init();});
-  function rnd(a,b){return a+Math.random()*(b-a);}
-  function init(){pts=[];for(let i=0;i<N;i++)pts.push({x:rnd(0,cv.width),y:rnd(0,cv.height),vx:rnd(-0.15,0.15),vy:rnd(-0.15,0.15)});}
-  function draw(){
+  const N=45,CONN=140;
+  const rsz=()=>{cv.width=innerWidth;cv.height=innerHeight;};
+  rsz();window.addEventListener('resize',()=>{rsz();mk();});
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const mk=()=>{pts=[];for(let i=0;i<N;i++)pts.push({x:rnd(0,cv.width),y:rnd(0,cv.height),vx:rnd(-.12,.12),vy:rnd(-.12,.12)});};
+  const draw=()=>{
     ctx.clearRect(0,0,cv.width,cv.height);
     for(let i=0;i<pts.length;i++){
       const p=pts[i];p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0||p.x>cv.width)p.vx*=-1;
-      if(p.y<0||p.y>cv.height)p.vy*=-1;
-      ctx.beginPath();ctx.arc(p.x,p.y,1.2,0,Math.PI*2);
-      ctx.fillStyle='rgba(0,212,255,0.3)';ctx.fill();
+      if(p.x<0||p.x>cv.width)p.vx*=-1;if(p.y<0||p.y>cv.height)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,1.2,0,Math.PI*2);ctx.fillStyle='rgba(0,212,255,.28)';ctx.fill();
       for(let j=i+1;j<pts.length;j++){
-        const q=pts[j];const dist=Math.hypot(p.x-q.x,p.y-q.y);
-        if(dist<CONN){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
-          ctx.strokeStyle=`rgba(0,212,255,${0.08*(1-dist/CONN)})`;ctx.lineWidth=0.5;ctx.stroke();}
+        const q=pts[j],dist=Math.hypot(p.x-q.x,p.y-q.y);
+        if(dist<CONN){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(0,212,255,${.08*(1-dist/CONN)})`;ctx.lineWidth=.5;ctx.stroke();}
       }
     }
     requestAnimationFrame(draw);
-  }
-  init();draw();
+  };
+  mk();draw();
 })();
 
 // ══════════════════════════════════════════════════
-// CANVAS ORB — ENERGY SPHERE
+// ORB CANVAS
 // ══════════════════════════════════════════════════
-const orbCanvas=document.getElementById('orb-canvas');
-const OC=orbCanvas.getContext('2d');
-const OW=orbCanvas.width,OH=orbCanvas.height;
-const CX=OW/2,CY=OH/2;
+const OC_el=document.getElementById('orb-canvas');
+const OC=OC_el.getContext('2d');
+const OW=500,OH=500,CX=250,CY=250;
+OC_el.width=OW;OC_el.height=OH;
+OC_el.style.width=OW+'px';OC_el.style.height=OH+'px';
 
-// Particle system
-const PART_COUNT=160;
-const parts=[];
+// Particles — three orbital shells
+const PARTS=[];
 function mkPart(){
-  const angle=Math.random()*Math.PI*2;
-  const r=8+Math.random()*25;
-  return{angle,r,baseR:r,speed:(Math.random()-0.5)*0.008,radSpd:0.25+Math.random()*0.9,
-    size:0.6+Math.random()*2.2,alpha:Math.random(),phase:Math.random()*Math.PI*2};
+  const shell=Math.floor(Math.random()*3); // 0=inner,1=mid,2=outer
+  const baseR=[22,55,95][shell];
+  return{angle:Math.random()*Math.PI*2,r:baseR+Math.random()*20,
+    speed:(Math.random()-.5)*.012*(3-shell),radSpd:.15+Math.random()*.7,
+    size:.8+Math.random()*2.5,alpha:Math.random(),ph:Math.random()*Math.PI*2,shell};
 }
-for(let i=0;i<PART_COUNT;i++) parts.push(mkPart());
+for(let i=0;i<200;i++)PARTS.push(mkPart());
 
 // Energy arcs
-const ARC_COUNT=7;
-const arcs=[];
-function mkArc(){
-  return{a1:Math.random()*Math.PI*2,a2:Math.random()*Math.PI*2,
-    r1:15+Math.random()*25,r2:80+Math.random()*55,
-    cp1x:(Math.random()-0.5)*110,cp1y:(Math.random()-0.5)*110,
-    life:0,maxLife:40+Math.random()*80};
-}
-for(let i=0;i<ARC_COUNT;i++) arcs.push(mkArc());
+const ARCS=[];
+function mkArc(){return{a1:Math.random()*Math.PI*2,a2:Math.random()*Math.PI*2,r1:12+Math.random()*30,r2:95+Math.random()*60,cp1x:(Math.random()-.5)*130,cp1y:(Math.random()-.5)*130,life:0,maxLife:50+Math.random()*90};}
+for(let i=0;i<8;i++)ARCS.push(mkArc());
 
 // Outer ring lit segments
-const SEG_COUNT=48;
-let litSegs=new Set();
-function updateLitSegs(){
-  litSegs=new Set();
-  const n=orbState==='listening'?14:orbState==='speaking'?18:6;
-  while(litSegs.size<n){litSegs.add(Math.floor(Math.random()*SEG_COUNT));}
-}
-setInterval(updateLitSegs,600);
-updateLitSegs();
+const SEGS=64;
+let litS=new Set();
+const updateLit=()=>{litS=new Set();const n=orbState==='listening'?20:orbState==='speaking'?26:8;while(litS.size<n)litS.add(Math.floor(Math.random()*SEGS));};
+setInterval(updateLit,500);updateLit();
 
-let orbTime=0,r1a=0,r2a=0,r3a=0;
+let OT=0,r1a=0,r2a=0,r3a=0;
 
-function orbColor(){
-  if(orbState==='listening') return{r:0,g:255,b:180};
-  if(orbState==='speaking')  return{r:140,g:220,b:255};
-  if(orbState==='thinking')  return{r:255,g:200,b:0};
-  return{r:0,g:180,b:255}; // idle
+function orbCol(){
+  if(orbState==='listening')return{r:0,g:255,b:180};
+  if(orbState==='speaking')return{r:140,g:220,b:255};
+  if(orbState==='thinking')return{r:255,g:200,b:0};
+  return{r:0,g:185,b:255};
 }
 
 function drawOrb(){
   OC.clearRect(0,0,OW,OH);
-  orbTime++;
-  const spd=orbState==='listening'?3.5:orbState==='speaking'?2.5:orbState==='thinking'?2:1;
-  r1a+=0.006*spd; r2a-=0.01*spd; r3a+=0.004*spd;
-  const c=orbColor();
-  const cs=`${c.r},${c.g},${c.b}`;
+  OT++;
+  const sp=orbState==='listening'?3.5:orbState==='speaking'?2.5:orbState==='thinking'?2:1;
+  r1a+=.007*sp;r2a-=.011*sp;r3a+=.005*sp;
+  const c=orbCol();const cs=`${c.r},${c.g},${c.b}`;
 
-  // Outer glow halo
-  const halo=OC.createRadialGradient(CX,CY,40,CX,CY,155);
-  const pulse=0.06+0.04*Math.sin(orbTime*0.04);
-  halo.addColorStop(0,`rgba(${cs},0.18)`);
-  halo.addColorStop(0.5,`rgba(${cs},${pulse})`);
+  // Halo glow
+  const halo=OC.createRadialGradient(CX,CY,30,CX,CY,230);
+  const pulse=.07+.04*Math.sin(OT*.04);
+  halo.addColorStop(0,`rgba(${cs},.22)`);
+  halo.addColorStop(.5,`rgba(${cs},${pulse})`);
   halo.addColorStop(1,'rgba(0,0,0,0)');
-  OC.fillStyle=halo;OC.beginPath();OC.arc(CX,CY,155,0,Math.PI*2);OC.fill();
+  OC.fillStyle=halo;OC.beginPath();OC.arc(CX,CY,230,0,Math.PI*2);OC.fill();
 
   // Particles
-  parts.forEach(p=>{
-    p.angle+=p.speed*spd;
-    p.r+=p.radSpd*0.08*spd;
-    p.phase+=0.05;
-    if(p.r>145){p.r=p.baseR;p.alpha=0;}
-    p.alpha=Math.min(1,p.alpha+0.015);
-    const a=Math.sin(p.alpha*Math.PI)*Math.abs(Math.sin(p.phase))*0.8;
-    if(a<0.02) return;
-    const px=CX+Math.cos(p.angle)*p.r;
-    const py=CY+Math.sin(p.angle)*p.r;
-    OC.beginPath();OC.arc(px,py,p.size,0,Math.PI*2);
-    OC.fillStyle=`rgba(${cs},${a})`;OC.fill();
+  PARTS.forEach(p=>{
+    p.angle+=p.speed*sp*(orbState==='idle'?.8:1);
+    p.r+=p.radSpd*.06*sp;p.ph+=.04;
+    if(p.r>175){p.r=[22,55,95][p.shell]+Math.random()*20;p.alpha=0;}
+    p.alpha=Math.min(1,p.alpha+.018);
+    const a=Math.sin(p.alpha*Math.PI)*Math.abs(Math.sin(p.ph))*.85;
+    if(a<.03)return;
+    const px=CX+Math.cos(p.angle)*p.r,py=CY+Math.sin(p.angle)*p.r;
+    OC.beginPath();OC.arc(px,py,p.size,0,Math.PI*2);OC.fillStyle=`rgba(${cs},${a})`;OC.fill();
   });
 
   // Energy arcs
-  arcs.forEach((arc,i)=>{
+  ARCS.forEach((arc,i)=>{
     arc.life++;
-    if(arc.life>arc.maxLife){arcs[i]=mkArc();return;}
+    if(arc.life>arc.maxLife){ARCS[i]=mkArc();return;}
     const prog=arc.life/arc.maxLife;
-    const alpha=Math.sin(prog*Math.PI)*0.35;
+    const alpha=Math.sin(prog*Math.PI)*.38;
     const sx=CX+Math.cos(arc.a1)*arc.r1,sy=CY+Math.sin(arc.a1)*arc.r1;
     const ex=CX+Math.cos(arc.a2)*arc.r2,ey=CY+Math.sin(arc.a2)*arc.r2;
-    OC.beginPath();OC.moveTo(sx,sy);
-    OC.quadraticCurveTo(CX+arc.cp1x,CY+arc.cp1y,ex,ey);
-    OC.strokeStyle=`rgba(${cs},${alpha})`;OC.lineWidth=0.8;OC.stroke();
+    OC.beginPath();OC.moveTo(sx,sy);OC.quadraticCurveTo(CX+arc.cp1x,CY+arc.cp1y,ex,ey);
+    OC.strokeStyle=`rgba(${cs},${alpha})`;OC.lineWidth=.9;OC.stroke();
   });
 
   // Core sphere
-  const cg=OC.createRadialGradient(CX-20,CY-20,0,CX,CY,75);
-  cg.addColorStop(0,`rgba(${cs},0.7)`);
-  cg.addColorStop(0.35,`rgba(${Math.floor(c.r*0.3)},${Math.floor(c.g*0.3)},${Math.floor(c.b*0.3)},0.5)`);
-  cg.addColorStop(1,'rgba(0,4,15,0.92)');
-  OC.beginPath();OC.arc(CX,CY,75,0,Math.PI*2);OC.fillStyle=cg;OC.fill();
-  OC.beginPath();OC.arc(CX,CY,75,0,Math.PI*2);
-  OC.strokeStyle=`rgba(${cs},0.35)`;OC.lineWidth=1.5;OC.stroke();
-  // highlight
-  const hg=OC.createRadialGradient(CX-22,CY-22,0,CX-22,CY-22,24);
-  hg.addColorStop(0,`rgba(${cs},0.28)`);hg.addColorStop(1,'transparent');
-  OC.beginPath();OC.arc(CX-22,CY-22,24,0,Math.PI*2);OC.fillStyle=hg;OC.fill();
+  const cg=OC.createRadialGradient(CX-24,CY-24,0,CX,CY,88);
+  cg.addColorStop(0,`rgba(${cs},.85)`);
+  cg.addColorStop(.2,`rgba(${Math.floor(c.r*.5)},${Math.floor(c.g*.5)},${Math.floor(c.b*.5)},.6)`);
+  cg.addColorStop(1,'rgba(0,3,12,.95)');
+  OC.beginPath();OC.arc(CX,CY,88,0,Math.PI*2);OC.fillStyle=cg;OC.fill();
+  OC.beginPath();OC.arc(CX,CY,88,0,Math.PI*2);OC.strokeStyle=`rgba(${cs},.4)`;OC.lineWidth=1.8;OC.stroke();
+  // Inner highlight
+  const hg=OC.createRadialGradient(CX-26,CY-26,0,CX-26,CY-26,28);
+  hg.addColorStop(0,`rgba(${cs},.35)`);hg.addColorStop(1,'transparent');
+  OC.beginPath();OC.arc(CX-26,CY-26,28,0,Math.PI*2);OC.fillStyle=hg;OC.fill();
 
-  // Three rotating rings with tick marks
-  drawRing(108,r1a,32,c,0.55,2);
-  drawRing(88,r2a,24,c,0.35,1.5);
-  drawRing(78,r3a*0.6,12,c,0.2,1);
+  // Rings
+  drawRing(125,r1a,40,c,.6,2.2);
+  drawRing(105,r2a,28,c,.38,1.6);
+  drawRing(94,r3a*.55,16,c,.22,1);
 
   // Outer segmented data ring
-  drawSegRing(132,SEG_COUNT,c);
+  drawSegRing(148,SEGS,c);
 
   requestAnimationFrame(drawOrb);
 }
 
 function drawRing(radius,angle,ticks,c,alpha,lw){
   const cs=`${c.r},${c.g},${c.b}`;
-  OC.beginPath();OC.arc(CX,CY,radius,0,Math.PI*2);
-  OC.strokeStyle=`rgba(${cs},${alpha*0.3})`;OC.lineWidth=lw;OC.stroke();
+  OC.beginPath();OC.arc(CX,CY,radius,0,Math.PI*2);OC.strokeStyle=`rgba(${cs},${alpha*.3})`;OC.lineWidth=lw;OC.stroke();
   for(let i=0;i<ticks;i++){
     const ta=angle+(i/ticks)*Math.PI*2;
     const isLong=i%(ticks/4)===0;
-    const inner=radius-(isLong?9:4);
-    const outer=radius+(isLong?4:1);
+    const inner=radius-(isLong?11:5),outer=radius+(isLong?4:1.5);
     const x1=CX+Math.cos(ta)*inner,y1=CY+Math.sin(ta)*inner;
     const x2=CX+Math.cos(ta)*outer,y2=CY+Math.sin(ta)*outer;
     OC.beginPath();OC.moveTo(x1,y1);OC.lineTo(x2,y2);
-    OC.strokeStyle=`rgba(${cs},${isLong?alpha:alpha*0.4})`;
-    OC.lineWidth=isLong?1.5:0.5;OC.stroke();
-    if(isLong){OC.beginPath();OC.arc(x2,y2,2.5,0,Math.PI*2);OC.fillStyle=`rgba(${cs},${alpha})`;OC.fill();}
+    OC.strokeStyle=`rgba(${cs},${isLong?alpha:alpha*.4})`;OC.lineWidth=isLong?1.8:.6;OC.stroke();
+    if(isLong){OC.beginPath();OC.arc(x2,y2,3,0,Math.PI*2);OC.fillStyle=`rgba(${cs},${alpha})`;OC.fill();}
   }
 }
 
@@ -560,93 +500,69 @@ function drawSegRing(radius,segs,c){
   const cs=`${c.r},${c.g},${c.b}`;
   const arc=Math.PI*2/segs;
   for(let i=0;i<segs;i++){
-    const a1=i*arc-Math.PI/2;
-    const a2=a1+arc*0.7;
-    const lit=litSegs.has(i);
+    const a1=i*arc-Math.PI/2,a2=a1+arc*.65;
+    const lit=litS.has(i);
     OC.beginPath();OC.arc(CX,CY,radius,a1,a2);
-    OC.strokeStyle=lit?`rgba(${cs},0.8)`:`rgba(${cs},0.12)`;
-    OC.lineWidth=lit?2.5:1;OC.stroke();
-    if(lit){OC.beginPath();OC.arc(CX,CY,radius,a1,a2);OC.strokeStyle=`rgba(${cs},0.2)`;OC.lineWidth=6;OC.stroke();}
+    OC.strokeStyle=lit?`rgba(${cs},.9)`:`rgba(${cs},.1)`;OC.lineWidth=lit?3:1;OC.stroke();
+    if(lit){OC.beginPath();OC.arc(CX,CY,radius,a1,a2);OC.strokeStyle=`rgba(${cs},.22)`;OC.lineWidth=7;OC.stroke();}
   }
 }
 
 drawOrb();
 
 // ══════════════════════════════════════════════════
-// WAVEFORM CANVAS
+// WAVEFORM
 // ══════════════════════════════════════════════════
-const wfCanvas=document.getElementById('wf-canvas');
-const WC=wfCanvas.getContext('2d');
-let wfTime=0,wfInt=0.15;
-function drawWaveform(){
-  const W=wfCanvas.offsetWidth*2||300,H=56;
-  wfCanvas.width=W;
-  WC.clearRect(0,0,W,H);wfTime+=0.05;
-  const target=orbState==='listening'?0.65+0.35*Math.random():orbState==='speaking'?0.75+0.25*Math.random():0.12;
-  wfInt+=(target-wfInt)*0.12;
-  const col=orbState==='listening'?'0,255,180':orbState==='speaking'?'140,220,255':'0,180,255';
-  function wave(lw,alpha){
-    WC.beginPath();
-    for(let x=0;x<W;x++){
-      const t=x/W;
-      const y=H/2+Math.sin(t*22+wfTime*3)*H*0.35*wfInt+Math.sin(t*8+wfTime*2)*H*0.18*wfInt+Math.sin(t*44+wfTime*5)*H*0.1*wfInt;
-      x===0?WC.moveTo(x,y):WC.lineTo(x,y);
-    }
-    WC.strokeStyle=`rgba(${col},${alpha})`;WC.lineWidth=lw;WC.stroke();
-  }
-  wave(5,0.15);wave(1.5,0.85);
-  requestAnimationFrame(drawWaveform);
+const WF=document.getElementById('wf-canvas').getContext('2d');
+let wfT=0,wfI=.12;
+function drawWF(){
+  const W=600,H=70;
+  WF.canvas.width=W;
+  WF.clearRect(0,0,W,H);wfT+=.05;
+  const tgt=orbState==='listening'?.6+.4*Math.random():orbState==='speaking'?.75+.25*Math.random():.1;
+  wfI+=(tgt-wfI)*.1;
+  const col=orbState==='listening'?'0,255,180':orbState==='speaking'?'140,220,255':'0,185,255';
+  const wave=(lw,a)=>{
+    WF.beginPath();
+    for(let x=0;x<W;x++){const t=x/W;const y=H/2+Math.sin(t*24+wfT*3)*H*.38*wfI+Math.sin(t*9+wfT*2.2)*H*.2*wfI+Math.sin(t*48+wfT*5)*H*.1*wfI;x===0?WF.moveTo(x,y):WF.lineTo(x,y);}
+    WF.strokeStyle=`rgba(${col},${a})`;WF.lineWidth=lw;WF.stroke();
+  };
+  wave(6,.12);wave(1.5,.88);
+  requestAnimationFrame(drawWF);
 }
-drawWaveform();
+drawWF();
 
 // ══════════════════════════════════════════════════
 // SIGNAL BARS
 // ══════════════════════════════════════════════════
 const sigEl=document.getElementById('sig-bars');
-const BAR_N=22;
-for(let i=0;i<BAR_N;i++){const b=document.createElement('div');b.className='sig-bar';b.style.height='2px';sigEl.appendChild(b);}
-function updateSigBars(){
-  const bars=sigEl.querySelectorAll('.sig-bar');
-  const int=orbState==='listening'?0.85:orbState==='speaking'?0.95:0.25;
-  bars.forEach(b=>{
-    const h=4+Math.random()*42*int;
-    b.style.height=h+'px';
-    b.style.background=orbState==='speaking'?'#88ddff':'#00d4ff';
-    b.style.boxShadow=`0 0 3px ${orbState==='speaking'?'#88ddff':'#00d4ff'}`;
-    b.style.opacity=0.4+(h/46)*0.6;
-  });
-}
-setInterval(updateSigBars,90);
+for(let i=0;i<24;i++){const b=document.createElement('div');b.className='sb2';b.style.height='3px';sigEl.appendChild(b);}
+setInterval(()=>{
+  const bars=sigEl.querySelectorAll('.sb2');
+  const int=orbState==='listening'?.88:orbState==='speaking'?.95:.22;
+  bars.forEach(b=>{const h=4+Math.random()*66*int;b.style.height=h+'px';b.style.opacity=.4+(h/70)*.6;b.style.background=orbState==='speaking'?'#88ddff':'#00d4ff';b.style.boxShadow=`0 0 3px ${orbState==='speaking'?'#88ddff':'#00d4ff'}`;});
+},85);
 
 // ══════════════════════════════════════════════════
 // RADAR
 // ══════════════════════════════════════════════════
-const radCanvas=document.getElementById('radar-canvas');
-const RC=radCanvas.getContext('2d');
-const RW=150,RH=150,RCX=75,RCY=75,RR=65;
-let radAngle=0;
+const RC_el=document.getElementById('radar-canvas');
+const RC=RC_el.getContext('2d');
+const RW=140,RH=140,RCX=70,RCY=70,RR=62;
+RC_el.width=RW;RC_el.height=RH;
+let radA=0;
 const blips=[];
-function addBlip(){blips.push({angle:Math.random()*Math.PI*2,r:Math.random()*RR*0.85,life:80+Math.random()*60});}
-setInterval(addBlip,900);
+setInterval(()=>blips.push({angle:Math.random()*Math.PI*2,r:Math.random()*RR*.88,life:100+Math.random()*60}),850);
 function drawRadar(){
-  RC.clearRect(0,0,RW,RH);radAngle+=0.02;
-  for(let r=RR/4;r<=RR;r+=RR/4){RC.beginPath();RC.arc(RCX,RCY,r,0,Math.PI*2);RC.strokeStyle='rgba(0,212,255,0.12)';RC.lineWidth=0.5;RC.stroke();}
-  for(let i=0;i<4;i++){const a=i*Math.PI/2;RC.beginPath();RC.moveTo(RCX,RCY);RC.lineTo(RCX+Math.cos(a)*RR,RCY+Math.sin(a)*RR);RC.strokeStyle='rgba(0,212,255,0.12)';RC.lineWidth=0.5;RC.stroke();}
-  // sweep trail
-  RC.save();RC.translate(RCX,RCY);RC.rotate(radAngle);
-  for(let i=0;i<28;i++){const a=-(i/28)*Math.PI/2;RC.beginPath();RC.moveTo(0,0);RC.arc(0,0,RR,a-0.04,a);RC.closePath();RC.fillStyle=`rgba(0,212,255,${(1-i/28)*0.07})`;RC.fill();}
-  RC.beginPath();RC.moveTo(0,0);RC.lineTo(RR,0);RC.strokeStyle='rgba(0,212,255,0.75)';RC.lineWidth=1.5;RC.stroke();
+  RC.clearRect(0,0,RW,RH);radA+=.022;
+  for(let r=RR/4;r<=RR;r+=RR/4){RC.beginPath();RC.arc(RCX,RCY,r,0,Math.PI*2);RC.strokeStyle='rgba(0,212,255,.1)';RC.lineWidth=.5;RC.stroke();}
+  for(let i=0;i<4;i++){const a=i*Math.PI/2;RC.beginPath();RC.moveTo(RCX,RCY);RC.lineTo(RCX+Math.cos(a)*RR,RCY+Math.sin(a)*RR);RC.strokeStyle='rgba(0,212,255,.1)';RC.lineWidth=.5;RC.stroke();}
+  RC.save();RC.translate(RCX,RCY);RC.rotate(radA);
+  for(let i=0;i<30;i++){const a=-(i/30)*Math.PI/2;RC.beginPath();RC.moveTo(0,0);RC.arc(0,0,RR,a-.04,a);RC.closePath();RC.fillStyle=`rgba(0,212,255,${(1-i/30)*.07})`;RC.fill();}
+  RC.beginPath();RC.moveTo(0,0);RC.lineTo(RR,0);RC.strokeStyle='rgba(0,212,255,.8)';RC.lineWidth=1.8;RC.stroke();
   RC.restore();
-  // blips
-  for(let i=blips.length-1;i>=0;i--){
-    const b=blips[i];b.life--;
-    if(b.life<=0){blips.splice(i,1);continue;}
-    const a=b.life/100;
-    const bx=RCX+Math.cos(b.angle)*b.r,by=RCY+Math.sin(b.angle)*b.r;
-    RC.beginPath();RC.arc(bx,by,2.5,0,Math.PI*2);RC.fillStyle=`rgba(0,255,136,${a*0.9})`;RC.fill();
-    RC.beginPath();RC.arc(bx,by,5,0,Math.PI*2);RC.fillStyle=`rgba(0,255,136,${a*0.2})`;RC.fill();
-  }
-  RC.beginPath();RC.arc(RCX,RCY,RR,0,Math.PI*2);RC.strokeStyle='rgba(0,212,255,0.25)';RC.lineWidth=1;RC.stroke();
+  for(let i=blips.length-1;i>=0;i--){const b=blips[i];b.life--;if(b.life<=0){blips.splice(i,1);continue;}const a=b.life/160;const bx=RCX+Math.cos(b.angle)*b.r,by=RCY+Math.sin(b.angle)*b.r;RC.beginPath();RC.arc(bx,by,2.5,0,Math.PI*2);RC.fillStyle=`rgba(0,255,136,${a*.9})`;RC.fill();RC.beginPath();RC.arc(bx,by,5,0,Math.PI*2);RC.fillStyle=`rgba(0,255,136,${a*.2})`;RC.fill();}
+  RC.beginPath();RC.arc(RCX,RCY,RR,0,Math.PI*2);RC.strokeStyle='rgba(0,212,255,.25)';RC.lineWidth=1;RC.stroke();
   requestAnimationFrame(drawRadar);
 }
 drawRadar();
@@ -654,209 +570,220 @@ drawRadar();
 // ══════════════════════════════════════════════════
 // LATENCY CHART
 // ══════════════════════════════════════════════════
-const latCanvas=document.getElementById('lat-canvas');
-const LC=latCanvas.getContext('2d');
-const latData=Array.from({length:50},()=>20+Math.random()*50);
+const LC_el=document.getElementById('lat-canvas');
+const LC=LC_el.getContext('2d');
+const latData=Array.from({length:60},()=>18+Math.random()*55);
 function drawLat(){
-  const W=latCanvas.offsetWidth*2||300,H=60;
-  latCanvas.width=W;
-  LC.clearRect(0,0,W,H);
-  for(let i=0;i<4;i++){const y=(i/3)*H;LC.beginPath();LC.moveTo(0,y);LC.lineTo(W,y);LC.strokeStyle='rgba(0,212,255,0.06)';LC.lineWidth=0.5;LC.stroke();}
-  LC.beginPath();
-  latData.forEach((v,i)=>{const x=(i/(latData.length-1))*W,y=H-(v/100)*H;i===0?LC.moveTo(x,y):LC.lineTo(x,y);});
-  LC.strokeStyle='rgba(0,212,255,0.8)';LC.lineWidth=1.5;LC.stroke();
-  LC.beginPath();
-  latData.forEach((v,i)=>{const x=(i/(latData.length-1))*W,y=H-(v/100)*H;i===0?LC.moveTo(x,y):LC.lineTo(x,y);});
-  LC.lineTo(W,H);LC.lineTo(0,H);LC.closePath();LC.fillStyle='rgba(0,212,255,0.05)';LC.fill();
-  const lv=latData[latData.length-1];const lx=W-1,ly=H-(lv/100)*H;
-  LC.beginPath();LC.arc(lx,ly,3,0,Math.PI*2);LC.fillStyle='#00d4ff';LC.fill();
-  LC.beginPath();LC.arc(lx,ly,6,0,Math.PI*2);LC.fillStyle='rgba(0,212,255,0.2)';LC.fill();
+  const W=400,H=80;LC_el.width=W;LC.clearRect(0,0,W,H);
+  for(let i=0;i<5;i++){const y=(i/4)*H;LC.beginPath();LC.moveTo(0,y);LC.lineTo(W,y);LC.strokeStyle='rgba(0,212,255,.06)';LC.lineWidth=.5;LC.stroke();}
+  LC.beginPath();latData.forEach((v,i)=>{const x=(i/(latData.length-1))*W,y=H-(v/100)*H;i===0?LC.moveTo(x,y):LC.lineTo(x,y);});LC.strokeStyle='rgba(0,212,255,.85)';LC.lineWidth=1.6;LC.stroke();
+  LC.beginPath();latData.forEach((v,i)=>{const x=(i/(latData.length-1))*W,y=H-(v/100)*H;i===0?LC.moveTo(x,y):LC.lineTo(x,y);});LC.lineTo(W,H);LC.lineTo(0,H);LC.closePath();LC.fillStyle='rgba(0,212,255,.05)';LC.fill();
+  const lv=latData[latData.length-1];LC.beginPath();LC.arc(W-1,H-(lv/100)*H,3.5,0,Math.PI*2);LC.fillStyle='#00d4ff';LC.fill();LC.beginPath();LC.arc(W-1,H-(lv/100)*H,7,0,Math.PI*2);LC.fillStyle='rgba(0,212,255,.2)';LC.fill();
 }
-setInterval(()=>{
-  latData.shift();
-  const base=orbState==='speaking'?55:orbState==='listening'?35:18;
-  latData.push(base+Math.random()*30);
-  drawLat();
-},450);
+setInterval(()=>{latData.shift();const base=orbState==='speaking'?55:orbState==='listening'?35:18;latData.push(base+Math.random()*28);drawLat();},400);
 drawLat();
-
-// ══════════════════════════════════════════════════
-// METRICS FLICKER
-// ══════════════════════════════════════════════════
-setInterval(()=>{
-  const m1=62+Math.random()*22,m2=78+Math.random()*17,m3=86+Math.random()*12;
+setInterval(()=>{const m1=62+Math.random()*22,m2=78+Math.random()*17,m3=86+Math.random()*12;
   document.getElementById('m1').style.width=m1+'%';document.getElementById('m1v').textContent=Math.round(m1)+'%';
   document.getElementById('m2').style.width=m2+'%';document.getElementById('m2v').textContent=Math.round(m2)+'%';
   document.getElementById('m3').style.width=m3+'%';document.getElementById('m3v').textContent=Math.round(m3)+'%';
-},2500);
+},2800);
 
 // ══════════════════════════════════════════════════
-// VOICE STATE MACHINE
+// VOICE STATE
 // ══════════════════════════════════════════════════
-let orbState='idle';
-let rec=null,isListening=false,currentTranscript='',currentAudio=null;
-let dotsTimer=null;
+let rec=null,isListening=false,currentTranscript='',currentAudio=null,dotsT=null;
 const history=[];
 
-const JARVIS_SYS=`You are JARVIS, a sharp and efficient AI assistant for Claw Creative, a web design agency in Indianapolis run by Shameel Khairi (also known as Mr. Khairi, pronounced Carry). Never use markdown, asterisks, bullet points, numbered lists, hash symbols, or any special formatting characters. Speak in plain natural sentences only. Keep responses under 3 sentences unless more detail is explicitly requested. You represent Claw Creative which targets Indianapolis small businesses. Services: First Claw $249.99 single page site, Full Grip $499.99 full multi-page site with animations, Monthly Care $49.99 per month. Live agency site is at clawcreative.net. Demo client is La Piedad Mexican Cuisine. IMPORTANT ROUTING RULE: If the user asks you to perform any task that requires internet access, web searches, database lookups, building websites, deploying code, sending emails or messages, or any action outside this browser window, end your response with exactly: [OPENCLAW_ACTION: the exact task]. Do not claim you will perform the task yourself.`;
+const JARVIS_SYS=`You are JARVIS, a sharp and efficient AI assistant for Claw Creative, a web design agency in Indianapolis run by Shameel Khairi (also known as Mr. Khairi, pronounced Carry). Never use markdown, asterisks, bullet points, numbered lists, hash symbols, or any special formatting. Speak in plain natural sentences only. Keep responses under 3 sentences unless more is explicitly requested. Services: First Claw $249.99 single page site, Full Grip $499.99 full multi-page site, Monthly Care $49.99 per month. Live site: clawcreative.net. Demo: clawcreative.net/la-piedad. If the user asks you to do something outside this browser (web searches, building sites, sending messages, deploying code), end your response with: [OPENCLAW_ACTION: the exact task]`;
 
 function setState(s){
   orbState=s;
-  const labels={idle:'TAP TO SPEAK',listening:'LISTENING — SPEAK NOW',thinking:'PROCESSING',speaking:'SPEAKING — TAP TO INTERRUPT'};
-  document.getElementById('orb-state').textContent=labels[s]||'TAP TO SPEAK';
-  const col={idle:'var(--cyan)',listening:'var(--green)',thinking:'var(--yellow)',speaking:'var(--amber)'};
-  document.getElementById('orb-state').style.color=col[s]||'var(--cyan)';
-  document.getElementById('orb-state').style.textShadow=`0 0 10px ${col[s]||'var(--cyan)'}`;
-  const sb=document.getElementById('sound-bars');
-  sb.classList.toggle('show',s==='speaking');
-  clearInterval(dotsTimer);
-  const dots=document.getElementById('loading-dots');
-  dots.classList.remove('show');dots.textContent='';
-  if(s==='thinking'){
-    dots.classList.add('show');
-    const frames=['·','· ·','· · ·'];let fi=0;
-    dots.textContent=frames[0];
-    dotsTimer=setInterval(()=>{fi=(fi+1)%3;dots.textContent=frames[fi];},400);
-  }
+  const lbMap={idle:'TAP TO SPEAK',listening:'LISTENING — SPEAK NOW',thinking:'PROCESSING',speaking:'SPEAKING — TAP TO INTERRUPT'};
+  const colMap={idle:'#00d4ff',listening:'#00ffb4',thinking:'#ffcc00',speaking:'#ffb347'};
+  const el=document.getElementById('orb-state-lbl');
+  el.textContent=lbMap[s]||'TAP TO SPEAK';el.style.color=colMap[s]||'#00d4ff';el.style.textShadow=`0 0 14px ${colMap[s]||'#00d4ff'}`;
+  document.getElementById('sound-bars').classList.toggle('show',s==='speaking');
+  clearInterval(dotsT);const dots=document.getElementById('loading-dots');dots.classList.remove('show');dots.textContent='';
+  if(s==='thinking'){dots.classList.add('show');const f=['·','· ·','· · ·'];let fi=0;dots.textContent=f[0];dotsT=setInterval(()=>{fi=(fi+1)%3;dots.textContent=f[fi];},400);}
 }
-
-function setStatus(t){
-  document.getElementById('orb-status').textContent=t;
-  document.getElementById('main-status').textContent=t;
-}
-
-function addLog(role,text){
-  const log=document.getElementById('history-log');
-  const e=document.createElement('div');e.className='log-e';
-  const ts=fmtTime(new Date());
-  e.innerHTML=`<span class="lr">${role} · ${ts}</span><br>${text.substring(0,90)}${text.length>90?'...':''}`;
-  log.appendChild(e);log.scrollTop=log.scrollHeight;
-}
-
-function vpToggle(){
-  if(orbState==='speaking'){vpInterrupt();return;}
-  if(orbState==='listening'){vpStop();return;}
-  if(orbState==='thinking') return;
-  vpListen();
-}
-
+function setStatus(t){document.getElementById('orb-status-lbl').textContent=t;}
+function vpToggle(){if(orbState==='speaking'){vpInterrupt();return;}if(orbState==='listening'){vpStop();return;}if(orbState==='thinking')return;vpListen();}
 function vpListen(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){addLog('ERROR','Speech recognition requires Chrome, sir.');setStatus('USE CHROME');return;}
-  currentTranscript='';
-  document.getElementById('you-said').textContent='—';
-  document.getElementById('jarvis-said').textContent='...';
+  if(!SR){document.getElementById('jarvis-said').textContent='Chrome required for speech recognition, sir.';return;}
+  currentTranscript='';document.getElementById('you-said').textContent='—';document.getElementById('jarvis-said').textContent='...';
   rec=new SR();rec.continuous=true;rec.interimResults=true;rec.lang='en-US';
-  rec.onresult=e=>{
-    let fin='',int='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal)fin+=e.results[i][0].transcript;
-      else int+=e.results[i][0].transcript;
-    }
-    currentTranscript+=fin;
-    document.getElementById('you-said').textContent=(currentTranscript+int).trim()||'—';
-  };
-  rec.onerror=e=>{addLog('ERROR','Mic: '+e.error);setState('idle');setStatus('MIC ERROR');};
+  rec.onresult=e=>{let fin='',int='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)fin+=e.results[i][0].transcript;else int+=e.results[i][0].transcript;}currentTranscript+=fin;document.getElementById('you-said').textContent=(currentTranscript+int).trim()||'—';};
+  rec.onerror=e=>{setState('idle');setStatus('MIC ERROR: '+e.error);};
   rec.onend=()=>{if(orbState==='listening')vpFinalize();};
-  setState('listening');setStatus('LISTENING — SPEAK NOW');
-  try{rec.start();}catch(e){setStatus('MIC START ERROR');}
+  setState('listening');setStatus('LISTENING...');
+  try{rec.start();}catch(e){setStatus('MIC START FAIL');}
 }
-
-function vpStop(){
-  if(rec){try{rec.stop();}catch(e){}rec=null;}
-}
-
+function vpStop(){if(rec){try{rec.stop();}catch(e){}rec=null;}}
 async function vpFinalize(){
   if(rec){try{rec.stop();}catch(e){}rec=null;}
   const text=currentTranscript.trim();
-  if(!text){setState('idle');setStatus('NO INPUT DETECTED');return;}
-  document.getElementById('you-said').textContent=text;
-  setState('thinking');setStatus('PROCESSING...');
-  addLog('YOU',text);
+  if(!text){setState('idle');setStatus('NO INPUT');return;}
+  document.getElementById('you-said').textContent=text;setState('thinking');setStatus('PROCESSING...');
   const reply=await vpAsk(text);
-  const actionMatch=reply.match(/\[OPENCLAW_ACTION:\s*([^\]]+)\]/);
+  const actionM=reply.match(/\[OPENCLAW_ACTION:\s*([^\]]+)\]/);
   const spoken=reply.replace(/\[OPENCLAW_ACTION:[^\]]+\]/g,'').trim();
-  if(spoken){document.getElementById('jarvis-said').textContent=spoken;addLog('JARVIS',spoken);}
-  if(actionMatch) showAction(actionMatch[1].trim());
-  if(spoken){await vpSpeak(spoken);}else{setState('idle');setStatus('SYSTEM READY');}
+  if(spoken)document.getElementById('jarvis-said').textContent=spoken;
+  if(actionM)setStatus('⚡ ROUTED: '+actionM[1].substring(0,50));
+  if(spoken)await vpSpeak(spoken);else{setState('idle');setStatus('SYSTEM READY');}
 }
-
 async function vpAsk(text){
   history.push({role:'user',content:text});
-  // Try claude-opus-4-5 first, fall back to claude-3-5-sonnet
-  const models=['claude-opus-4-5','claude-3-5-sonnet-20241022'];
-  for(const model of models){
+  for(const model of['claude-opus-4-5','claude-3-5-sonnet-20241022']){
     try{
-      console.log('[JARVIS] Trying model:',model);
-      const r=await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'x-api-key':CLAUDE_KEY,
-          'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'
-        },
-        body:JSON.stringify({model,max_tokens:300,system:JARVIS_SYS,messages:history})
-      });
-      console.log('[JARVIS] Claude response status:',r.status);
-      if(!r.ok){const err=await r.text();console.error('[JARVIS] Claude error:',err);continue;}
-      const d=await r.json();
-      const reply=d.content?.[0]?.text||'No response generated.';
-      history.push({role:'assistant',content:reply});
-      if(history.length>20)history.splice(0,history.length-20);
-      document.getElementById('claude-dot').style.background='var(--green)';
-      document.getElementById('claude-dot').style.boxShadow='0 0 6px var(--green)';
-      document.getElementById('claude-status').textContent=model.split('-')[1].toUpperCase()+' LINK';
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':CLAUDE_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model,max_tokens:300,system:JARVIS_SYS,messages:history})});
+      console.log('[JARVIS] Claude',model,r.status);
+      if(!r.ok){console.error('[JARVIS] Claude err:',await r.text());continue;}
+      const d=await r.json();const reply=d.content?.[0]?.text||'No response.';
+      history.push({role:'assistant',content:reply});if(history.length>20)history.splice(0,history.length-20);
+      setDot('claude-dot','g');setEl('claude-status',model.includes('opus')?'OPUS LINK':'SONNET LINK');
       return reply;
-    }catch(e){console.error('[JARVIS] Claude fetch error:',e);}
+    }catch(e){console.error('[JARVIS] Claude fetch err:',e);}
   }
-  document.getElementById('claude-dot').style.background='var(--red)';
-  document.getElementById('claude-status').textContent='CLAUDE FAIL';
-  return 'I am having trouble reaching my neural systems, sir. Please check your connection.';
+  setDot('claude-dot','r');return 'I am unable to reach my neural systems, sir.';
 }
-
 async function vpSpeak(text){
-  if(!voiceId){setStatus('NO VOICE ID — RELOAD');setState('idle');return;}
+  if(!voiceId){setState('idle');setStatus('NO VOICE');return;}
   setState('speaking');setStatus('TRANSMITTING...');
   try{
-    console.log('[JARVIS] TTS request. voiceId:',voiceId,'text length:',text.length);
-    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voiceId,{
-      method:'POST',
-      headers:{'xi-api-key':EL_KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({
-        text,
-        model_id:'eleven_turbo_v2_5',
-        voice_settings:{stability:0.5,similarity_boost:0.8,style:0.1,use_speaker_boost:true}
-      })
-    });
-    console.log('[JARVIS] TTS response status:',r.status);
-    if(!r.ok){const e=await r.text();console.error('[JARVIS] TTS error:',e);throw new Error('TTS status '+r.status);}
-    const blob=await r.blob();
-    const url=URL.createObjectURL(blob);
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voiceId,{method:'POST',headers:{'xi-api-key':EL_KEY,'Content-Type':'application/json'},body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:.5,similarity_boost:.8,style:.1,use_speaker_boost:true}})});
+    console.log('[JARVIS] TTS status:',r.status);
+    if(!r.ok)throw new Error('TTS '+r.status+': '+(await r.text()).substring(0,100));
+    const blob=await r.blob();const url=URL.createObjectURL(blob);
     currentAudio=new Audio(url);
-    await new Promise(res=>{currentAudio.onended=res;currentAudio.onerror=e=>{console.error('[JARVIS] Audio error:',e);res();};currentAudio.play().catch(e=>{console.error('[JARVIS] Play error:',e);res();});});
+    await new Promise(res=>{currentAudio.onended=res;currentAudio.onerror=e=>{console.error('[JARVIS] Audio err:',e);res();};currentAudio.play().catch(e=>{console.error('[JARVIS] Play err:',e);res();});});
     URL.revokeObjectURL(url);
-  }catch(e){
-    console.error('[JARVIS] TTS failed:',e);
-    setStatus('TTS ERROR — CHECK CONSOLE');
-  }
+  }catch(e){console.error('[JARVIS] TTS fail:',e);setStatus('TTS ERROR — SEE CONSOLE');}
   currentAudio=null;setState('idle');setStatus('SYSTEM READY');
 }
-
-function vpInterrupt(){
-  if(currentAudio){currentAudio.pause();currentAudio.src='';currentAudio=null;}
-  setState('idle');setStatus('INTERRUPTED');
-}
+function vpInterrupt(){if(currentAudio){currentAudio.pause();currentAudio.src='';currentAudio=null;}setState('idle');setStatus('INTERRUPTED');}
 
 // ══════════════════════════════════════════════════
-// OPENCLAW ACTION BOX (inline under jarvis-said)
+// SPOTIFY PKCE
 // ══════════════════════════════════════════════════
-function showAction(text){
-  // Show a brief notification in status bar
-  setStatus('⚡ OPENCLAW: '+text.substring(0,60));
-  navigator.clipboard.writeText(text).catch(()=>{});
-  addLog('ACTION',text);
+const SP={
+  REDIRECT_URI:window.location.origin+window.location.pathname,
+  SCOPES:'user-read-currently-playing user-read-playback-state user-modify-playback-state',
+  token:localStorage.getItem('sp_token')||null,
+  refreshToken:localStorage.getItem('sp_refresh')||null,
+  tokenExpiry:parseInt(localStorage.getItem('sp_expiry')||'0'),
+  clientId:localStorage.getItem('spotify_client_id')||'',
+  pollTimer:null,
+};
+
+// Pre-fill client ID input
+if(SP.clientId)document.getElementById('sp-client-id').value=SP.clientId;
+
+function rndStr(n){const c='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';const a=new Uint8Array(n);crypto.getRandomValues(a);return Array.from(a).map(x=>c[x%c.length]).join('');}
+async function sha256b(plain){const enc=new TextEncoder().encode(plain);const h=await crypto.subtle.digest('SHA-256',enc);return h;}
+function b64url(ab){return btoa(String.fromCharCode(...new Uint8Array(ab))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');}
+
+async function spotifyLogin(){
+  const cid=document.getElementById('sp-client-id').value.trim();
+  if(!cid){alert('Please enter your Spotify Client ID first.');return;}
+  localStorage.setItem('spotify_client_id',cid);SP.clientId=cid;
+  const verifier=rndStr(64);const challenge=b64url(await sha256b(verifier));
+  localStorage.setItem('pkce_verifier',verifier);
+  const params=new URLSearchParams({client_id:cid,response_type:'code',redirect_uri:SP.REDIRECT_URI,scope:SP.SCOPES,code_challenge_method:'S256',code_challenge:challenge});
+  window.location='https://accounts.spotify.com/authorize?'+params;
 }
+
+async function handleSpotifyCallback(code){
+  const verifier=localStorage.getItem('pkce_verifier');
+  const cid=localStorage.getItem('spotify_client_id')||'';
+  if(!verifier||!cid)return;
+  try{
+    const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:cid,grant_type:'authorization_code',code,redirect_uri:SP.REDIRECT_URI,code_verifier:verifier})});
+    const d=await r.json();
+    if(d.access_token){
+      SP.token=d.access_token;SP.refreshToken=d.refresh_token;SP.tokenExpiry=Date.now()+d.expires_in*1000;
+      localStorage.setItem('sp_token',d.access_token);localStorage.setItem('sp_refresh',d.refresh_token);localStorage.setItem('sp_expiry',SP.tokenExpiry);
+      window.history.replaceState({},'',window.location.pathname);
+      startSpotify();
+    }
+  }catch(e){console.error('[Spotify] Callback err:',e);}
+}
+
+async function spRefresh(){
+  if(!SP.refreshToken||!SP.clientId)return false;
+  try{
+    const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:SP.clientId,grant_type:'refresh_token',refresh_token:SP.refreshToken})});
+    const d=await r.json();
+    if(d.access_token){SP.token=d.access_token;SP.tokenExpiry=Date.now()+d.expires_in*1000;if(d.refresh_token)SP.refreshToken=d.refresh_token;localStorage.setItem('sp_token',d.access_token);localStorage.setItem('sp_expiry',SP.tokenExpiry);return true;}
+  }catch(e){console.error('[Spotify] Refresh err:',e);}
+  return false;
+}
+
+async function spFetch(url,opts={}){
+  if(Date.now()>SP.tokenExpiry-30000){const ok=await spRefresh();if(!ok){disconnectSpotify();return null;}}
+  const r=await fetch('https://api.spotify.com/v1'+url,{...opts,headers:{'Authorization':'Bearer '+SP.token,...(opts.headers||{})}});
+  if(r.status===401){disconnectSpotify();return null;}
+  if(r.status===204||r.status===202||r.status===200&&r.headers.get('content-length')==='0')return null;
+  return r.json().catch(()=>null);
+}
+
+async function fetchNowPlaying(){
+  try{
+    const d=await spFetch('/me/player?additional_types=track,episode');
+    updateSpUI(d);
+  }catch(e){console.error('[Spotify] Poll err:',e);}
+}
+
+function startSpotify(){
+  document.getElementById('spotify-connect').style.display='none';
+  document.getElementById('spotify-player').style.display='block';
+  setDot('sp-dot','g');setEl('sp-status','SPOTIFY ON');
+  fetchNowPlaying();
+  SP.pollTimer=setInterval(fetchNowPlaying,3000);
+}
+
+function disconnectSpotify(){
+  clearInterval(SP.pollTimer);SP.token=null;SP.refreshToken=null;
+  localStorage.removeItem('sp_token');localStorage.removeItem('sp_refresh');localStorage.removeItem('sp_expiry');
+  document.getElementById('spotify-connect').style.display='flex';
+  document.getElementById('spotify-player').style.display='none';
+  setDot('sp-dot','y');setEl('sp-status','SPOTIFY');
+}
+
+function updateSpUI(d){
+  const el=id=>document.getElementById(id);
+  if(!d||!d.item){
+    el('sp-track').textContent='Nothing playing';el('sp-artist').textContent='—';el('sp-album').textContent='';
+    el('sp-progress').style.width='0%';el('sp-time').textContent='—';el('sp-play-btn').textContent='▶';return;
+  }
+  const item=d.item;
+  el('sp-track').textContent=item.name||'—';
+  el('sp-artist').textContent=item.artists?.map(a=>a.name).join(', ')||item.show?.name||'—';
+  el('sp-album').textContent=item.album?.name||'';
+  const art=item.album?.images?.[0]?.url||item.images?.[0]?.url||'';
+  if(art)el('sp-art').src=art;
+  const pct=item.duration_ms?(d.progress_ms/item.duration_ms*100):0;
+  el('sp-progress').style.width=pct+'%';
+  el('sp-time').textContent=fmtMs(d.progress_ms||0)+' / '+fmtMs(item.duration_ms||0);
+  el('sp-play-btn').textContent=d.is_playing?'⏸':'▶';
+}
+
+async function togglePlayPause(){
+  try{const d=await spFetch('/me/player');if(!d)return;await spotifyControl(d.is_playing?'pause':'play');}catch(e){}
+}
+async function spotifyControl(action){
+  const map={play:['/me/player/play','PUT'],pause:['/me/player/pause','PUT'],next:['/me/player/next','POST'],prev:['/me/player/previous','POST']};
+  const [url,method]=map[action]||[];if(!url)return;
+  try{await spFetch(url,{method,headers:{'Content-Length':'0'}});setTimeout(fetchNowPlaying,600);}catch(e){}
+}
+async function setVolume(v){try{await spFetch(`/me/player/volume?volume_percent=${v}`,{method:'PUT'});}catch(e){}}
+
+// ── Init Spotify ──────────────────────────────────
+// Check for OAuth callback
+const urlParams=new URLSearchParams(window.location.search);
+const spCode=urlParams.get('code');
+if(spCode){handleSpotifyCallback(spCode);}
+else if(SP.token&&Date.now()<SP.tokenExpiry+60000){startSpotify();}
 
 // ══════════════════════════════════════════════════
 // AUTO-GREET
@@ -865,8 +792,7 @@ setTimeout(()=>{
   const h=new Date().getHours();
   const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
   document.getElementById('jarvis-said').textContent=g+'. JARVIS online. Tap the orb to speak, sir.';
-  addLog('JARVIS',g+'. JARVIS online. Tap the orb to speak, sir.');
-},1200);
+},1000);
 </script>
 </body>
 </html>
