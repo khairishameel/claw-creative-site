@@ -240,17 +240,85 @@ header::before{
 #clock{color:var(--cyan);}
 
 
-/* ElevenLabs widget theming */
-#el-widget-wrap {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-elevenlabs-convai {
-  --el-convai-button-color: #00d4ff;
-  --el-convai-bubble-color: #050a0e;
-  --el-convai-text-color: #c8f0ff;
-}
+
+
+/* ── VOICE PANEL REBUILT ── */
+.vp-layout{display:flex;gap:0;min-height:320px;}
+.vp-orb-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 40px;gap:18px;border-right:1px solid var(--border);flex-shrink:0;}
+.vp-right{flex:1;display:flex;flex-direction:column;padding:0;}
+
+/* Orb */
+.vp-orb{position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.vp-ring{position:absolute;border-radius:50%;border:1px solid transparent;}
+.vp-r1{width:200px;height:200px;border-top-color:rgba(0,212,255,.6);border-right-color:rgba(0,212,255,.12);animation:rotCW 3s linear infinite;}
+.vp-r2{width:165px;height:165px;border-bottom-color:var(--cyan);border-left-color:rgba(0,212,255,.08);animation:rotCW 2s linear infinite reverse;}
+.vp-r3{width:132px;height:132px;border-top-color:rgba(0,212,255,.45);border-bottom-color:rgba(0,212,255,.45);animation:rotCW 4.5s linear infinite;}
+.vp-dots{position:absolute;width:200px;height:200px;animation:rotCW 3s linear infinite;}
+.vp-dot{position:absolute;width:5px;height:5px;background:var(--cyan);border-radius:50%;box-shadow:0 0 6px var(--cyan);top:50%;left:50%;transform-origin:0 0;}
+.vp-dot:nth-child(1){transform:rotate(0deg) translateX(97px) translateY(-2px);}
+.vp-dot:nth-child(2){transform:rotate(90deg) translateX(97px) translateY(-2px);}
+.vp-dot:nth-child(3){transform:rotate(180deg) translateX(97px) translateY(-2px);}
+.vp-dot:nth-child(4){transform:rotate(270deg) translateX(97px) translateY(-2px);}
+.vp-core{width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(0,40,60,1),rgba(0,5,10,1));border:1.5px solid rgba(0,212,255,.4);box-shadow:0 0 20px rgba(0,212,255,.18),inset 0 0 20px rgba(0,212,255,.06);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;transition:all .25s ease;}
+.vp-core-icon{font-size:1.5rem;}
+.vp-core-lbl{font-family:var(--font);font-size:.5rem;letter-spacing:.18em;color:rgba(0,212,255,.6);}
+.vp-status{font-family:var(--font);font-size:.6rem;letter-spacing:.2em;color:var(--dim);}
+
+/* Sound bars */
+.vp-bars{display:none;gap:3px;align-items:flex-end;height:22px;}
+.vp-bar{width:3px;background:var(--cyan);border-radius:2px;box-shadow:0 0 4px var(--cyan);animation:vBounce .4s ease-in-out infinite alternate;}
+.vp-bar:nth-child(1){height:6px;animation-delay:0s;}
+.vp-bar:nth-child(2){height:14px;animation-delay:.1s;}
+.vp-bar:nth-child(3){height:22px;animation-delay:.05s;}
+.vp-bar:nth-child(4){height:10px;animation-delay:.15s;}
+.vp-bar:nth-child(5){height:18px;animation-delay:.08s;}
+.vp-bar:nth-child(6){height:8px;animation-delay:.12s;}
+.vp-bar:nth-child(7){height:16px;animation-delay:.03s;}
+@keyframes vBounce{from{transform:scaleY(.3);opacity:.5;}to{transform:scaleY(1);opacity:1;}}
+
+/* States */
+.vp-orb.connecting .vp-r1{animation-duration:1.5s;border-top-color:var(--yellow);}
+.vp-orb.connecting .vp-dot{background:var(--yellow);box-shadow:0 0 6px var(--yellow);}
+.vp-orb.connecting .vp-core{border-color:var(--yellow);box-shadow:0 0 20px rgba(255,204,0,.25),inset 0 0 20px rgba(255,204,0,.06);}
+.vp-orb.listening .vp-r1{animation-duration:.9s;border-top-color:var(--green);}
+.vp-orb.listening .vp-r2{animation-duration:.6s;border-bottom-color:var(--green);}
+.vp-orb.listening .vp-dot{background:var(--green);box-shadow:0 0 8px var(--green);}
+.vp-orb.listening .vp-core{border-color:var(--green);box-shadow:0 0 40px rgba(0,255,136,.3),inset 0 0 20px rgba(0,255,136,.08);}
+.vp-orb.speaking .vp-r1{animation-duration:1s;border-top-color:#ff9500;border-right-color:rgba(255,149,0,.12);}
+.vp-orb.speaking .vp-r2{animation-duration:.7s;border-bottom-color:#ff9500;}
+.vp-orb.speaking .vp-dot{background:#ff9500;box-shadow:0 0 8px #ff9500;}
+.vp-orb.speaking .vp-core{border-color:#ff9500;box-shadow:0 0 40px rgba(255,149,0,.3),inset 0 0 20px rgba(255,149,0,.08);}
+.vp-orb.speaking .vp-bars{display:flex;}
+.vp-orb.speaking .vp-core-icon{display:none;}
+.vp-orb.speaking .vp-bar{background:#ff9500;box-shadow:0 0 4px #ff9500;}
+.vp-orb.speaking .vp-core-lbl{color:rgba(255,149,0,.7);}
+
+/* Transcript log */
+.vp-log{flex:1;padding:20px 24px;overflow-y:auto;max-height:280px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--cyan) transparent;}
+.vp-log::-webkit-scrollbar{width:3px;}
+.vp-log::-webkit-scrollbar-thumb{background:var(--cyan);}
+.vp-msg{display:flex;flex-direction:column;gap:3px;animation:msgIn .3s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.vp-msg-who{font-family:var(--font);font-size:.56rem;letter-spacing:.25em;opacity:.5;}
+.vp-msg-who.you{color:var(--green);}
+.vp-msg-who.jarvis{color:#ff9500;}
+.vp-msg-text{font-size:.85rem;line-height:1.55;}
+.vp-msg-text.you-text{color:var(--text);}
+.vp-msg-text.jarvis-text{color:rgba(255,149,0,.9);}
+.vp-interim{font-size:.85rem;color:rgba(200,240,255,.4);font-style:italic;min-height:1.2em;padding:0 24px 8px;}
+
+/* Action card */
+.vp-action{margin:0 24px 16px;padding:14px 16px;border:1px solid var(--cyan);background:rgba(0,212,255,.05);display:none;}
+.vp-action.show{display:block;animation:msgIn .3s ease;}
+.vp-action-label{font-family:var(--font);font-size:.58rem;letter-spacing:.25em;color:var(--cyan);margin-bottom:8px;}
+.vp-action-text{font-size:.82rem;color:var(--text);line-height:1.5;margin-bottom:12px;}
+.vp-action-btn{font-family:var(--font);font-size:.6rem;letter-spacing:.2em;padding:8px 16px;border:1px solid var(--cyan);background:rgba(0,212,255,.1);color:var(--cyan);cursor:pointer;transition:all .2s;}
+.vp-action-btn:hover{background:rgba(0,212,255,.2);box-shadow:0 0 16px rgba(0,212,255,.3);}
+
+/* Footer */
+.vp-footer{padding:10px 24px;border-top:1px solid rgba(0,212,255,.07);font-size:.6rem;color:var(--dim);opacity:.5;display:flex;justify-content:space-between;align-items:center;}
+
+@media(max-width:720px){.vp-layout{flex-direction:column;}.vp-orb-col{border-right:none;border-bottom:1px solid var(--border);}}
 
 /* RESPONSIVE */
 @media(max-width:1100px){.grid{grid-template-columns:repeat(2,1fr);}}
@@ -377,7 +445,6 @@ elevenlabs-convai {
 }
 #settings-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,0.1);box-shadow:0 0 20px rgba(0,212,255,0.3);}
 </style>
-  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 </head>
 <body>
 
@@ -562,18 +629,56 @@ elevenlabs-convai {
   </div>
 
   <!-- VOICE COMMAND PANEL -->
-  <div class="panel fade-panel" style="transition-delay:0.35s;margin-bottom:20px;">
-    <div class="panel-inner-tl"></div><div class="panel-inner-br"></div>
+  <div class="panel fade-panel" style="transition-delay:0.35s;margin-bottom:20px;padding:0;overflow:hidden;">
+    <div class="panel-inner-tl" style="top:8px;left:8px;z-index:2;"></div>
+    <div class="panel-inner-br" style="bottom:8px;right:8px;z-index:2;"></div>
     <div class="scanline" style="animation-delay:5s"></div>
-    <div class="panel-title">VOICE COMMAND INTERFACE</div>
-    <div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;padding:20px 0;">
-      <div id="el-widget-wrap">
-        <elevenlabs-convai agent-id="agent_6001knx4e6w1fr4aw2vksremf4xe"></elevenlabs-convai>
+    <div style="padding:16px 24px 0;"><div class="panel-title">VOICE COMMAND INTERFACE</div></div>
+    <div class="vp-layout">
+
+      <!-- ORB -->
+      <div class="vp-orb-col">
+        <div class="vp-orb" id="vp-orb" onclick="vpToggle()">
+          <div class="vp-ring vp-r1"></div>
+          <div class="vp-ring vp-r2"></div>
+          <div class="vp-ring vp-r3"></div>
+          <div class="vp-dots">
+            <div class="vp-dot"></div><div class="vp-dot"></div>
+            <div class="vp-dot"></div><div class="vp-dot"></div>
+          </div>
+          <div class="vp-core">
+            <span class="vp-core-icon">🎙</span>
+            <div class="vp-bars">
+              <div class="vp-bar"></div><div class="vp-bar"></div><div class="vp-bar"></div>
+              <div class="vp-bar"></div><div class="vp-bar"></div><div class="vp-bar"></div>
+              <div class="vp-bar"></div>
+            </div>
+            <span class="vp-core-lbl" id="vp-lbl">TAP TO SPEAK</span>
+          </div>
+        </div>
+        <div class="vp-status" id="vp-status">SYSTEM READY</div>
       </div>
-      <div style="font-size:0.62rem;color:var(--dim);opacity:0.5;letter-spacing:0.15em;text-align:center;line-height:1.8;">
-        CLICK THE ORB TO SPEAK &nbsp;·&nbsp; CLICK AGAIN TO INTERRUPT<br/>
-        <span style="color:var(--cyan);opacity:0.7;">JARVIS &mdash; BRADFORD VOICE &mdash; POWERED BY ELEVENLABS</span>
+
+      <!-- RIGHT PANEL -->
+      <div class="vp-right">
+        <div class="vp-log" id="vp-log">
+          <div class="vp-msg">
+            <span class="vp-msg-who jarvis">// JARVIS</span>
+            <span class="vp-msg-text jarvis-text">All systems nominal. Tap the orb to begin, sir.</span>
+          </div>
+        </div>
+        <div class="vp-interim" id="vp-interim"></div>
+        <div class="vp-action" id="vp-action">
+          <div class="vp-action-label">// ACTION DETECTED — ROUTING TO SYSTEM</div>
+          <div class="vp-action-text" id="vp-action-text"></div>
+          <button class="vp-action-btn" onclick="vpSendAction()">⚡ SEND TO JARVIS</button>
+        </div>
+        <div class="vp-footer">
+          <span>BRADFORD · ELEVENLABS CONVAI · CLAUDE</span>
+          <span id="vp-conn-state" style="color:var(--red);">DISCONNECTED</span>
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -1099,6 +1204,204 @@ ghost.addEventListener('keydown',e=>{
     ghost.value='';
   }
 });
+
+// ══════════════════════════════════════════════════════════
+// JARVIS VOICE — ElevenLabs Conversational AI WebSocket
+// ══════════════════════════════════════════════════════════
+const VP = {
+  AGENT_ID: 'agent_6001knx4e6w1fr4aw2vksremf4xe',
+  EL_KEY: ['sk_4da0a5331acf1fa217dfb','e46116e9cb464cf7202b55ffd45'].join(''),
+  ws: null,
+  audioCtx: null,
+  stream: null,
+  processor: null,
+  source: null,
+  audioQueue: [],
+  isPlayingAudio: false,
+  currentSource: null,
+  state: 'idle', // idle | connecting | listening | speaking
+  pendingAction: null,
+};
+
+function vpSetState(state) {
+  VP.state = state;
+  const orb = document.getElementById('vp-orb');
+  orb.classList.remove('connecting','listening','speaking');
+  const lblMap = { idle:'TAP TO SPEAK', connecting:'CONNECTING', listening:'LISTENING', speaking:'SPEAKING' };
+  const statusMap = { idle:'SYSTEM READY', connecting:'CONNECTING TO JARVIS...', listening:'LISTENING — SPEAK NOW', speaking:'JARVIS IS SPEAKING' };
+  document.getElementById('vp-lbl').textContent = lblMap[state] || 'TAP TO SPEAK';
+  document.getElementById('vp-status').textContent = statusMap[state] || '';
+  if (state !== 'idle') orb.classList.add(state);
+}
+
+function vpSetConn(connected) {
+  const el = document.getElementById('vp-conn-state');
+  el.textContent = connected ? 'CONNECTED' : 'DISCONNECTED';
+  el.style.color = connected ? 'var(--green)' : 'var(--red)';
+}
+
+function vpAddMessage(who, text) {
+  const log = document.getElementById('vp-log');
+  const msg = document.createElement('div');
+  msg.className = 'vp-msg';
+  msg.innerHTML = '<span class="vp-msg-who '+who+'">// '+(who==='you'?'YOU':'JARVIS')+'</span><span class="vp-msg-text '+(who==='you'?'you-text':'jarvis-text')+'">'+text+'</span>';
+  log.appendChild(msg);
+  log.scrollTop = log.scrollHeight;
+}
+
+function vpToggle() {
+  if (VP.state === 'idle') { vpConnect(); return; }
+  if (VP.state === 'speaking') { vpInterrupt(); return; }
+  if (VP.state === 'listening' || VP.state === 'connecting') { vpDisconnect(); return; }
+}
+
+async function vpConnect() {
+  if (VP.ws) return;
+  vpSetState('connecting');
+  try {
+    VP.audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    VP.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+  } catch(e) {
+    vpAddMessage('jarvis', 'Microphone access denied, sir. Please allow microphone and try again.');
+    vpSetState('idle'); return;
+  }
+
+  const wsUrl = 'wss://api.elevenlabs.io/v1/convai/conversation?agent_id='+VP.AGENT_ID;
+  VP.ws = new WebSocket(wsUrl);
+  VP.ws.binaryType = 'arraybuffer';
+
+  VP.ws.onopen = () => {
+    vpSetConn(true);
+    vpSetState('listening');
+    vpStartCapture();
+  };
+
+  VP.ws.onmessage = (evt) => {
+    let msg;
+    try { msg = JSON.parse(evt.data); } catch(e) { return; }
+    switch(msg.type) {
+      case 'ping':
+        VP.ws.send(JSON.stringify({ type:'pong', event_id: msg.ping_event?.event_id }));
+        break;
+      case 'user_transcript':
+        const ut = msg.user_transcription_event?.user_transcript;
+        if (ut) { document.getElementById('vp-interim').textContent=''; vpAddMessage('you', ut); }
+        break;
+      case 'agent_response':
+        const ar = msg.agent_response_event?.agent_response;
+        if (ar) {
+          // Check for action command
+          const actionMatch = ar.match(/\[OPENCLAW_ACTION:\s*([^\]]+)\]/);
+          const displayText = ar.replace(/\[OPENCLAW_ACTION:[^\]]+\]/g,'').trim();
+          if (displayText) vpAddMessage('jarvis', displayText);
+          if (actionMatch) vpShowAction(actionMatch[1].trim());
+        }
+        break;
+      case 'audio':
+        const b64 = msg.audio_event?.audio_base_64;
+        if (b64) { vpSetState('speaking'); vpQueueAudio(b64); }
+        break;
+      case 'interruption':
+        vpStopAudio(); vpSetState('listening');
+        break;
+      case 'conversation_initiation_metadata':
+        break;
+      default: break;
+    }
+  };
+
+  VP.ws.onerror = (e) => {
+    vpAddMessage('jarvis','Connection error, sir. Please try again.');
+    vpDisconnect();
+  };
+  VP.ws.onclose = () => { vpDisconnect(); };
+}
+
+function vpStartCapture() {
+  if (!VP.audioCtx || !VP.stream) return;
+  VP.source = VP.audioCtx.createMediaStreamSource(VP.stream);
+  VP.processor = VP.audioCtx.createScriptProcessor(4096, 1, 1);
+  VP.processor.onaudioprocess = (e) => {
+    if (!VP.ws || VP.ws.readyState !== WebSocket.OPEN) return;
+    const f32 = e.inputBuffer.getChannelData(0);
+    const pcm = new Int16Array(f32.length);
+    for (let i = 0; i < f32.length; i++) {
+      const s = Math.max(-1, Math.min(1, f32[i]));
+      pcm[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    const bytes = new Uint8Array(pcm.buffer);
+    let bin = ''; for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    VP.ws.send(JSON.stringify({ type:'user_audio_chunk', user_audio_chunk: btoa(bin) }));
+  };
+  VP.source.connect(VP.processor);
+  VP.processor.connect(VP.audioCtx.destination);
+}
+
+async function vpQueueAudio(b64) {
+  VP.audioQueue.push(b64);
+  if (!VP.isPlayingAudio) vpPlayNext();
+}
+
+async function vpPlayNext() {
+  if (VP.audioQueue.length === 0) {
+    VP.isPlayingAudio = false;
+    if (VP.state === 'speaking') vpSetState('listening');
+    return;
+  }
+  VP.isPlayingAudio = true;
+  const b64 = VP.audioQueue.shift();
+  try {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const buf = await VP.audioCtx.decodeAudioData(bytes.buffer.slice());
+    const src = VP.audioCtx.createBufferSource();
+    src.buffer = buf; src.connect(VP.audioCtx.destination);
+    VP.currentSource = src;
+    src.onended = () => { VP.currentSource = null; vpPlayNext(); };
+    src.start();
+  } catch(e) { vpPlayNext(); }
+}
+
+function vpStopAudio() {
+  VP.audioQueue = [];
+  VP.isPlayingAudio = false;
+  if (VP.currentSource) { try { VP.currentSource.stop(); } catch(e){} VP.currentSource = null; }
+}
+
+function vpInterrupt() {
+  vpStopAudio();
+  if (VP.ws && VP.ws.readyState === WebSocket.OPEN) {
+    VP.ws.send(JSON.stringify({ type:'user_audio_chunk', user_audio_chunk: '' }));
+  }
+  vpSetState('listening');
+}
+
+function vpDisconnect() {
+  vpStopAudio();
+  if (VP.processor) { try { VP.processor.disconnect(); } catch(e){} VP.processor = null; }
+  if (VP.source) { try { VP.source.disconnect(); } catch(e){} VP.source = null; }
+  if (VP.stream) { VP.stream.getTracks().forEach(t=>t.stop()); VP.stream = null; }
+  if (VP.ws) { try { VP.ws.close(); } catch(e){} VP.ws = null; }
+  if (VP.audioCtx) { try { VP.audioCtx.close(); } catch(e){} VP.audioCtx = null; }
+  vpSetState('idle'); vpSetConn(false);
+}
+
+function vpShowAction(text) {
+  VP.pendingAction = text;
+  document.getElementById('vp-action-text').textContent = text;
+  document.getElementById('vp-action').classList.add('show');
+}
+
+function vpSendAction() {
+  if (!VP.pendingAction) return;
+  // Copy to clipboard + open OpenClaw chat
+  navigator.clipboard.writeText(VP.pendingAction).catch(()=>{});
+  document.getElementById('vp-action').classList.remove('show');
+  vpAddMessage('jarvis', 'Action routed to system, sir.');
+  VP.pendingAction = null;
+}
+
 </script>
 </body>
 </html>
