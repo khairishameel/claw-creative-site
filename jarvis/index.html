@@ -239,6 +239,19 @@ header::before{
 .datetime{font-family:var(--font);font-size:0.7rem;color:var(--dim);letter-spacing:0.1em;text-align:right;}
 #clock{color:var(--cyan);}
 
+
+/* ElevenLabs widget theming */
+#el-widget-wrap {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+elevenlabs-convai {
+  --el-convai-button-color: #00d4ff;
+  --el-convai-bubble-color: #050a0e;
+  --el-convai-text-color: #c8f0ff;
+}
+
 /* RESPONSIVE */
 @media(max-width:1100px){.grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:720px){
@@ -364,6 +377,7 @@ header::before{
 }
 #settings-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,0.1);box-shadow:0 0 20px rgba(0,212,255,0.3);}
 </style>
+  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 </head>
 <body>
 
@@ -552,57 +566,18 @@ header::before{
     <div class="panel-inner-tl"></div><div class="panel-inner-br"></div>
     <div class="scanline" style="animation-delay:5s"></div>
     <div class="panel-title">VOICE COMMAND INTERFACE</div>
-    <div class="voice-layout">
-
-      <!-- ORB -->
-      <div class="voice-orb-col">
-        <div class="v-orb" id="v-orb" onclick="toggleVoice()">
-          <div class="v-ring v-ring-1"></div>
-          <div class="v-ring v-ring-2"></div>
-          <div class="v-ring v-ring-3"></div>
-          <div class="v-dots">
-            <div class="v-dot"></div><div class="v-dot"></div>
-            <div class="v-dot"></div><div class="v-dot"></div>
-          </div>
-          <div class="v-core">
-            <span class="v-core-icon">🎙</span>
-            <div class="v-bars">
-              <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
-              <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
-              <div class="v-bar"></div>
-            </div>
-            <span class="v-core-lbl" id="v-core-lbl">TAP TO SPEAK</span>
-          </div>
-        </div>
-        <div class="v-status-lbl" id="v-status-lbl">SYSTEM READY</div>
+    <div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;padding:20px 0;">
+      <div id="el-widget-wrap">
+        <elevenlabs-convai agent-id="agent_6001knx4e6w1fr4aw2vksremf4xe"></elevenlabs-convai>
       </div>
-
-      <!-- TRANSCRIPT -->
-      <div class="voice-transcript-col">
-        <div class="v-transcript-block">
-          <div class="v-t-label">// YOU</div>
-          <div class="v-t-text" id="v-you-text">—<span class="v-cursor" id="v-cursor"></span></div>
-        </div>
-        <div class="v-transcript-block">
-          <div class="v-t-label">// JARVIS</div>
-          <div class="v-t-text jarvis-text" id="v-jarvis-text">Awaiting input, sir.</div>
-        </div>
-        <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border);">
-          <div style="font-size:0.62rem;color:var(--dim);opacity:0.5;line-height:1.6">
-            Tap the orb to speak. JARVIS will respond in your configured voice.<br/>
-            <span id="v-voice-name" style="color:var(--cyan);opacity:0.8;">Voice: loading...</span>
-            &nbsp;·&nbsp;
-            <span id="v-backend-name" style="color:var(--cyan);opacity:0.8;">Backend: Echo</span>
-            &nbsp;·&nbsp;
-            <span style="cursor:pointer;text-decoration:underline;" onclick="document.getElementById('voice-cfg-overlay').classList.add('open')">Configure ⚙</span>
-          </div>
-        </div>
+      <div style="font-size:0.62rem;color:var(--dim);opacity:0.5;letter-spacing:0.15em;text-align:center;line-height:1.8;">
+        CLICK THE ORB TO SPEAK &nbsp;·&nbsp; CLICK AGAIN TO INTERRUPT<br/>
+        <span style="color:var(--cyan);opacity:0.7;">JARVIS &mdash; BRADFORD VOICE &mdash; POWERED BY ELEVENLABS</span>
       </div>
-
     </div>
   </div>
 
-  <!-- ROW 2 -->
+    <!-- ROW 2 -->
   <div class="grid-2">
 
     <!-- MISSION LOG -->
