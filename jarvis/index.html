@@ -761,7 +761,7 @@ const CFG={
 async function elSpeak(text){
   const key=CFG.el_key;
   if(!key) return browserSpeak(text);
-  const voiceId=CFG.el_voice||'pNInz6obpgDQGcFmaJgB'; // Adam default
+  const voiceId=CFG.el_voice||'NNl6r8mD7vthiJatiJt1'; // Bradford default
   setVOrb('speaking'); setVLabel('SPEAKING'); setVStatus('TRANSMITTING...');
   try{
     const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
