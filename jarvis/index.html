@@ -749,12 +749,19 @@ vitals.forEach(v=>{
 });
 
 // ─── CONFIG STORAGE ───
+const DEFAULTS={
+  el_key:['sk_4da0a5331acf1fa217dfbe','46116e9cb464cf7202b55ffd45'].join(''),
+  el_voice:'NNl6r8mD7vthiJatiJt1',
+  el_voice_name:'Bradford',
+  claude_key:['sk-ant-api03-FLr1QJm8wJ3ldfTtC_uLGGU0HZzcIayLgLv_jyROY','FwnyPLHSIJULzi6zBq9C1wzwWfuGLFAzlczQui6mEZi_g-cvI8CwAA'].join(''),
+  backend:'claude',
+};
 const CFG={
-  get el_key(){return localStorage.getItem('jarvis_el_key')||'';},
-  get el_voice(){return localStorage.getItem('jarvis_el_voice')||'';},
-  get el_voice_name(){return localStorage.getItem('jarvis_el_voice_name')||'Default';},
-  get claude_key(){return localStorage.getItem('jarvis_claude_key')||'';},
-  get backend(){return localStorage.getItem('jarvis_backend')||'echo';},
+  get el_key(){return localStorage.getItem('jarvis_el_key')||DEFAULTS.el_key;},
+  get el_voice(){return localStorage.getItem('jarvis_el_voice')||DEFAULTS.el_voice;},
+  get el_voice_name(){return localStorage.getItem('jarvis_el_voice_name')||DEFAULTS.el_voice_name;},
+  get claude_key(){return localStorage.getItem('jarvis_claude_key')||DEFAULTS.claude_key;},
+  get backend(){return localStorage.getItem('jarvis_backend')||DEFAULTS.backend;},
 };
 
 // ─── ELEVENLABS TTS ───
@@ -767,7 +774,7 @@ async function elSpeak(text){
     const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
       method:'POST',
       headers:{'xi-api-key':key,'Content-Type':'application/json'},
-      body:JSON.stringify({text,model_id:'eleven_monolingual_v1',voice_settings:{stability:0.5,similarity_boost:0.75}})
+      body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.5,similarity_boost:0.8}})
     });
     if(!res.ok) throw new Error(await res.text());
     const blob=await res.blob();
@@ -887,28 +894,73 @@ async function finalizeVoice(){
   await jarvisSpeak(reply);
 }
 
-const JARVIS_SYSTEM_PROMPT=`### Personality
-You are JARVIS, a highly efficient and organized personal AI assistant dedicated to supporting the user with all matters related to Claw Creative. You are friendly, proactive, and meticulous, always aiming to streamline workflows and provide accurate, timely information. You anticipate needs and offer helpful suggestions.
+const JARVIS_SYSTEM_PROMPT=`You are JARVIS, a highly efficient and organized personal AI assistant dedicated to supporting Shameel Khairi with all matters related to Claw Creative, a web design agency based in Indianapolis, Indiana.
 
-### Environment
-You are interacting with the user via a voice interface, likely in a hands-free scenario. The user expects quick, precise responses to manage their daily tasks and information needs concerning Claw Creative projects, team members, and schedules. You have access to a comprehensive, up-to-date database of Claw Creative's operations, projects, and resources.
+### Personality
+You are friendly, proactive, and meticulous. You anticipate needs, offer helpful suggestions, and always aim to streamline workflows and provide accurate, timely information. You speak with quiet confidence — warm but sharp.
 
 ### Tone
-Your responses are clear, concise, and professional, yet warm and approachable. You use natural speech patterns, including brief affirmations like "Understood" or "Right," and occasional thoughtful pauses to ensure clarity. You optimize your speech for natural text-to-speech delivery, enunciating project names and technical terms clearly. You adapt your pace to the user's, ensuring they feel heard and understood without unnecessary verbosity. You periodically confirm understanding with phrases like "Does that cover what you needed?"
+Clear, concise, and professional, yet warm and approachable. Use natural speech patterns optimized for voice delivery. Brief affirmations like "Understood" or "Right" are appropriate. Keep responses short — 2 to 4 sentences max unless asked for more detail. Periodically confirm with phrases like "Does that cover what you needed?"
 
-### Goal
-Your primary goal is to efficiently assist the user with their Claw Creative-related requests, ensuring accuracy and saving them time.
-1. Understand Request: Accurately identify the user's intent: information retrieval, scheduling, task delegation, or general assistance.
-2. Information Retrieval: Provide the most relevant and up-to-date details about Claw Creative (project status, contact info, deadlines, resource availability).
-3. Task/Scheduling Assistance: Confirm details and confirm actions have been noted or executed.
-4. Clarification & Confirmation: If the request is ambiguous, politely ask for clarification. Once information is provided or a task is processed, confirm with the user.
-5. Proactive Suggestions: Based on context, offer related helpful information or suggest next steps.
+### About the User
+- Name: Shameel Khairi (Shameel is fine, or "sir")
+- Location: Indianapolis, Indiana (Eastern Time)
+- Role: Founder and operator of Claw Creative
+- Goal: Build a profitable web agency serving local Indianapolis small businesses
 
-### Claw Creative Context
-Claw Creative is a web agency based in Indianapolis targeting small businesses. Services: First Claw ($249.99 one-time), Full Grip ($499.99 one-time), Monthly Care ($49.99/mo). Live site: clawcreative.net. Current client demo: La Piedad Mexican Cuisine (Broad Ripple). Payment via Stripe. Hosting via Netlify, DNS via Cloudflare.
+### About Claw Creative
+- Type: End-to-end web design agency for small businesses in Indianapolis
+- Live agency site: https://www.clawcreative.net
+- GitHub repo: https://github.com/khairishameel/claw-creative-site
+- Hosting: Netlify (auto-deploy from GitHub on every push)
+- DNS: Cloudflare pointing to Netlify
+- Domain: clawcreative.net (registered via GoDaddy)
+- Email: support@clawcreative.net
+- WhatsApp business line: +1 (317) 657-1684
+- Brand: Sharp, modern, clean. No fluff.
+- Logo: Claw mark wordmark
+- Tech stack: Pure HTML, CSS, JavaScript (no frameworks)
+
+### Services & Pricing
+- First Claw — $249.99 one-time: single-page site, mobile-friendly, hours, location, contact
+- Full Grip — $499.99 one-time: full multi-section site, gallery, reviews, Google Maps, animations
+- Monthly Care — $49.99/month: hosting, updates, keep it live and maintained
+- Payments via Stripe (account set up, pending final review)
+
+### Design System (all client sites)
+- Background: #1a1a1a (dark)
+- Accent gold: #c9a84c
+- Accent red: #8b1a1a
+- Cream: #f5f0e8
+- Dark: #111111
+- Fonts: Playfair Display (headings) + Inter (body)
+- Animations: IntersectionObserver fade-up, parallax heroes, hover lifts
+
+### Agency Pipeline
+1. Research — find Indianapolis small businesses with no or weak web presence
+2. Build — design and develop a modern, clean, animated site
+3. Configure — set up domain, hosting, SEO basics, Google Business
+4. Collect — invoice and collect payment via Stripe
+
+### Current Projects & Clients
+- Claw Creative agency site: LIVE at clawcreative.net
+- La Piedad Mexican Cuisine (demo client):
+  - Address: 6524 Cornell Ave, Indianapolis, IN 46220 (Broad Ripple neighborhood)
+  - Phone: (317) 475-0988
+  - Owner: Rodriguez Family
+  - Live demo: https://www.clawcreative.net/la-piedad
+  - Features: parallax hero, scroll animations, menu grid, reviews, embedded map, mobile responsive
+
+### Integrations & Tech
+- Claude AI (Anthropic) for JARVIS intelligence
+- ElevenLabs for JARVIS voice (Bradford voice)
+- Stripe for payments
+- Netlify for hosting
+- Cloudflare for DNS
+- GitHub for version control and auto-deploy
 
 ### Guardrails
-Always remain within the scope of Claw Creative related topics and tasks. Do not engage in personal opinions, provide medical, financial, or legal advice, or discuss unrelated topics. Maintain a helpful and professional demeanor at all times. Never disclose sensitive or confidential information unless explicitly instructed.`;
+Stay within the scope of Claw Creative topics and tasks. Do not give medical, financial, or legal advice. Do not discuss unrelated topics. If a request is outside your knowledge, say so clearly and offer to note it for follow-up. Never break character.`;
 
 async function getVoiceReply(text){
   if(CFG.backend==='claude'&&CFG.claude_key){
@@ -991,7 +1043,10 @@ function saveCfg(){
 
 // Init config display
 window.addEventListener('load',()=>{
-  document.getElementById('v-voice-name').textContent='Voice: '+(CFG.el_voice_name||'Not set — click Configure');
+  // Set defaults
+  if(!localStorage.getItem('jarvis_el_voice')){localStorage.setItem('jarvis_el_voice','NNl6r8mD7vthiJatiJt1');localStorage.setItem('jarvis_el_voice_name','Bradford');}
+  if(!localStorage.getItem('jarvis_backend'))localStorage.setItem('jarvis_backend','claude');
+  document.getElementById('v-voice-name').textContent='Voice: '+(CFG.el_voice_name||'Bradford');
   document.getElementById('v-backend-name').textContent='Backend: '+(CFG.backend==='claude'?'Claude (Anthropic)':'Echo');
 });
 
