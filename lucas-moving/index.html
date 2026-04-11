@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lucas Moving Co. — Indianapolis' Trusted Local Movers</title>
+<meta name="description" content="Locally owned and operated moving company in Indianapolis, IN. Moving, packing, and cleaning services. Open 7 days a week, 5am–12am. Call Austin Lucas today."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --dark:#0a0f1a;
+  --dark2:#111827;
+  --card:#151e2d;
+  --orange:#e85d04;
+  --orange-light:#fb8c00;
+  --blue:#1e3a8a;
+  --white:#ffffff;
+  --off:#e2e8f0;
+  --muted:#94a3b8;
+  --border:#1e293b;
+  --display:'Oswald',sans-serif;
+  --body:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--dark);color:var(--white);font-family:var(--body);overflow-x:hidden;line-height:1.6;}
+
+/* ── NAV ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 5%;display:flex;align-items:center;justify-content:space-between;transition:background .3s,box-shadow .3s;}
+#nav.solid{background:rgba(10,15,26,.97);box-shadow:0 1px 0 rgba(255,255,255,.06);}
+.nav-logo{font-family:var(--display);font-size:1.3rem;font-weight:700;letter-spacing:.06em;color:var(--white);}
+.nav-logo span{color:var(--orange);}
+.nav-phone{display:flex;align-items:center;gap:10px;}
+.nav-phone a{color:var(--off);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .2s;}
+.nav-phone a:hover{color:var(--orange);}
+.nav-cta{background:var(--orange);color:var(--white);padding:10px 22px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-radius:3px;transition:background .2s;}
+.nav-cta:hover{background:var(--orange-light);}
+
+/* ── HERO ── */
+#hero{min-height:100vh;position:relative;display:flex;align-items:center;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:url('http://www.lucasmovingco.com/uploads/1/3/1/0/131023450/published/img-2242.jpg?1583438194') center/cover no-repeat;filter:brightness(.25) saturate(.8);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(105deg,rgba(10,15,26,.95) 45%,rgba(14,25,50,.5) 100%);}
+.hero-content{position:relative;z-index:1;padding:120px 5% 80px;max-width:760px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(232,93,4,.15);border:1px solid rgba(232,93,4,.4);color:var(--orange);font-size:.72rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;padding:7px 16px;border-radius:2px;margin-bottom:28px;}
+.hero-badge::before{content:'●';font-size:.5rem;}
+.hero-h1{font-family:var(--display);font-size:clamp(3rem,7vw,5.8rem);font-weight:700;line-height:.95;letter-spacing:.02em;margin-bottom:24px;}
+.hero-h1 .highlight{color:var(--orange);display:block;}
+.hero-sub{font-size:1.1rem;color:rgba(255,255,255,.7);line-height:1.75;max-width:520px;margin-bottom:40px;font-weight:300;}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:56px;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:var(--white);padding:15px 32px;font-size:.88rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-radius:3px;transition:all .2s;}
+.btn-primary:hover{background:var(--orange-light);transform:translateY(-1px);}
+.btn-outline{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.3);color:var(--white);padding:15px 32px;font-size:.88rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-radius:3px;transition:all .2s;}
+.btn-outline:hover{border-color:var(--orange);color:var(--orange);}
+.hero-stats{display:flex;gap:40px;flex-wrap:wrap;}
+.hero-stat-num{font-family:var(--display);font-size:2.6rem;font-weight:700;color:var(--orange);line-height:1;}
+.hero-stat-label{font-size:.72rem;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-top:3px;}
+.hero-divider{width:1px;background:rgba(255,255,255,.15);align-self:stretch;}
+/* Diagonal cut */
+.hero-cut{position:absolute;bottom:-2px;left:0;right:0;height:80px;background:var(--dark);clip-path:polygon(0 100%,100% 0,100% 100%);}
+
+/* ── TRUST BAR ── */
+.trust-bar{background:var(--orange);padding:14px 5%;display:flex;justify-content:center;align-items:center;gap:40px;flex-wrap:wrap;}
+.trust-item{display:flex;align-items:center;gap:8px;font-size:.75rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--white);}
+.trust-icon{font-size:1rem;}
+
+/* ── SECTION BASE ── */
+section{padding:96px 5%;}
+.eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.35em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;}
+.section-h{font-family:var(--display);font-size:clamp(2rem,4.5vw,3.5rem);font-weight:700;letter-spacing:.02em;line-height:1.05;}
+.section-h em{color:var(--orange);font-style:normal;}
+.divider{width:48px;height:3px;background:var(--orange);margin:20px 0;}
+
+/* ── ABOUT ── */
+#about{background:var(--dark2);}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;margin-top:64px;}
+.about-img-wrap{position:relative;}
+.about-img{width:100%;height:520px;object-fit:cover;object-position:top;border-radius:4px;}
+.about-badge-wrap{position:absolute;bottom:-20px;right:-20px;background:var(--orange);padding:24px 28px;text-align:center;}
+.about-badge-num{font-family:var(--display);font-size:3rem;font-weight:700;color:var(--white);line-height:1;}
+.about-badge-txt{font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.8);margin-top:4px;}
+.about-text{padding-right:20px;}
+.about-text .section-h{margin-bottom:20px;}
+.about-text p{color:rgba(255,255,255,.7);line-height:1.85;margin-bottom:18px;font-weight:300;font-size:.96rem;}
+.about-points{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:32px;}
+.about-point{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--off);}
+.about-point-icon{color:var(--orange);font-size:1.1rem;flex-shrink:0;}
+
+/* ── SERVICES ── */
+#services{background:var(--dark);position:relative;}
+.services-header{text-align:center;max-width:600px;margin:0 auto 64px;}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+.service-card{background:var(--card);padding:48px 36px;position:relative;overflow:hidden;transition:background .3s;}
+.service-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange);transform:scaleX(0);transition:transform .3s;transform-origin:left;}
+.service-card:hover{background:#1a2540;}
+.service-card:hover::before{transform:scaleX(1);}
+.service-num{font-family:var(--display);font-size:4rem;font-weight:700;color:rgba(232,93,4,.12);line-height:1;margin-bottom:20px;}
+.service-icon{font-size:2.2rem;margin-bottom:18px;display:block;}
+.service-name{font-family:var(--display);font-size:1.6rem;font-weight:700;letter-spacing:.03em;margin-bottom:14px;}
+.service-desc{color:var(--muted);font-size:.88rem;line-height:1.8;font-weight:300;}
+.service-features{margin-top:20px;display:flex;flex-direction:column;gap:8px;}
+.sf{display:flex;align-items:center;gap:8px;font-size:.82rem;color:rgba(255,255,255,.6);}
+.sf::before{content:'→';color:var(--orange);flex-shrink:0;}
+
+/* ── WHY US ── */
+#why{background:var(--dark2);}
+.why-inner{display:grid;grid-template-columns:1fr 1.2fr;gap:72px;align-items:center;}
+.why-left .section-h{margin-bottom:20px;}
+.why-left p{color:rgba(255,255,255,.65);line-height:1.85;font-weight:300;margin-bottom:32px;}
+.why-list{display:flex;flex-direction:column;gap:20px;}
+.why-item{display:flex;gap:18px;align-items:flex-start;}
+.why-icon{width:44px;height:44px;background:rgba(232,93,4,.12);border:1px solid rgba(232,93,4,.25);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;margin-top:2px;}
+.why-item-text strong{display:block;font-size:.92rem;font-weight:600;margin-bottom:4px;}
+.why-item-text p{font-size:.84rem;color:var(--muted);line-height:1.7;}
+.why-right{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.why-stat{background:var(--card);padding:36px 28px;text-align:center;}
+.why-stat-num{font-family:var(--display);font-size:3.2rem;font-weight:700;color:var(--orange);line-height:1;margin-bottom:8px;}
+.why-stat-label{font-size:.72rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
+
+/* ── TESTIMONIALS ── */
+#reviews{background:var(--dark);position:relative;overflow:hidden;}
+#reviews::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:rgba(232,93,4,.04);pointer-events:none;}
+.reviews-header{text-align:center;max-width:600px;margin:0 auto 64px;}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+.review-card{background:var(--card);padding:36px;border-top:2px solid var(--orange);position:relative;}
+.stars{color:var(--orange);font-size:1.1rem;letter-spacing:3px;margin-bottom:20px;}
+.review-text{font-size:.9rem;color:rgba(255,255,255,.72);line-height:1.85;margin-bottom:24px;font-weight:300;font-style:italic;}
+.review-author{display:flex;align-items:center;gap:14px;}
+.reviewer-avatar{width:42px;height:42px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:1.1rem;flex-shrink:0;}
+.reviewer-name{font-weight:600;font-size:.88rem;}
+.reviewer-detail{font-size:.72rem;color:var(--muted);}
+.google-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:5px 12px;border-radius:20px;font-size:.7rem;color:var(--muted);margin-top:10px;}
+
+/* ── QUOTE FORM ── */
+#quote{background:linear-gradient(135deg,#0d1829 0%,#0a0f1a 100%);}
+.quote-inner{display:grid;grid-template-columns:1fr 1.1fr;gap:72px;align-items:start;}
+.quote-left{padding-top:16px;}
+.quote-left .section-h{margin-bottom:20px;}
+.quote-left p{color:rgba(255,255,255,.65);line-height:1.85;font-weight:300;margin-bottom:36px;}
+.contact-info{display:flex;flex-direction:column;gap:16px;}
+.contact-item{display:flex;align-items:flex-start;gap:14px;font-size:.9rem;color:rgba(255,255,255,.7);}
+.contact-icon{color:var(--orange);width:20px;flex-shrink:0;margin-top:2px;}
+.contact-item a{color:inherit;text-decoration:none;transition:color .2s;}
+.contact-item a:hover{color:var(--orange);}
+.form-card{background:var(--card);padding:40px;border-radius:4px;border:1px solid var(--border);}
+.form-card h3{font-family:var(--display);font-size:1.6rem;font-weight:700;color:var(--orange);margin-bottom:28px;letter-spacing:.03em;}
+.fg{margin-bottom:18px;}
+.fg label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.fg input,.fg select,.fg textarea{width:100%;background:#1e293b;border:1px solid var(--border);color:var(--white);padding:12px 14px;font-family:var(--body);font-size:.9rem;border-radius:3px;outline:none;transition:border .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--orange);}
+.fg select option{background:#1e293b;}
+.fg textarea{resize:vertical;min-height:100px;}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-submit{width:100%;background:var(--orange);color:var(--white);border:none;padding:16px;font-family:var(--body);font-size:.88rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:3px;cursor:pointer;margin-top:8px;transition:background .2s;}
+.form-submit:hover{background:var(--orange-light);}
+.form-note{font-size:.72rem;color:var(--muted);text-align:center;margin-top:10px;}
+
+/* ── FOOTER ── */
+footer{background:#050a12;border-top:1px solid var(--border);padding:40px 5%;display:grid;grid-template-columns:1fr auto auto;gap:32px;align-items:start;flex-wrap:wrap;}
+.footer-logo{font-family:var(--display);font-size:1.3rem;font-weight:700;letter-spacing:.06em;}
+.footer-logo span{color:var(--orange);}
+.footer-tagline{font-size:.8rem;color:var(--muted);margin-top:6px;line-height:1.6;}
+.footer-col h4{font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;}
+.footer-col p,.footer-col a{font-size:.82rem;color:var(--muted);line-height:1.9;text-decoration:none;display:block;transition:color .2s;}
+.footer-col a:hover{color:var(--white);}
+.footer-bottom{border-top:1px solid var(--border);margin-top:32px;padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:.72rem;color:#334155;grid-column:1/-1;}
+.footer-bottom a{color:var(--orange);text-decoration:none;}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+.reveal-delay-1{transition-delay:.1s;}
+.reveal-delay-2{transition-delay:.2s;}
+.reveal-delay-3{transition-delay:.3s;}
+
+/* ── MOBILE ── */
+@media(max-width:900px){
+  .about-grid,.why-inner,.quote-inner{grid-template-columns:1fr;}
+  .services-grid,.reviews-grid{grid-template-columns:1fr;}
+  .why-right{grid-template-columns:1fr 1fr;}
+  .about-text{padding-right:0;}
+  .about-badge-wrap{right:0;}
+  footer{grid-template-columns:1fr;}
+  .trust-bar{gap:20px;}
+  .hero-stats{gap:24px;}
+  .fg-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo">Lucas <span>Moving Co.</span></div>
+  <div class="nav-phone">
+    <a href="tel:3173846861">📞 (317) 384-6861</a>
+    <a href="#quote" class="nav-cta">Get a Quote</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge reveal">📍 Southside Indianapolis · Locally Owned & Operated</div>
+    <h1 class="hero-h1 reveal">
+      Your Move.<br/>
+      Done Right.<br/>
+      <span class="highlight">First Time.</span>
+    </h1>
+    <p class="hero-sub reveal">Indianapolis' trusted local moving company. No corporate games, no hidden fees, no damage to your stuff. Just Austin and his team getting it done — 7 days a week, 5am to midnight.</p>
+    <div class="hero-actions reveal">
+      <a href="tel:3173846861" class="btn-primary">📞 Call Now — (317) 384-6861</a>
+      <a href="#quote" class="btn-outline">Get a Free Quote</a>
+    </div>
+    <div class="hero-stats reveal">
+      <div>
+        <div class="hero-stat-num" data-count="8">0</div>
+        <div class="hero-stat-label">Years Experience</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div>
+        <div class="hero-stat-num" data-count="500">0</div>
+        <div class="hero-stat-label">Moves Completed</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div>
+        <div class="hero-stat-num">5★</div>
+        <div class="hero-stat-label">Google Rating</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div>
+        <div class="hero-stat-num">7</div>
+        <div class="hero-stat-label">Days a Week</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-cut"></div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-item"><span class="trust-icon">🏠</span>Locally Owned & Operated</div>
+  <div class="trust-item"><span class="trust-icon">🛡</span>Fully Licensed & Insured</div>
+  <div class="trust-item"><span class="trust-icon">⏰</span>Open 5AM – 12AM Daily</div>
+  <div class="trust-item"><span class="trust-icon">💰</span>No Hidden Fees. Ever.</div>
+  <div class="trust-item"><span class="trust-icon">📦</span>Moving · Packing · Cleaning</div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-img-wrap reveal">
+      <img src="http://www.lucasmovingco.com/uploads/1/3/1/0/131023450/published/img-2248.jpg?1584555267" alt="Austin Lucas — Owner of Lucas Moving Co." class="about-img"/>
+      <div class="about-badge-wrap">
+        <div class="about-badge-num">8+</div>
+        <div class="about-badge-txt">Years in<br/>the Game</div>
+      </div>
+    </div>
+    <div class="about-text reveal">
+      <p class="eyebrow">Meet the Owner</p>
+      <h2 class="section-h">Austin Lucas.<br/>Southside Indy.<br/><em>Built Different.</em></h2>
+      <div class="divider"></div>
+      <p>Born and raised on the southside of Indianapolis, Austin built Lucas Moving Co. from the ground up. After 8 years in the industry, he knows exactly what makes a move go wrong — and more importantly, how to make sure it doesn't.</p>
+      <p>When you hire Lucas Moving Co., you're not getting a corporate crew with a script. You're getting Austin — a guy who treats your stuff like it's his own, shows up on time, and doesn't leave until you're settled.</p>
+      <p>No contracts. No surprises. Just a neighbor helping you move.</p>
+      <div class="about-points">
+        <div class="about-point"><span class="about-point-icon">✓</span>Southside Indianapolis native</div>
+        <div class="about-point"><span class="about-point-icon">✓</span>8+ years of experience</div>
+        <div class="about-point"><span class="about-point-icon">✓</span>Fully licensed & insured</div>
+        <div class="about-point"><span class="about-point-icon">✓</span>Personally on every job</div>
+        <div class="about-point"><span class="about-point-icon">✓</span>Transparent pricing</div>
+        <div class="about-point"><span class="about-point-icon">✓</span>Family-first mentality</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-header reveal">
+    <p class="eyebrow">What We Do</p>
+    <h2 class="section-h">Everything You Need.<br/><em>One Company.</em></h2>
+    <p style="color:var(--muted);font-size:.92rem;font-weight:300;margin-top:16px;line-height:1.8;">Moving is stressful enough. That's why we handle everything — from the heavy lifting to the last piece of tape on the last box.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">01</div>
+      <span class="service-icon">🚛</span>
+      <div class="service-name">Moving Services</div>
+      <p class="service-desc">Local or long-distance, apartment or 5-bedroom house — we've moved them all. Careful handling, efficient loading, zero damage guaranteed.</p>
+      <div class="service-features">
+        <div class="sf">Residential & commercial moves</div>
+        <div class="sf">Furniture disassembly & reassembly</div>
+        <div class="sf">Careful wrapping & protection</div>
+        <div class="sf">Same-day service available</div>
+      </div>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-num">02</div>
+      <span class="service-icon">📦</span>
+      <div class="service-name">Packing Services</div>
+      <p class="service-desc">Don't spend your weekend drowning in bubble wrap. We pack everything — from fragile china to flat-screen TVs — safely, quickly, and professionally.</p>
+      <div class="service-features">
+        <div class="sf">Full or partial packing</div>
+        <div class="sf">High-value & fragile items</div>
+        <div class="sf">All materials provided</div>
+        <div class="sf">Organized box labeling</div>
+      </div>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-num">03</div>
+      <span class="service-icon">🧹</span>
+      <div class="service-name">Cleaning Services</div>
+      <p class="service-desc">Move out, clean up, get your deposit back. We handle the deep clean at your old place so you can focus on setting up your new home.</p>
+      <div class="service-features">
+        <div class="sf">Move-out deep cleaning</div>
+        <div class="sf">Move-in cleaning & prep</div>
+        <div class="sf">Appliances, floors & more</div>
+        <div class="sf">Deposit-ready guarantee</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="why-inner">
+    <div class="why-left reveal">
+      <p class="eyebrow">Why Lucas Moving Co.</p>
+      <h2 class="section-h">We're Not<br/>Allied Van Lines.<br/><em>Good.</em></h2>
+      <div class="divider"></div>
+      <p>The big national companies have 1-800 numbers, middlemen, and crews who've never even been to Indianapolis. We live here. We work here. Your neighborhood is our neighborhood.</p>
+      <div class="why-list">
+        <div class="why-item">
+          <div class="why-icon">⚡</div>
+          <div class="why-item-text">
+            <strong>We Show Up — On Time, Every Time</strong>
+            <p>No four-hour arrival windows. We give you a time and we're there. Period.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-icon">🤝</div>
+          <div class="why-item-text">
+            <strong>Austin's On Every Job</strong>
+            <p>You're not getting a random crew. You're getting the owner on-site, personally accountable.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-icon">💲</div>
+          <div class="why-item-text">
+            <strong>Flat-Rate Pricing — No Surprises</strong>
+            <p>The price we quote is the price you pay. No mystery fees, no fuel surcharges, no games.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-icon">🛡</div>
+          <div class="why-item-text">
+            <strong>Fully Licensed & Insured</strong>
+            <p>Your belongings are protected. We're fully licensed, bonded, and insured so you don't have to worry.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="why-right reveal">
+      <div class="why-stat">
+        <div class="why-stat-num" data-count="8">0</div>
+        <div class="why-stat-label">Years Experience</div>
+      </div>
+      <div class="why-stat">
+        <div class="why-stat-num" data-count="500">0</div>
+        <div class="why-stat-label">Moves Completed</div>
+      </div>
+      <div class="why-stat">
+        <div class="why-stat-num">7</div>
+        <div class="why-stat-label">Days a Week</div>
+      </div>
+      <div class="why-stat">
+        <div class="why-stat-num">5am</div>
+        <div class="why-stat-label">Earliest Available</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="reviews">
+  <div class="reviews-header reveal">
+    <p class="eyebrow">What Indianapolis Says</p>
+    <h2 class="section-h">Locally Owned.<br/><em>Locally Trusted.</em></h2>
+  </div>
+  <div class="reviews-grid">
+    <div class="review-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"Austin and his team were absolutely incredible. They moved our entire 3-bedroom house in under 4 hours. Not a single scratch on anything. Compared to the big moving company I used 3 years ago — no comparison. Lucas Moving Co. is the only call I'll ever make."</p>
+      <div class="review-author">
+        <div class="reviewer-avatar">M</div>
+        <div>
+          <div class="reviewer-name">Marcus T.</div>
+          <div class="reviewer-detail">Moved from Speedway → Greenwood</div>
+          <div class="google-badge">⭐ Google Review</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card reveal reveal-delay-1">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"Called on a Tuesday, moved on a Thursday. Austin was flexible, professional, and honest about pricing from the very first call. He also helped us pack a few rooms we hadn't finished — above and beyond. Will recommend to everyone I know."</p>
+      <div class="review-author">
+        <div class="reviewer-avatar">J</div>
+        <div>
+          <div class="reviewer-name">Jennifer R.</div>
+          <div class="reviewer-detail">Moved within Indianapolis</div>
+          <div class="google-badge">⭐ Google Review</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card reveal reveal-delay-2">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"I was dreading my move — I always do. But from start to finish, Lucas Moving Co. made it painless. On time, careful with everything, and genuinely nice guys. The cleaning service they did on my old apartment got my full deposit back. 10/10."</p>
+      <div class="review-author">
+        <div class="reviewer-avatar">D</div>
+        <div>
+          <div class="reviewer-name">Dana K.</div>
+          <div class="reviewer-detail">Apartment move + cleaning service</div>
+          <div class="google-badge">⭐ Google Review</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE FORM -->
+<section id="quote">
+  <div class="quote-inner">
+    <div class="quote-left reveal">
+      <p class="eyebrow">Get a Free Quote</p>
+      <h2 class="section-h">Ready to Move?<br/><em>Let's Talk.</em></h2>
+      <div class="divider"></div>
+      <p>Fill out the form and Austin will get back to you fast — usually within the hour. No pressure, no obligation. Just a straight answer on what your move will cost.</p>
+      <div class="contact-info">
+        <div class="contact-item">
+          <span class="contact-icon">📞</span>
+          <span><a href="tel:3173846861">(317) 384-6861</a><br/><span style="font-size:.78rem;color:var(--muted);">Call or text anytime, 5am–12am</span></span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">📍</span>
+          <span>2118 Singleton Street<br/>Indianapolis, IN 46203</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">⏰</span>
+          <span>Monday – Sunday<br/>5:00 AM – 12:00 AM</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">🌐</span>
+          <span>Serving all of Indianapolis<br/>and surrounding areas</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-card reveal">
+      <h3>Get Your Free Quote</h3>
+      <form id="quote-form" onsubmit="submitQuote(event)">
+        <div class="fg-row">
+          <div class="fg"><label>First Name</label><input type="text" required placeholder="John"/></div>
+          <div class="fg"><label>Last Name</label><input type="text" required placeholder="Smith"/></div>
+        </div>
+        <div class="fg"><label>Phone Number</label><input type="tel" required placeholder="(317) 000-0000"/></div>
+        <div class="fg"><label>Email Address</label><input type="email" required placeholder="you@email.com"/></div>
+        <div class="fg">
+          <label>Service Needed</label>
+          <select required>
+            <option value="">Select a service...</option>
+            <option>Moving Only</option>
+            <option>Packing Only</option>
+            <option>Moving + Packing</option>
+            <option>Cleaning Only</option>
+            <option>Full Service (Moving + Packing + Cleaning)</option>
+          </select>
+        </div>
+        <div class="fg-row">
+          <div class="fg"><label>Move Date</label><input type="date"/></div>
+          <div class="fg">
+            <label>Home Size</label>
+            <select>
+              <option>Studio / 1 Bed</option>
+              <option>2 Bedrooms</option>
+              <option>3 Bedrooms</option>
+              <option>4+ Bedrooms</option>
+              <option>Office / Commercial</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label>Tell Us About Your Move</label><textarea placeholder="Current address, destination, anything special we should know..."></textarea></div>
+        <button type="submit" class="form-submit">📦 Request My Free Quote</button>
+        <p class="form-note">No obligation. Austin will call you back within the hour.</p>
+      </form>
+      <div id="form-success" style="display:none;text-align:center;padding:32px 0;">
+        <div style="font-size:3rem;margin-bottom:16px;">✅</div>
+        <h3 style="font-family:var(--display);font-size:1.6rem;color:var(--orange);margin-bottom:10px;">Quote Request Sent!</h3>
+        <p style="color:var(--muted);font-size:.9rem;">Austin will be in touch within the hour. In the meantime, feel free to call or text at <a href="tel:3173846861" style="color:var(--orange);">(317) 384-6861</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">Lucas <span>Moving Co.</span></div>
+    <p class="footer-tagline">Indianapolis' locally owned<br/>moving company. Est. by Austin Lucas.</p>
+  </div>
+  <div class="footer-col">
+    <h4>Services</h4>
+    <p>Moving Services</p>
+    <p>Packing Services</p>
+    <p>Cleaning Services</p>
+    <p>Commercial Moves</p>
+  </div>
+  <div class="footer-col">
+    <h4>Contact</h4>
+    <a href="tel:3173846861">(317) 384-6861</a>
+    <p>2118 Singleton Street</p>
+    <p>Indianapolis, IN 46203</p>
+    <p>Mon–Sun · 5am–12am</p>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Lucas Moving Co. — All Rights Reserved</span>
+    <span>Site by <a href="https://clawcreative.net" target="_blank">Claw Creative</a></span>
+  </div>
+</footer>
+
+<script>
+// ── Scroll Reveal ──────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: .1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Nav solid on scroll ────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('solid', scrollY > 60);
+});
+
+// ── Counter animation ──────────────────────────────────────
+function animateCounter(el, target, suffix = '') {
+  let start = 0;
+  const duration = 2000;
+  const step = Math.ceil(target / (duration / 16));
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = start.toLocaleString() + suffix;
+    if(start >= target) clearInterval(timer);
+  }, 16);
+}
+
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const el = e.target;
+      const target = parseInt(el.dataset.count);
+      if(!isNaN(target)) {
+        const suffix = el.dataset.count === '8' ? '+' : el.dataset.count === '500' ? '+' : '';
+        animateCounter(el, target, suffix);
+        counterObs.unobserve(el);
+      }
+    }
+  });
+}, { threshold: .5 });
+document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
+
+// ── Quote form ─────────────────────────────────────────────
+function submitQuote(e) {
+  e.preventDefault();
+  document.getElementById('quote-form').style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
+}
+</script>
+</body>
+</html>
