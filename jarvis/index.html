@@ -638,11 +638,10 @@ async function vpFinalize(){
   document.getElementById('you-said').textContent=text;setState('thinking');setStatus('PROCESSING...');
   const reply=await vpAsk(text);
   const actionM=reply.match(/\[OPENCLAW_ACTION:\s*([^\]]+)\]/);
-  const spoken=reply.replace(/\[OPENCLAW_ACTION:[^\]]+\]/g,'').trim();
+  const spMatch=reply.match(/\[SPOTIFY:([^\]]+)\]/);
+  const spoken=reply.replace(/\[OPENCLAW_ACTION:[^\]]+\]/g,'').replace(/\[SPOTIFY:[^\]]+\]/g,'').trim();
   if(spoken)document.getElementById('jarvis-said').textContent=spoken;
   if(actionM)setStatus('⚡ ROUTED: '+actionM[1].substring(0,50));
-  // Execute Spotify commands
-  const spMatch=reply.match(/\[SPOTIFY:([^\]]+)\]/);
   if(spMatch)execSpotifyCmd(spMatch[1].trim());
   if(spoken)await vpSpeak(spoken);else{setState('idle');setStatus('SYSTEM READY');}
 }
