@@ -857,9 +857,15 @@
       if (el.dataset.text) return;
       let start = 0;
       const step = target / 60;
+      let lastDisplayed = -1;
       const timer = setInterval(() => {
         start = Math.min(start + step, target);
-        el.textContent = prefix + Math.floor(start);
+        const current = Math.floor(start);
+        if (current !== lastDisplayed) {
+          el.textContent = prefix + current;
+          haptic(18);
+          lastDisplayed = current;
+        }
         if (start >= target) { el.textContent = prefix + target; clearInterval(timer); }
       }, 16);
     }
@@ -868,6 +874,9 @@
     }, { threshold: 0.5 });
     document.querySelectorAll('.stat-number[data-target]').forEach(el => counterObserver.observe(el));
 
+    // HAPTICS HELPER
+    function haptic(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+
     // TYPEWRITER + HAPTICS
     function typeWriter(el, text, speed = 55) {
       el.textContent = '';
@@ -875,7 +884,7 @@
       function tick() {
         if (i < text.length) {
           el.textContent += text[i];
-          if (navigator.vibrate) navigator.vibrate(1);
+          haptic(text[i] === ' ' ? 2 : 12);
           i++;
           setTimeout(tick, speed);
         }
