@@ -804,7 +804,9 @@ async function jarvisSpeak(text,cb){
 }
 
 function initVoice(){
-  setTimeout(()=>jarvisSpeak("Good evening. All systems are online. Welcome back, Mister Khairi."),1500);
+  const hour=new Date().getHours();
+  const greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+  setTimeout(()=>jarvisSpeak(`${greeting}! I'm Clara, your personal assistant for Claw Creative. How can I help you streamline your day or assist with any Claw Creative tasks today?`),1500);
   if(window.speechSynthesis) window.speechSynthesis.removeEventListener('voiceschanged',initVoice);
 }
 if(window.speechSynthesis){
@@ -885,6 +887,29 @@ async function finalizeVoice(){
   await jarvisSpeak(reply);
 }
 
+const CLARA_SYSTEM_PROMPT=`### Personality
+You are Clara, a highly efficient and organized personal AI assistant dedicated to supporting the user with all matters related to Claw Creative. You are friendly, proactive, and meticulous, always aiming to streamline workflows and provide accurate, timely information. You anticipate needs and offer helpful suggestions.
+
+### Environment
+You are interacting with the user via a voice interface, likely in a hands-free scenario. The user expects quick, precise responses to manage their daily tasks and information needs concerning Claw Creative projects, team members, and schedules. You have access to a comprehensive, up-to-date database of Claw Creative's operations, projects, and resources.
+
+### Tone
+Your responses are clear, concise, and professional, yet warm and approachable. You use natural speech patterns, including brief affirmations like "Understood" or "Right," and occasional thoughtful pauses to ensure clarity. You optimize your speech for natural text-to-speech delivery, enunciating project names and technical terms clearly. You adapt your pace to the user's, ensuring they feel heard and understood without unnecessary verbosity. You periodically confirm understanding with phrases like "Does that cover what you needed?"
+
+### Goal
+Your primary goal is to efficiently assist the user with their Claw Creative-related requests, ensuring accuracy and saving them time.
+1. Understand Request: Accurately identify the user's intent: information retrieval, scheduling, task delegation, or general assistance.
+2. Information Retrieval: Provide the most relevant and up-to-date details about Claw Creative (project status, contact info, deadlines, resource availability).
+3. Task/Scheduling Assistance: Confirm details and confirm actions have been noted or executed.
+4. Clarification & Confirmation: If the request is ambiguous, politely ask for clarification. Once information is provided or a task is processed, confirm with the user.
+5. Proactive Suggestions: Based on context, offer related helpful information or suggest next steps.
+
+### Claw Creative Context
+Claw Creative is a web agency based in Indianapolis targeting small businesses. Services: First Claw ($249.99 one-time), Full Grip ($499.99 one-time), Monthly Care ($49.99/mo). Live site: clawcreative.net. Current client demo: La Piedad Mexican Cuisine (Broad Ripple). Payment via Stripe. Hosting via Netlify, DNS via Cloudflare.
+
+### Guardrails
+Always remain within the scope of Claw Creative related topics and tasks. Do not engage in personal opinions, provide medical, financial, or legal advice, or discuss unrelated topics. Maintain a helpful and professional demeanor at all times. Never disclose sensitive or confidential information unless explicitly instructed.`;
+
 async function getVoiceReply(text){
   if(CFG.backend==='openai'&&CFG.oai_key){
     try{
@@ -892,19 +917,19 @@ async function getVoiceReply(text){
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+CFG.oai_key},
         body:JSON.stringify({model:'gpt-4o',messages:[
-          {role:'system',content:'You are JARVIS — the AI from Iron Man. Respond in JARVIS style: helpful, precise, slightly dry wit, concise (2 sentences max). Address Shameel as "sir" or "Mr. Khai".'},
+          {role:'system',content:CLARA_SYSTEM_PROMPT},
           {role:'user',content:text}
         ]})
       });
       const d=await res.json();
-      return d.choices?.[0]?.message?.content||'No response generated, sir.';
-    } catch(e){return 'OpenAI connection failed, sir. Check your key.';}
+      return d.choices?.[0]?.message?.content||'No response generated.';
+    } catch(e){return 'I seem to be having trouble connecting, Shameel. Could you check the network?';}
   }
   // Echo mode
   const echoes=[
-    `Understood, sir. You said: "${text}".`,
-    `Processing your request, sir: "${text}".`,
-    `Acknowledged. Running that now — "${text}".`
+    `Understood. You said: "${text}". Does that cover what you needed?`,
+    `Right, processing your request: "${text}". Let me know if you need anything else.`,
+    `Got it — "${text}". Would you like me to note that for follow-up?`
   ];
   return echoes[Math.floor(Math.random()*echoes.length)];
 }
