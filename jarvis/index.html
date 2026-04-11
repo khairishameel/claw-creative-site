@@ -11,332 +11,211 @@
 :root{
   --bg:#050a0e;
   --cyan:#00d4ff;
-  --cyan2:#0099bb;
+  --cyan2:#0088bb;
   --green:#00ff88;
   --orange:#ff8800;
   --yellow:#ffcc00;
   --red:#ff3366;
   --amber:#ffb347;
   --panel:rgba(0,212,255,0.04);
-  --border:rgba(0,212,255,0.15);
+  --border:rgba(0,212,255,0.14);
   --text:#c8f0ff;
-  --dim:rgba(200,240,255,0.35);
+  --dim:rgba(200,240,255,0.4);
   --font:'Orbitron',sans-serif;
   --mono:'Share Tech Mono',monospace;
 }
-html{scroll-behavior:smooth;}
+html,body{height:100%;overflow:hidden;}
 body{
   background:var(--bg);
   color:var(--text);
   font-family:var(--mono);
-  min-height:100vh;
-  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
 }
 
 /* CANVAS BACKGROUND */
 #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
 
-/* SCANLINE OVERLAY */
+/* SCANLINE */
 body::after{
-  content:'';
-  position:fixed;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
   pointer-events:none;z-index:1;
 }
 
-/* TOP BAR */
+/* ── TOP BAR ── */
 #topbar{
-  position:fixed;top:0;left:0;right:0;height:48px;
-  background:rgba(5,10,14,0.92);
+  position:relative;z-index:100;
+  height:44px;flex-shrink:0;
+  background:rgba(5,10,14,0.95);
   border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;z-index:100;
-  backdrop-filter:blur(8px);
+  padding:0 20px;
+  backdrop-filter:blur(10px);
 }
-#topbar-logo{
-  font-family:var(--font);font-weight:900;font-size:14px;
-  letter-spacing:4px;color:var(--cyan);
-  text-shadow:0 0 12px rgba(0,212,255,0.6);
-}
-#topbar-right{display:flex;align-items:center;gap:12px;}
-#status-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:var(--green);
-  box-shadow:0 0 8px var(--green);
-  animation:pulse-dot 2s ease-in-out infinite;
-}
-@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:0.4;}}
-#status-label{font-size:10px;letter-spacing:2px;color:var(--green);}
-#clock{font-size:13px;letter-spacing:2px;color:var(--dim);}
+#topbar-logo{font-family:var(--font);font-weight:900;font-size:13px;letter-spacing:5px;color:var(--cyan);text-shadow:0 0 14px rgba(0,212,255,0.7);}
+#topbar-center{display:flex;gap:18px;align-items:center;}
+.tb-ind{display:flex;align-items:center;gap:5px;font-size:9px;letter-spacing:2px;color:var(--dim);}
+.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pdot 2s ease-in-out infinite;}
+.tb-dot.warn{background:var(--yellow);box-shadow:0 0 6px var(--yellow);}
+@keyframes pdot{0%,100%{opacity:1;}50%{opacity:0.3;}}
+#clock{font-family:var(--font);font-size:14px;letter-spacing:3px;color:var(--cyan);text-shadow:0 0 8px rgba(0,212,255,0.5);}
 
-/* MAIN WRAPPER */
-#main{position:relative;z-index:2;padding-top:48px;}
-
-/* HERO */
-#hero{
-  min-height:40vh;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:60px 24px 40px;text-align:center;
+/* ── CONVERSATION PANELS (prominent, top) ── */
+#conv-row{
+  position:relative;z-index:10;
+  flex-shrink:0;
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  padding:10px 16px 8px;
+  background:rgba(5,10,14,0.6);
+  border-bottom:1px solid var(--border);
 }
-#hero-title{
-  font-family:var(--font);font-weight:900;
-  font-size:clamp(36px,8vw,80px);letter-spacing:12px;
-  color:var(--cyan);
-  text-shadow:0 0 20px rgba(0,212,255,0.8),0 0 60px rgba(0,212,255,0.3);
-  margin-bottom:16px;
-}
-#hero-sub{
-  font-size:clamp(9px,1.5vw,12px);letter-spacing:4px;
-  color:var(--dim);text-transform:uppercase;
-  margin-bottom:24px;
-}
-.hero-line{
-  width:200px;height:1px;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
-  animation:line-glow 3s ease-in-out infinite;
-}
-@keyframes line-glow{0%,100%{opacity:0.3;}50%{opacity:1;}}
-
-/* VOICE SECTION */
-#voice-section{
-  padding:40px 24px 60px;
-  display:flex;flex-direction:column;align-items:center;
-  gap:32px;
-}
-
-/* ORB */
-#orb-wrap{position:relative;width:220px;height:220px;cursor:pointer;flex-shrink:0;}
-#orb{
-  position:absolute;inset:0;border-radius:50%;
-  background:radial-gradient(circle at 40% 35%,rgba(0,212,255,0.25),rgba(0,212,255,0.05) 60%,transparent);
-  border:2px solid rgba(0,212,255,0.5);
-  display:flex;align-items:center;justify-content:center;
-  transition:border-color 0.3s,box-shadow 0.3s;
-  box-shadow:0 0 30px rgba(0,212,255,0.2),inset 0 0 30px rgba(0,212,255,0.05);
-}
-/* ring animations */
-.orb-ring{
-  position:absolute;border-radius:50%;border:1px solid transparent;
-  animation:none;
-}
-.r1{width:100%;height:100%;border-color:rgba(0,212,255,0.15);}
-.r2{width:130%;height:130%;top:-15%;left:-15%;border-color:rgba(0,212,255,0.08);}
-.r3{width:160%;height:160%;top:-30%;left:-30%;border-color:rgba(0,212,255,0.04);}
-
-/* idle pulse */
-#orb.idle{animation:orb-idle 3s ease-in-out infinite;}
-@keyframes orb-idle{
-  0%,100%{box-shadow:0 0 30px rgba(0,212,255,0.2),inset 0 0 30px rgba(0,212,255,0.05);}
-  50%{box-shadow:0 0 50px rgba(0,212,255,0.4),inset 0 0 40px rgba(0,212,255,0.1);}
-}
-/* listening */
-#orb.listening{
-  border-color:var(--green);
-  background:radial-gradient(circle at 40% 35%,rgba(0,255,136,0.2),rgba(0,255,136,0.05) 60%,transparent);
-  animation:orb-listen 0.8s ease-in-out infinite;
-}
-@keyframes orb-listen{
-  0%,100%{box-shadow:0 0 40px rgba(0,255,136,0.4),inset 0 0 30px rgba(0,255,136,0.1);}
-  50%{box-shadow:0 0 70px rgba(0,255,136,0.7),inset 0 0 50px rgba(0,255,136,0.2);}
-}
-#orb.listening .r1{animation:ring-expand 1s ease-out infinite;border-color:rgba(0,255,136,0.3);}
-#orb.listening .r2{animation:ring-expand 1s ease-out 0.3s infinite;border-color:rgba(0,255,136,0.15);}
-#orb.listening .r3{animation:ring-expand 1s ease-out 0.6s infinite;border-color:rgba(0,255,136,0.07);}
-@keyframes ring-expand{
-  0%{transform:scale(0.9);opacity:0.8;}
-  100%{transform:scale(1.2);opacity:0;}
-}
-/* thinking */
-#orb.thinking{
-  border-color:var(--yellow);
-  background:radial-gradient(circle at 40% 35%,rgba(255,204,0,0.2),rgba(255,204,0,0.05) 60%,transparent);
-  animation:orb-think 1.5s linear infinite;
-}
-@keyframes orb-think{
-  0%{box-shadow:0 0 40px rgba(255,204,0,0.3),inset 0 0 20px rgba(255,204,0,0.1);}
-  50%{box-shadow:0 0 60px rgba(255,204,0,0.5),inset 0 0 30px rgba(255,204,0,0.15);}
-  100%{box-shadow:0 0 40px rgba(255,204,0,0.3),inset 0 0 20px rgba(255,204,0,0.1);}
-}
-#orb.thinking::after{
-  content:'';
-  position:absolute;inset:-3px;border-radius:50%;
-  border:2px solid transparent;
-  border-top-color:var(--yellow);
-  animation:spin 1s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-/* speaking */
-#orb.speaking{
-  border-color:var(--orange);
-  background:radial-gradient(circle at 40% 35%,rgba(255,136,0,0.2),rgba(255,136,0,0.05) 60%,transparent);
-  animation:orb-speak 0.5s ease-in-out infinite;
-}
-@keyframes orb-speak{
-  0%,100%{box-shadow:0 0 40px rgba(255,136,0,0.4),inset 0 0 20px rgba(255,136,0,0.1);}
-  50%{box-shadow:0 0 80px rgba(255,136,0,0.7),inset 0 0 40px rgba(255,136,0,0.2);}
-}
-/* sound bars for speaking */
-#sound-bars{
-  display:none;position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);
-  align-items:flex-end;gap:4px;height:24px;
-}
-#orb.speaking~#sound-bars{display:flex;}
-.sbar{
-  width:4px;border-radius:2px;background:var(--orange);
-  animation:bar-dance 0.5s ease-in-out infinite;
-}
-.sbar:nth-child(1){height:8px;animation-delay:0s;}
-.sbar:nth-child(2){height:16px;animation-delay:0.1s;}
-.sbar:nth-child(3){height:24px;animation-delay:0.05s;}
-.sbar:nth-child(4){height:16px;animation-delay:0.15s;}
-.sbar:nth-child(5){height:8px;animation-delay:0.08s;}
-@keyframes bar-dance{
-  0%,100%{transform:scaleY(0.4);}
-  50%{transform:scaleY(1);}
-}
-
-/* ORB ICON */
-#orb-icon{
-  font-size:32px;user-select:none;
-  transition:color 0.3s;
-}
-#orb.idle #orb-icon{color:var(--cyan);}
-#orb.listening #orb-icon{color:var(--green);}
-#orb.thinking #orb-icon{color:var(--yellow);}
-#orb.speaking #orb-icon{color:var(--orange);}
-
-/* ORB LABEL */
-#orb-label-wrap{text-align:center;margin-top:50px;}
-#orb-lbl{
-  font-family:var(--font);font-size:12px;letter-spacing:3px;
-  color:var(--dim);display:block;margin-bottom:8px;
-}
-/* loading dots */
-#loading-dots{
-  display:none;font-size:18px;color:var(--yellow);
-  letter-spacing:4px;min-height:24px;
-}
-#loading-dots.active{display:block;}
-
-/* TRANSCRIPT */
-#transcript-wrap{
-  width:100%;max-width:700px;
-  background:var(--panel);
+.conv-panel{
+  background:rgba(0,212,255,0.04);
   border:1px solid var(--border);
-  border-radius:4px;
+  border-radius:3px;
+  padding:10px 14px;
+  position:relative;
+  min-height:80px;
+}
+.conv-panel::before,.conv-panel::after{content:'';position:absolute;width:10px;height:10px;border-color:var(--cyan);border-style:solid;}
+.conv-panel::before{top:0;left:0;border-width:1px 0 0 1px;}
+.conv-panel::after{bottom:0;right:0;border-width:0 1px 1px 0;}
+.conv-lbl{font-size:8px;letter-spacing:3px;color:rgba(0,212,255,0.4);margin-bottom:6px;font-family:var(--font);}
+#you-said{font-size:15px;line-height:1.5;color:rgba(200,240,255,0.85);min-height:1.5em;}
+#jarvis-said{font-size:15px;line-height:1.5;color:rgba(255,179,71,0.9);min-height:1.5em;}
+
+/* ── MAIN AREA ── */
+#main-area{
+  position:relative;z-index:10;
+  flex:1;overflow:hidden;
+  display:grid;
+  grid-template-columns:1fr 360px 1fr;
+  gap:10px;
+  padding:10px 16px;
+}
+
+/* ── SIDE PANELS ── */
+.side-col{display:flex;flex-direction:column;gap:10px;}
+.hud-panel{
+  background:rgba(0,212,255,0.03);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:12px 14px;
+  flex:1;
+  position:relative;
   overflow:hidden;
 }
-#transcript-header{
-  padding:10px 16px;border-bottom:1px solid var(--border);
-  display:flex;justify-content:space-between;align-items:center;
-}
-#transcript-header span{font-size:10px;letter-spacing:2px;color:var(--dim);}
-#vp-conn{font-size:10px;letter-spacing:2px;}
-#transcript-log{
-  padding:16px;height:280px;overflow-y:auto;
-  display:flex;flex-direction:column;gap:12px;
-}
-#transcript-log::-webkit-scrollbar{width:4px;}
-#transcript-log::-webkit-scrollbar-track{background:transparent;}
-#transcript-log::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:2px;}
-.vp-msg{display:flex;flex-direction:column;gap:4px;animation:msg-in 0.3s ease-out;}
-@keyframes msg-in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
-.vp-who{font-size:10px;letter-spacing:2px;}
-.vp-who.you{color:var(--cyan);}
-.vp-who.jarvis{color:var(--amber);}
-.vp-text{font-size:13px;line-height:1.6;}
-.vp-text.you{color:rgba(200,240,255,0.8);padding-left:12px;border-left:2px solid var(--cyan2);}
-.vp-text.jarvis{color:rgba(255,179,71,0.9);padding-left:12px;border-left:2px solid var(--amber);}
-#interim-text{
-  font-size:12px;color:rgba(200,240,255,0.4);
-  padding-left:12px;border-left:2px solid rgba(0,212,255,0.2);
-  font-style:italic;min-height:20px;
-}
+.hud-panel::before,.hud-panel::after{content:'';position:absolute;width:8px;height:8px;border-color:rgba(0,212,255,0.4);border-style:solid;}
+.hud-panel::before{top:0;left:0;border-width:1px 0 0 1px;}
+.hud-panel::after{bottom:0;right:0;border-width:0 1px 1px 0;}
+.hp-title{font-family:var(--font);font-size:8px;letter-spacing:3px;color:rgba(0,212,255,0.5);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.hp-title::after{content:'';flex:1;height:1px;background:rgba(0,212,255,0.12);}
 
-/* ACTION BOX */
-#action-box{
-  width:100%;max-width:700px;
-  background:rgba(0,212,255,0.06);
-  border:1px solid var(--cyan);
-  border-radius:4px;padding:16px;
-  display:none;flex-direction:column;gap:12px;
-  animation:msg-in 0.3s ease-out;
-}
-#action-box.show{display:flex;}
-#action-box-label{font-size:10px;letter-spacing:3px;color:var(--cyan);}
-#action-box-text{font-size:13px;color:var(--text);line-height:1.6;}
-#action-btn{
-  align-self:flex-start;
-  padding:8px 20px;
-  border:1px solid var(--cyan);background:transparent;
-  color:var(--cyan);font-family:var(--font);font-size:10px;
-  letter-spacing:2px;cursor:pointer;border-radius:2px;
-  transition:background 0.2s,color 0.2s;
-}
-#action-btn:hover{background:var(--cyan);color:#050a0e;}
-#action-confirm{font-size:11px;color:var(--green);display:none;}
+/* waveform */
+#wf-canvas{width:100%;height:56px;display:block;}
+/* signal bars */
+#sig-bars{display:flex;align-items:flex-end;gap:2px;height:46px;padding:4px 0;}
+.sig-bar{flex:1;background:var(--cyan);border-radius:1px;min-height:2px;box-shadow:0 0 3px var(--cyan);transition:height 0.1s ease;}
+/* history log */
+#history-log{overflow-y:auto;max-height:100%;display:flex;flex-direction:column;gap:5px;}
+#history-log::-webkit-scrollbar{width:3px;}
+#history-log::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);}
+.log-e{font-size:10px;line-height:1.5;color:rgba(200,240,255,0.45);border-bottom:1px solid rgba(0,212,255,0.06);padding-bottom:4px;}
+.log-e .lr{font-size:9px;color:rgba(0,212,255,0.3);letter-spacing:1px;}
+/* metrics */
+.met-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(0,212,255,0.06);font-size:10px;}
+.met-row:last-child{border-bottom:none;}
+.met-lbl{color:rgba(200,240,255,0.45);letter-spacing:1px;}
+.met-right{display:flex;align-items:center;gap:8px;}
+.met-bar{width:60px;height:2px;background:rgba(0,212,255,0.1);border-radius:1px;overflow:hidden;}
+.met-fill{height:100%;background:var(--cyan);box-shadow:0 0 4px var(--cyan);border-radius:1px;transition:width 1s ease;}
+.met-val{font-size:11px;color:var(--cyan);text-shadow:0 0 6px var(--cyan);min-width:36px;text-align:right;}
+/* radar */
+#radar-canvas{display:block;margin:0 auto;}
+/* latency chart */
+#lat-canvas{width:100%;height:60px;display:block;}
 
-/* TRANSCRIPT FOOTER */
-#transcript-footer{
-  padding:8px 16px;border-top:1px solid var(--border);
-  font-size:9px;letter-spacing:2px;color:var(--dim);
-  text-align:center;
+/* ── CENTER COLUMN ── */
+#center-col{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:10px;
 }
+#orb-wrap{
+  position:relative;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+#orb-wrap::before,#orb-wrap::after{
+  content:'';position:absolute;width:16px;height:16px;
+  border-color:rgba(0,212,255,0.5);border-style:solid;
+  z-index:2;pointer-events:none;
+}
+#orb-wrap::before{top:-4px;left:-4px;border-width:1.5px 0 0 1.5px;}
+#orb-wrap::after{bottom:-4px;right:-4px;border-width:0 1.5px 1.5px 0;}
+.orb-corner{position:absolute;width:16px;height:16px;border-color:rgba(0,212,255,0.5);border-style:solid;pointer-events:none;z-index:2;}
+.orb-corner.tr{top:-4px;right:-4px;border-width:1.5px 1.5px 0 0;}
+.orb-corner.bl{bottom:-4px;left:-4px;border-width:0 0 1.5px 1.5px;}
+#orb-canvas{display:block;border-radius:50%;}
+#orb-state{font-family:var(--font);font-size:11px;letter-spacing:4px;color:var(--cyan);text-shadow:0 0 10px var(--cyan);text-align:center;}
+#orb-status{font-size:9px;letter-spacing:2px;color:rgba(0,212,255,0.45);text-align:center;}
+/* sound bars under orb when speaking */
+#sound-bars{display:none;align-items:flex-end;gap:3px;height:20px;margin-top:-4px;}
+#sound-bars.show{display:flex;}
+.sbar{width:3px;border-radius:2px;background:var(--amber);box-shadow:0 0 4px var(--amber);animation:sdance 0.4s ease-in-out infinite alternate;}
+.sbar:nth-child(1){height:6px;animation-delay:0s;}
+.sbar:nth-child(2){height:14px;animation-delay:0.1s;}
+.sbar:nth-child(3){height:20px;animation-delay:0.05s;}
+.sbar:nth-child(4){height:10px;animation-delay:0.15s;}
+.sbar:nth-child(5){height:16px;animation-delay:0.08s;}
+.sbar:nth-child(6){height:8px;animation-delay:0.12s;}
+.sbar:nth-child(7){height:18px;animation-delay:0.03s;}
+@keyframes sdance{from{transform:scaleY(0.3);}to{transform:scaleY(1);}}
 
-/* STATUS GRID */
-#status-grid{
-  padding:40px 24px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:16px;max-width:1100px;margin:0 auto;
+/* loading dots */
+#loading-dots{font-size:16px;color:var(--yellow);letter-spacing:4px;height:20px;text-align:center;display:none;}
+#loading-dots.show{display:block;}
+
+/* ── STATUS GRID (bottom, below main area) ── */
+#status-row{
+  position:relative;z-index:10;
+  flex-shrink:0;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  padding:0 16px 8px;
+  max-height:180px;
+  overflow:hidden;
 }
-.status-panel{
-  background:var(--panel);
+.sp{
+  background:rgba(0,212,255,0.03);
   border:1px solid var(--border);
-  border-radius:4px;padding:20px;
-  position:relative;overflow:hidden;
+  border-radius:3px;
+  padding:10px 14px;
+  overflow:hidden;
+  position:relative;
 }
-.status-panel::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
-  opacity:0.4;
-}
-.panel-title{
-  font-family:var(--font);font-size:10px;letter-spacing:3px;
-  color:var(--cyan);margin-bottom:16px;
-}
-.stat-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:6px 0;border-bottom:1px solid rgba(0,212,255,0.06);
-  font-size:11px;
-}
-.stat-row:last-child{border-bottom:none;}
-.stat-label{color:var(--dim);}
-.stat-val{color:var(--text);}
-.stat-val.green{color:var(--green);}
-.stat-val.yellow{color:var(--yellow);}
-.stat-val.red{color:var(--red);}
-.log-entry{
-  display:flex;gap:12px;padding:5px 0;
-  border-bottom:1px solid rgba(0,212,255,0.06);font-size:11px;
-}
-.log-entry:last-child{border-bottom:none;}
-.log-time{color:var(--cyan);flex-shrink:0;}
-.log-msg{color:var(--dim);}
+.sp::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0.3;}
+.sp-title{font-family:var(--font);font-size:8px;letter-spacing:3px;color:var(--cyan);margin-bottom:8px;}
+.sr{display:flex;justify-content:space-between;font-size:10px;padding:3px 0;border-bottom:1px solid rgba(0,212,255,0.06);}
+.sr:last-child{border-bottom:none;}
+.sl{color:rgba(200,240,255,0.45);}
+.sv{color:var(--text);}
+.sv.g{color:var(--green);}
+.sv.y{color:var(--yellow);}
+.le{display:flex;gap:8px;font-size:10px;padding:3px 0;border-bottom:1px solid rgba(0,212,255,0.06);}
+.le:last-child{border-bottom:none;}
+.lt{color:var(--cyan);flex-shrink:0;}
+.lm{color:rgba(200,240,255,0.4);}
 
-/* FOOTER */
-#footer{
-  text-align:center;padding:32px 24px;
+/* ── STATUS BAR ── */
+#statusbar{
+  position:relative;z-index:100;
+  height:28px;flex-shrink:0;
+  background:rgba(5,10,14,0.95);
   border-top:1px solid var(--border);
-  font-size:10px;letter-spacing:3px;color:var(--dim);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  font-size:9px;letter-spacing:2px;color:rgba(0,212,255,0.4);
 }
-
-/* RESPONSIVE */
-@media(max-width:600px){
-  #hero-title{letter-spacing:6px;}
-  #orb-wrap{width:160px;height:160px;}
-  #transcript-log{height:220px;}
-}
+#main-status{color:var(--cyan);text-shadow:0 0 6px var(--cyan);}
 </style>
 </head>
 <body>
@@ -346,147 +225,194 @@ body::after{
 <!-- TOP BAR -->
 <div id="topbar">
   <div id="topbar-logo">J.A.R.V.I.S</div>
-  <div id="topbar-right">
-    <div id="status-dot"></div>
-    <span id="status-label">ONLINE</span>
-    <span id="clock">--:--:--</span>
+  <div id="topbar-center">
+    <div class="tb-ind"><div class="tb-dot"></div>NEURAL LINK</div>
+    <div class="tb-ind"><div class="tb-dot"></div>VOICE ONLINE</div>
+    <div class="tb-ind"><div class="tb-dot warn" id="claude-dot"></div><span id="claude-status">CLAUDE LINK</span></div>
+    <div class="tb-ind"><div class="tb-dot warn" id="voice-dot"></div><span id="voice-status">VOICE LOAD</span></div>
+  </div>
+  <div id="clock">--:--:--</div>
+</div>
+
+<!-- CONVERSATION PANELS -->
+<div id="conv-row">
+  <div class="conv-panel">
+    <div class="conv-lbl">▸ YOU SAID</div>
+    <div id="you-said">—</div>
+  </div>
+  <div class="conv-panel">
+    <div class="conv-lbl">▸ JARVIS RESPONSE</div>
+    <div id="jarvis-said">Awaiting your command, sir.</div>
   </div>
 </div>
 
-<div id="main">
+<!-- MAIN AREA -->
+<div id="main-area">
 
-  <!-- HERO -->
-  <section id="hero">
-    <div id="hero-title">J.A.R.V.I.S</div>
-    <div id="hero-sub">Just A Rather Very Intelligent System &nbsp;·&nbsp; Claw Creative Command</div>
-    <div class="hero-line"></div>
-  </section>
-
-  <!-- VOICE COMMAND CENTER -->
-  <section id="voice-section">
-
-    <!-- ORB -->
-    <div id="orb-wrap" onclick="vpToggle()" title="Tap to speak">
-      <div id="orb" class="idle">
-        <div class="orb-ring r1"></div>
-        <div class="orb-ring r2"></div>
-        <div class="orb-ring r3"></div>
-        <span id="orb-icon">🎙</span>
-      </div>
-      <div id="sound-bars">
-        <div class="sbar"></div><div class="sbar"></div><div class="sbar"></div>
-        <div class="sbar"></div><div class="sbar"></div>
+  <!-- LEFT COLUMN -->
+  <div class="side-col">
+    <div class="hud-panel" style="flex:0 0 auto">
+      <div class="hp-title">AUDIO WAVEFORM</div>
+      <canvas id="wf-canvas" width="300" height="56"></canvas>
+    </div>
+    <div class="hud-panel" style="flex:0 0 auto">
+      <div class="hp-title">SIGNAL ANALYSIS</div>
+      <div id="sig-bars"></div>
+    </div>
+    <div class="hud-panel">
+      <div class="hp-title">CONVERSATION LOG</div>
+      <div id="history-log">
+        <div class="log-e"><span class="lr">SYSTEM ·</span> Interface initialized. Voice engine loading...</div>
       </div>
     </div>
+  </div>
 
-    <!-- ORB LABEL + LOADING DOTS -->
-    <div id="orb-label-wrap">
-      <span id="orb-lbl">TAP TO SPEAK</span>
-      <div id="loading-dots"></div>
+  <!-- CENTER COLUMN -->
+  <div id="center-col">
+    <div id="orb-wrap" onclick="vpToggle()">
+      <div class="orb-corner tr"></div>
+      <div class="orb-corner bl"></div>
+      <canvas id="orb-canvas" width="320" height="320"></canvas>
     </div>
-
-    <!-- TRANSCRIPT -->
-    <div id="transcript-wrap">
-      <div id="transcript-header">
-        <span>VOICE TRANSCRIPT</span>
-        <span id="vp-conn" style="color:var(--dim);">STANDBY</span>
-      </div>
-      <div id="transcript-log">
-        <div id="interim-text"></div>
-      </div>
-      <div id="transcript-footer">BRADFORD &nbsp;·&nbsp; ELEVENLABS TTS &nbsp;·&nbsp; CLAUDE OPUS</div>
+    <div id="sound-bars">
+      <div class="sbar"></div><div class="sbar"></div><div class="sbar"></div>
+      <div class="sbar"></div><div class="sbar"></div><div class="sbar"></div>
+      <div class="sbar"></div>
     </div>
+    <div id="loading-dots">· · ·</div>
+    <div id="orb-state">TAP TO SPEAK</div>
+    <div id="orb-status">SYSTEM READY</div>
+  </div>
 
-    <!-- ACTION BOX -->
-    <div id="action-box">
-      <div id="action-box-label">⚡ OPENCLAW ACTION DETECTED</div>
-      <div id="action-box-text"></div>
-      <button id="action-btn" onclick="sendAction()">SEND TO OPENCLAW</button>
-      <span id="action-confirm">✓ Copied to clipboard</span>
+  <!-- RIGHT COLUMN -->
+  <div class="side-col">
+    <div class="hud-panel" style="flex:0 0 auto">
+      <div class="hp-title">SYSTEM METRICS</div>
+      <div class="met-row"><span class="met-lbl">NEURAL LOAD</span><div class="met-right"><div class="met-bar"><div class="met-fill" id="m1" style="width:72%"></div></div><span class="met-val" id="m1v">72%</span></div></div>
+      <div class="met-row"><span class="met-lbl">VOICE SYNC</span><div class="met-right"><div class="met-bar"><div class="met-fill" id="m2" style="width:88%"></div></div><span class="met-val" id="m2v">88%</span></div></div>
+      <div class="met-row"><span class="met-lbl">RESPONSE</span><div class="met-right"><div class="met-bar"><div class="met-fill" id="m3" style="width:95%"></div></div><span class="met-val" id="m3v">95%</span></div></div>
+      <div class="met-row"><span class="met-lbl">SESSION</span><div class="met-right"><span class="met-val" id="uptime">00:00:00</span></div></div>
     </div>
-
-  </section>
-
-  <!-- STATUS GRID -->
-  <section id="status-grid">
-
-    <!-- Gateway Status -->
-    <div class="status-panel">
-      <div class="panel-title">⬡ GATEWAY STATUS</div>
-      <div class="stat-row"><span class="stat-label">OpenClaw Gateway</span><span class="stat-val green">ONLINE</span></div>
-      <div class="stat-row"><span class="stat-label">WhatsApp</span><span class="stat-val">+13176571684</span></div>
-      <div class="stat-row"><span class="stat-label">Webchat</span><span class="stat-val green">ACTIVE</span></div>
-      <div class="stat-row"><span class="stat-label">Model</span><span class="stat-val">claude-sonnet-4-6</span></div>
-      <div class="stat-row"><span class="stat-label">Netlify Deploy</span><span class="stat-val green">LIVE</span></div>
-      <div class="stat-row"><span class="stat-label">GitHub Sync</span><span class="stat-val green">AUTO-DEPLOY</span></div>
-      <div class="stat-row"><span class="stat-label">Stripe</span><span class="stat-val yellow">PENDING REVIEW</span></div>
+    <div class="hud-panel" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;">
+      <div class="hp-title" style="width:100%">NEURAL RADAR</div>
+      <canvas id="radar-canvas" width="150" height="150"></canvas>
     </div>
-
-    <!-- Agency Metrics -->
-    <div class="status-panel">
-      <div class="panel-title">◈ AGENCY METRICS</div>
-      <div class="stat-row"><span class="stat-label">Sites Built</span><span class="stat-val">0</span></div>
-      <div class="stat-row"><span class="stat-label">Active Domains</span><span class="stat-val">0</span></div>
-      <div class="stat-row"><span class="stat-label">Revenue Floor</span><span class="stat-val">$249.99</span></div>
-      <div class="stat-row"><span class="stat-label">Revenue Ceiling</span><span class="stat-val">$499.99</span></div>
-      <div class="stat-row"><span class="stat-label">Monthly Retainer</span><span class="stat-val">$49.99/mo</span></div>
-      <div class="stat-row"><span class="stat-label">Operational Status</span><span class="stat-val green">GO</span></div>
+    <div class="hud-panel">
+      <div class="hp-title">RESPONSE LATENCY</div>
+      <canvas id="lat-canvas" width="300" height="60"></canvas>
     </div>
-
-    <!-- Mission Log -->
-    <div class="status-panel">
-      <div class="panel-title">◎ MISSION LOG</div>
-      <div class="log-entry"><span class="log-time">[19:00]</span><span class="log-msg">Identity initialized. JARVIS online.</span></div>
-      <div class="log-entry"><span class="log-time">[19:15]</span><span class="log-msg">Claw Creative site built and deployed.</span></div>
-      <div class="log-entry"><span class="log-time">[19:31]</span><span class="log-msg">clawcreative.net connected via Cloudflare.</span></div>
-      <div class="log-entry"><span class="log-time">[19:46]</span><span class="log-msg">Stripe configured. Pending review.</span></div>
-      <div class="log-entry"><span class="log-time">[20:08]</span><span class="log-msg">GitHub repo + Netlify auto-deploy active.</span></div>
-      <div class="log-entry"><span class="log-time">[21:00]</span><span class="log-msg">WhatsApp channel connected.</span></div>
-      <div class="log-entry"><span class="log-time">[21:12]</span><span class="log-msg">JARVIS Dashboard v2.0 initialized.</span></div>
-    </div>
-
-  </section>
-
-  <!-- FOOTER -->
-  <footer id="footer">
-    CLAW CREATIVE &nbsp;·&nbsp; JARVIS COMMAND v2.0 &nbsp;·&nbsp; ALL SYSTEMS NOMINAL
-  </footer>
+  </div>
 
 </div>
 
+<!-- STATUS GRID -->
+<div id="status-row">
+  <div class="sp">
+    <div class="sp-title">⬡ GATEWAY STATUS</div>
+    <div class="sr"><span class="sl">OpenClaw Gateway</span><span class="sv g">ONLINE</span></div>
+    <div class="sr"><span class="sl">WhatsApp</span><span class="sv">+13176571684</span></div>
+    <div class="sr"><span class="sl">Webchat</span><span class="sv g">ACTIVE</span></div>
+    <div class="sr"><span class="sl">Model</span><span class="sv">claude-sonnet-4-6</span></div>
+    <div class="sr"><span class="sl">Netlify</span><span class="sv g">LIVE</span></div>
+    <div class="sr"><span class="sl">Stripe</span><span class="sv y">PENDING</span></div>
+  </div>
+  <div class="sp">
+    <div class="sp-title">◈ AGENCY METRICS</div>
+    <div class="sr"><span class="sl">Sites Built</span><span class="sv">1 (La Piedad)</span></div>
+    <div class="sr"><span class="sl">Active Domains</span><span class="sv">clawcreative.net</span></div>
+    <div class="sr"><span class="sl">First Claw</span><span class="sv">$249.99</span></div>
+    <div class="sr"><span class="sl">Full Grip</span><span class="sv">$499.99</span></div>
+    <div class="sr"><span class="sl">Monthly Care</span><span class="sv">$49.99/mo</span></div>
+    <div class="sr"><span class="sl">Status</span><span class="sv g">OPERATIONAL</span></div>
+  </div>
+  <div class="sp">
+    <div class="sp-title">◎ MISSION LOG</div>
+    <div class="le"><span class="lt">[APR-10]</span><span class="lm">Identity initialized. JARVIS online.</span></div>
+    <div class="le"><span class="lt">[APR-10]</span><span class="lm">Claw Creative site built & deployed.</span></div>
+    <div class="le"><span class="lt">[APR-10]</span><span class="lm">clawcreative.net live on Cloudflare.</span></div>
+    <div class="le"><span class="lt">[APR-10]</span><span class="lm">La Piedad demo site deployed.</span></div>
+    <div class="le"><span class="lt">[APR-11]</span><span class="lm">JARVIS HUD v3.0 — full redesign.</span></div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="statusbar">
+  <span>CLAW CREATIVE · JARVIS HUD v3.0</span>
+  <span id="main-status">SYSTEM READY</span>
+  <span id="session-time">SESSION: 00:00:00</span>
+</div>
+
 <script>
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════
+const EL_KEY = 'sk_4da0a5331acf1fa217dfbe46116e9cb464cf7202b55ffd45';
+const CLAUDE_KEY = 'sk-ant-api03-FLr1QJm8wJ3ldfTtC_uLGGU0HZzcIayLgLv_jyROYFwnyPLHSIJULzi' +
+                   '6zBq9C1wzwWfuGLFAzlczQui6mEZi_g-cvI8CwAA';
+let voiceId = null;
+const sessionStart = Date.now();
+
+// ══════════════════════════════════════════════════
+// CLOCK + UPTIME
+// ══════════════════════════════════════════════════
+function pad(n){return String(n).padStart(2,'0');}
+function fmtTime(d){return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());}
+function fmtDur(ms){const s=Math.floor(ms/1000);return pad(Math.floor(s/3600))+':'+pad(Math.floor((s%3600)/60))+':'+pad(s%60);}
+setInterval(()=>{
+  document.getElementById('clock').textContent=fmtTime(new Date());
+  document.getElementById('uptime').textContent=fmtDur(Date.now()-sessionStart);
+  document.getElementById('session-time').textContent='SESSION: '+fmtDur(Date.now()-sessionStart);
+},1000);
+
+// ══════════════════════════════════════════════════
+// LOAD VOICES FROM ELEVENLABS
+// ══════════════════════════════════════════════════
+async function loadVoices(){
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/voices',{headers:{'xi-api-key':EL_KEY}});
+    const d=await r.json();
+    if(!d.voices) throw new Error('No voices in response');
+    const bradford=d.voices.find(v=>v.name==='Bradford');
+    const adam=d.voices.find(v=>v.name==='Adam');
+    const chosen=bradford||adam||d.voices[0];
+    voiceId=chosen?.voice_id||null;
+    console.log('[JARVIS] Voice loaded:',chosen?.name,'ID:',voiceId);
+    document.getElementById('voice-dot').style.background='var(--green)';
+    document.getElementById('voice-dot').style.boxShadow='0 0 6px var(--green)';
+    document.getElementById('voice-status').textContent=(chosen?.name||'VOICE')+' READY';
+    addLog('SYSTEM','Voice engine online. '+chosen?.name+' selected.');
+  }catch(e){
+    console.error('[JARVIS] Voice load failed:',e);
+    document.getElementById('voice-status').textContent='VOICE FAIL';
+    addLog('ERROR','Voice engine failed: '+e.message);
+  }
+}
+loadVoices();
+
+// ══════════════════════════════════════════════════
 // PARTICLE BACKGROUND
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 (function(){
   const cv=document.getElementById('bg-canvas');
   const ctx=cv.getContext('2d');
   let pts=[];
-  const N=60,CONN=120;
+  const N=50,CONN=130;
   function resize(){cv.width=innerWidth;cv.height=innerHeight;}
   resize();window.addEventListener('resize',()=>{resize();init();});
-  function rand(a,b){return a+Math.random()*(b-a);}
-  function init(){
-    pts=[];
-    for(let i=0;i<N;i++) pts.push({x:rand(0,cv.width),y:rand(0,cv.height),vx:rand(-0.2,0.2),vy:rand(-0.2,0.2)});
-  }
+  function rnd(a,b){return a+Math.random()*(b-a);}
+  function init(){pts=[];for(let i=0;i<N;i++)pts.push({x:rnd(0,cv.width),y:rnd(0,cv.height),vx:rnd(-0.15,0.15),vy:rnd(-0.15,0.15)});}
   function draw(){
     ctx.clearRect(0,0,cv.width,cv.height);
     for(let i=0;i<pts.length;i++){
-      const p=pts[i];
-      p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0||p.x>cv.width) p.vx*=-1;
-      if(p.y<0||p.y>cv.height) p.vy*=-1;
-      ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,Math.PI*2);
-      ctx.fillStyle='rgba(0,212,255,0.4)';ctx.fill();
+      const p=pts[i];p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>cv.width)p.vx*=-1;
+      if(p.y<0||p.y>cv.height)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,1.2,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,212,255,0.3)';ctx.fill();
       for(let j=i+1;j<pts.length;j++){
-        const q=pts[j];
-        const d=Math.hypot(p.x-q.x,p.y-q.y);
-        if(d<CONN){
-          ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
-          ctx.strokeStyle=`rgba(0,212,255,${0.12*(1-d/CONN)})`;
-          ctx.lineWidth=0.5;ctx.stroke();
-        }
+        const q=pts[j];const dist=Math.hypot(p.x-q.x,p.y-q.y);
+        if(dist<CONN){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
+          ctx.strokeStyle=`rgba(0,212,255,${0.08*(1-dist/CONN)})`;ctx.lineWidth=0.5;ctx.stroke();}
       }
     }
     requestAnimationFrame(draw);
@@ -494,234 +420,453 @@ body::after{
   init();draw();
 })();
 
-// ═══════════════════════════════════════════════
-// CLOCK
-// ═══════════════════════════════════════════════
-(function tick(){
-  const d=new Date();
-  const pad=n=>String(n).padStart(2,'0');
-  document.getElementById('clock').textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
-  setTimeout(tick,1000);
-})();
+// ══════════════════════════════════════════════════
+// CANVAS ORB — ENERGY SPHERE
+// ══════════════════════════════════════════════════
+const orbCanvas=document.getElementById('orb-canvas');
+const OC=orbCanvas.getContext('2d');
+const OW=orbCanvas.width,OH=orbCanvas.height;
+const CX=OW/2,CY=OH/2;
 
-// ═══════════════════════════════════════════════
-// VOICE INTERFACE
-// ═══════════════════════════════════════════════
-const VP = {
-  EL_KEY: 'sk_4da0a5331acf1fa217dfbe46116e9cb464cf7202b55ffd45',
-  CLAUDE_KEY: ['sk-ant-api03-FLr1QJm8wJ3ldfTtC_uLGGU0HZzcIayLgLv_jyROYFwnyPLHSIJULzi',
-               '6zBq9C1wzwWfuGLFAzlczQui6mEZi_g-cvI8CwAA'].join(''),
-  VOICE_ID: 'NNl6r8mD7vthiJatiJt1', // Bradford
-  rec: null,
-  currentAudio: null,
-  state: 'idle',
-  transcript: '',
-  history: [],
-  dotsTimer: null,
-  dotsFrame: 0,
-};
+// Particle system
+const PART_COUNT=160;
+const parts=[];
+function mkPart(){
+  const angle=Math.random()*Math.PI*2;
+  const r=8+Math.random()*25;
+  return{angle,r,baseR:r,speed:(Math.random()-0.5)*0.008,radSpd:0.25+Math.random()*0.9,
+    size:0.6+Math.random()*2.2,alpha:Math.random(),phase:Math.random()*Math.PI*2};
+}
+for(let i=0;i<PART_COUNT;i++) parts.push(mkPart());
 
-const JARVIS_SYS = `You are JARVIS, a sharp and efficient AI assistant for Claw Creative, a web design agency in Indianapolis run by Shameel Khairi (also known as Mr. Khairi, pronounced Carry). Never use markdown, asterisks, bullet points, numbered lists, hash symbols, or any special formatting characters. Speak in plain natural sentences only. Keep responses under 3 sentences unless more detail is explicitly requested. You represent Claw Creative which targets Indianapolis small businesses. Services: First Claw $249.99 single page site, Full Grip $499.99 full multi-page site with animations, Monthly Care $49.99 per month for hosting and updates. Live agency site is at clawcreative.net. Demo client is La Piedad Mexican Cuisine at clawcreative.net/la-piedad. IMPORTANT ROUTING RULE: If the user asks you to perform any task that requires internet access, web searches, database lookups, building websites, deploying code, sending emails or messages, or any action outside this browser window, end your response with exactly this format on a new line: [OPENCLAW_ACTION: the exact task the user requested]. Do not claim you will perform the task yourself. Tell the user you are routing it to the main JARVIS system.`;
+// Energy arcs
+const ARC_COUNT=7;
+const arcs=[];
+function mkArc(){
+  return{a1:Math.random()*Math.PI*2,a2:Math.random()*Math.PI*2,
+    r1:15+Math.random()*25,r2:80+Math.random()*55,
+    cp1x:(Math.random()-0.5)*110,cp1y:(Math.random()-0.5)*110,
+    life:0,maxLife:40+Math.random()*80};
+}
+for(let i=0;i<ARC_COUNT;i++) arcs.push(mkArc());
 
-function vpSetState(s) {
-  VP.state = s;
-  const orb = document.getElementById('orb');
-  orb.className = s;
-  const labels = {
-    idle: 'TAP TO SPEAK',
-    listening: 'LISTENING — SPEAK NOW',
-    thinking: 'PROCESSING',
-    speaking: 'SPEAKING — TAP TO INTERRUPT'
-  };
-  document.getElementById('orb-lbl').textContent = labels[s] || 'TAP TO SPEAK';
-  const conn = document.getElementById('vp-conn');
-  const dots = document.getElementById('loading-dots');
+// Outer ring lit segments
+const SEG_COUNT=48;
+let litSegs=new Set();
+function updateLitSegs(){
+  litSegs=new Set();
+  const n=orbState==='listening'?14:orbState==='speaking'?18:6;
+  while(litSegs.size<n){litSegs.add(Math.floor(Math.random()*SEG_COUNT));}
+}
+setInterval(updateLitSegs,600);
+updateLitSegs();
 
-  // loading dots
-  clearInterval(VP.dotsTimer);
-  dots.classList.remove('active');
-  dots.textContent = '';
+let orbTime=0,r1a=0,r2a=0,r3a=0;
 
-  if (s === 'thinking') {
-    dots.classList.add('active');
-    const frames = ['.', '..', '...'];
-    VP.dotsFrame = 0;
-    dots.textContent = frames[0];
-    VP.dotsTimer = setInterval(() => {
-      VP.dotsFrame = (VP.dotsFrame + 1) % frames.length;
-      dots.textContent = frames[VP.dotsFrame];
-    }, 400);
+function orbColor(){
+  if(orbState==='listening') return{r:0,g:255,b:180};
+  if(orbState==='speaking')  return{r:140,g:220,b:255};
+  if(orbState==='thinking')  return{r:255,g:200,b:0};
+  return{r:0,g:180,b:255}; // idle
+}
+
+function drawOrb(){
+  OC.clearRect(0,0,OW,OH);
+  orbTime++;
+  const spd=orbState==='listening'?3.5:orbState==='speaking'?2.5:orbState==='thinking'?2:1;
+  r1a+=0.006*spd; r2a-=0.01*spd; r3a+=0.004*spd;
+  const c=orbColor();
+  const cs=`${c.r},${c.g},${c.b}`;
+
+  // Outer glow halo
+  const halo=OC.createRadialGradient(CX,CY,40,CX,CY,155);
+  const pulse=0.06+0.04*Math.sin(orbTime*0.04);
+  halo.addColorStop(0,`rgba(${cs},0.18)`);
+  halo.addColorStop(0.5,`rgba(${cs},${pulse})`);
+  halo.addColorStop(1,'rgba(0,0,0,0)');
+  OC.fillStyle=halo;OC.beginPath();OC.arc(CX,CY,155,0,Math.PI*2);OC.fill();
+
+  // Particles
+  parts.forEach(p=>{
+    p.angle+=p.speed*spd;
+    p.r+=p.radSpd*0.08*spd;
+    p.phase+=0.05;
+    if(p.r>145){p.r=p.baseR;p.alpha=0;}
+    p.alpha=Math.min(1,p.alpha+0.015);
+    const a=Math.sin(p.alpha*Math.PI)*Math.abs(Math.sin(p.phase))*0.8;
+    if(a<0.02) return;
+    const px=CX+Math.cos(p.angle)*p.r;
+    const py=CY+Math.sin(p.angle)*p.r;
+    OC.beginPath();OC.arc(px,py,p.size,0,Math.PI*2);
+    OC.fillStyle=`rgba(${cs},${a})`;OC.fill();
+  });
+
+  // Energy arcs
+  arcs.forEach((arc,i)=>{
+    arc.life++;
+    if(arc.life>arc.maxLife){arcs[i]=mkArc();return;}
+    const prog=arc.life/arc.maxLife;
+    const alpha=Math.sin(prog*Math.PI)*0.35;
+    const sx=CX+Math.cos(arc.a1)*arc.r1,sy=CY+Math.sin(arc.a1)*arc.r1;
+    const ex=CX+Math.cos(arc.a2)*arc.r2,ey=CY+Math.sin(arc.a2)*arc.r2;
+    OC.beginPath();OC.moveTo(sx,sy);
+    OC.quadraticCurveTo(CX+arc.cp1x,CY+arc.cp1y,ex,ey);
+    OC.strokeStyle=`rgba(${cs},${alpha})`;OC.lineWidth=0.8;OC.stroke();
+  });
+
+  // Core sphere
+  const cg=OC.createRadialGradient(CX-20,CY-20,0,CX,CY,75);
+  cg.addColorStop(0,`rgba(${cs},0.7)`);
+  cg.addColorStop(0.35,`rgba(${Math.floor(c.r*0.3)},${Math.floor(c.g*0.3)},${Math.floor(c.b*0.3)},0.5)`);
+  cg.addColorStop(1,'rgba(0,4,15,0.92)');
+  OC.beginPath();OC.arc(CX,CY,75,0,Math.PI*2);OC.fillStyle=cg;OC.fill();
+  OC.beginPath();OC.arc(CX,CY,75,0,Math.PI*2);
+  OC.strokeStyle=`rgba(${cs},0.35)`;OC.lineWidth=1.5;OC.stroke();
+  // highlight
+  const hg=OC.createRadialGradient(CX-22,CY-22,0,CX-22,CY-22,24);
+  hg.addColorStop(0,`rgba(${cs},0.28)`);hg.addColorStop(1,'transparent');
+  OC.beginPath();OC.arc(CX-22,CY-22,24,0,Math.PI*2);OC.fillStyle=hg;OC.fill();
+
+  // Three rotating rings with tick marks
+  drawRing(108,r1a,32,c,0.55,2);
+  drawRing(88,r2a,24,c,0.35,1.5);
+  drawRing(78,r3a*0.6,12,c,0.2,1);
+
+  // Outer segmented data ring
+  drawSegRing(132,SEG_COUNT,c);
+
+  requestAnimationFrame(drawOrb);
+}
+
+function drawRing(radius,angle,ticks,c,alpha,lw){
+  const cs=`${c.r},${c.g},${c.b}`;
+  OC.beginPath();OC.arc(CX,CY,radius,0,Math.PI*2);
+  OC.strokeStyle=`rgba(${cs},${alpha*0.3})`;OC.lineWidth=lw;OC.stroke();
+  for(let i=0;i<ticks;i++){
+    const ta=angle+(i/ticks)*Math.PI*2;
+    const isLong=i%(ticks/4)===0;
+    const inner=radius-(isLong?9:4);
+    const outer=radius+(isLong?4:1);
+    const x1=CX+Math.cos(ta)*inner,y1=CY+Math.sin(ta)*inner;
+    const x2=CX+Math.cos(ta)*outer,y2=CY+Math.sin(ta)*outer;
+    OC.beginPath();OC.moveTo(x1,y1);OC.lineTo(x2,y2);
+    OC.strokeStyle=`rgba(${cs},${isLong?alpha:alpha*0.4})`;
+    OC.lineWidth=isLong?1.5:0.5;OC.stroke();
+    if(isLong){OC.beginPath();OC.arc(x2,y2,2.5,0,Math.PI*2);OC.fillStyle=`rgba(${cs},${alpha})`;OC.fill();}
   }
-
-  // connection state
-  if (s === 'idle') { conn.textContent = 'STANDBY'; conn.style.color = 'var(--dim)'; }
-  else if (s === 'listening') { conn.textContent = 'ACTIVE'; conn.style.color = 'var(--green)'; }
-  else if (s === 'thinking') { conn.textContent = 'PROCESSING'; conn.style.color = 'var(--yellow)'; }
-  else if (s === 'speaking') { conn.textContent = 'SPEAKING'; conn.style.color = 'var(--orange)'; }
-
-  // icon
-  const icons = { idle: '🎙', listening: '🎙', thinking: '⚙', speaking: '🔊' };
-  document.getElementById('orb-icon').textContent = icons[s] || '🎙';
 }
 
-function vpAddMsg(who, text) {
-  const log = document.getElementById('transcript-log');
-  const interim = document.getElementById('interim-text');
-  const d = document.createElement('div');
-  d.className = 'vp-msg';
-  d.innerHTML = `<span class="vp-who ${who}">// ${who === 'you' ? 'YOU' : 'JARVIS'}</span><span class="vp-text ${who}">${text}</span>`;
-  log.insertBefore(d, interim);
-  log.scrollTop = log.scrollHeight;
+function drawSegRing(radius,segs,c){
+  const cs=`${c.r},${c.g},${c.b}`;
+  const arc=Math.PI*2/segs;
+  for(let i=0;i<segs;i++){
+    const a1=i*arc-Math.PI/2;
+    const a2=a1+arc*0.7;
+    const lit=litSegs.has(i);
+    OC.beginPath();OC.arc(CX,CY,radius,a1,a2);
+    OC.strokeStyle=lit?`rgba(${cs},0.8)`:`rgba(${cs},0.12)`;
+    OC.lineWidth=lit?2.5:1;OC.stroke();
+    if(lit){OC.beginPath();OC.arc(CX,CY,radius,a1,a2);OC.strokeStyle=`rgba(${cs},0.2)`;OC.lineWidth=6;OC.stroke();}
+  }
 }
 
-function vpToggle() {
-  if (VP.state === 'speaking') { vpInterrupt(); return; }
-  if (VP.state === 'listening') { vpStop(); return; }
-  if (VP.state === 'thinking') return; // ignore taps while thinking
-  if (VP.state === 'idle') { vpListen(); return; }
-}
+drawOrb();
 
-function vpListen() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { vpAddMsg('jarvis', 'Speech recognition requires Chrome, sir. Please open this page in Chrome.'); return; }
-  VP.transcript = '';
-  document.getElementById('interim-text').textContent = '';
-  VP.rec = new SR();
-  VP.rec.continuous = true;
-  VP.rec.interimResults = true;
-  VP.rec.lang = 'en-US';
-  VP.rec.onresult = e => {
-    let fin = '', int = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) fin += e.results[i][0].transcript;
-      else int += e.results[i][0].transcript;
+// ══════════════════════════════════════════════════
+// WAVEFORM CANVAS
+// ══════════════════════════════════════════════════
+const wfCanvas=document.getElementById('wf-canvas');
+const WC=wfCanvas.getContext('2d');
+let wfTime=0,wfInt=0.15;
+function drawWaveform(){
+  const W=wfCanvas.offsetWidth*2||300,H=56;
+  wfCanvas.width=W;
+  WC.clearRect(0,0,W,H);wfTime+=0.05;
+  const target=orbState==='listening'?0.65+0.35*Math.random():orbState==='speaking'?0.75+0.25*Math.random():0.12;
+  wfInt+=(target-wfInt)*0.12;
+  const col=orbState==='listening'?'0,255,180':orbState==='speaking'?'140,220,255':'0,180,255';
+  function wave(lw,alpha){
+    WC.beginPath();
+    for(let x=0;x<W;x++){
+      const t=x/W;
+      const y=H/2+Math.sin(t*22+wfTime*3)*H*0.35*wfInt+Math.sin(t*8+wfTime*2)*H*0.18*wfInt+Math.sin(t*44+wfTime*5)*H*0.1*wfInt;
+      x===0?WC.moveTo(x,y):WC.lineTo(x,y);
     }
-    VP.transcript += fin;
-    document.getElementById('interim-text').textContent = (VP.transcript + int).trim();
-  };
-  VP.rec.onerror = e => {
-    vpAddMsg('jarvis', 'Microphone error, sir: ' + e.error + '. Please allow microphone access.');
-    vpSetState('idle');
-  };
-  VP.rec.onend = () => { if (VP.state === 'listening') vpFinalize(); };
-  vpSetState('listening');
-  VP.rec.start();
+    WC.strokeStyle=`rgba(${col},${alpha})`;WC.lineWidth=lw;WC.stroke();
+  }
+  wave(5,0.15);wave(1.5,0.85);
+  requestAnimationFrame(drawWaveform);
 }
+drawWaveform();
 
-function vpStop() {
-  if (VP.rec) { try { VP.rec.stop(); } catch(e) {} VP.rec = null; }
-  // onend will fire and call vpFinalize
+// ══════════════════════════════════════════════════
+// SIGNAL BARS
+// ══════════════════════════════════════════════════
+const sigEl=document.getElementById('sig-bars');
+const BAR_N=22;
+for(let i=0;i<BAR_N;i++){const b=document.createElement('div');b.className='sig-bar';b.style.height='2px';sigEl.appendChild(b);}
+function updateSigBars(){
+  const bars=sigEl.querySelectorAll('.sig-bar');
+  const int=orbState==='listening'?0.85:orbState==='speaking'?0.95:0.25;
+  bars.forEach(b=>{
+    const h=4+Math.random()*42*int;
+    b.style.height=h+'px';
+    b.style.background=orbState==='speaking'?'#88ddff':'#00d4ff';
+    b.style.boxShadow=`0 0 3px ${orbState==='speaking'?'#88ddff':'#00d4ff'}`;
+    b.style.opacity=0.4+(h/46)*0.6;
+  });
 }
+setInterval(updateSigBars,90);
 
-async function vpFinalize() {
-  if (VP.rec) { try { VP.rec.stop(); } catch(e) {} VP.rec = null; }
-  const text = VP.transcript.trim();
-  document.getElementById('interim-text').textContent = '';
-  if (!text) { vpSetState('idle'); return; }
-  vpAddMsg('you', text);
-  vpSetState('thinking');
-  const reply = await vpAsk(text);
-  // parse action
-  const actionMatch = reply.match(/\[OPENCLAW_ACTION:\s*([^\]]+)\]/);
-  const spoken = reply.replace(/\[OPENCLAW_ACTION:[^\]]+\]/g, '').trim();
-  if (spoken) vpAddMsg('jarvis', spoken);
-  if (actionMatch) vpShowAction(actionMatch[1].trim());
-  if (spoken) {
-    await vpSpeak(spoken);
-  } else {
-    vpSetState('idle');
+// ══════════════════════════════════════════════════
+// RADAR
+// ══════════════════════════════════════════════════
+const radCanvas=document.getElementById('radar-canvas');
+const RC=radCanvas.getContext('2d');
+const RW=150,RH=150,RCX=75,RCY=75,RR=65;
+let radAngle=0;
+const blips=[];
+function addBlip(){blips.push({angle:Math.random()*Math.PI*2,r:Math.random()*RR*0.85,life:80+Math.random()*60});}
+setInterval(addBlip,900);
+function drawRadar(){
+  RC.clearRect(0,0,RW,RH);radAngle+=0.02;
+  for(let r=RR/4;r<=RR;r+=RR/4){RC.beginPath();RC.arc(RCX,RCY,r,0,Math.PI*2);RC.strokeStyle='rgba(0,212,255,0.12)';RC.lineWidth=0.5;RC.stroke();}
+  for(let i=0;i<4;i++){const a=i*Math.PI/2;RC.beginPath();RC.moveTo(RCX,RCY);RC.lineTo(RCX+Math.cos(a)*RR,RCY+Math.sin(a)*RR);RC.strokeStyle='rgba(0,212,255,0.12)';RC.lineWidth=0.5;RC.stroke();}
+  // sweep trail
+  RC.save();RC.translate(RCX,RCY);RC.rotate(radAngle);
+  for(let i=0;i<28;i++){const a=-(i/28)*Math.PI/2;RC.beginPath();RC.moveTo(0,0);RC.arc(0,0,RR,a-0.04,a);RC.closePath();RC.fillStyle=`rgba(0,212,255,${(1-i/28)*0.07})`;RC.fill();}
+  RC.beginPath();RC.moveTo(0,0);RC.lineTo(RR,0);RC.strokeStyle='rgba(0,212,255,0.75)';RC.lineWidth=1.5;RC.stroke();
+  RC.restore();
+  // blips
+  for(let i=blips.length-1;i>=0;i--){
+    const b=blips[i];b.life--;
+    if(b.life<=0){blips.splice(i,1);continue;}
+    const a=b.life/100;
+    const bx=RCX+Math.cos(b.angle)*b.r,by=RCY+Math.sin(b.angle)*b.r;
+    RC.beginPath();RC.arc(bx,by,2.5,0,Math.PI*2);RC.fillStyle=`rgba(0,255,136,${a*0.9})`;RC.fill();
+    RC.beginPath();RC.arc(bx,by,5,0,Math.PI*2);RC.fillStyle=`rgba(0,255,136,${a*0.2})`;RC.fill();
+  }
+  RC.beginPath();RC.arc(RCX,RCY,RR,0,Math.PI*2);RC.strokeStyle='rgba(0,212,255,0.25)';RC.lineWidth=1;RC.stroke();
+  requestAnimationFrame(drawRadar);
+}
+drawRadar();
+
+// ══════════════════════════════════════════════════
+// LATENCY CHART
+// ══════════════════════════════════════════════════
+const latCanvas=document.getElementById('lat-canvas');
+const LC=latCanvas.getContext('2d');
+const latData=Array.from({length:50},()=>20+Math.random()*50);
+function drawLat(){
+  const W=latCanvas.offsetWidth*2||300,H=60;
+  latCanvas.width=W;
+  LC.clearRect(0,0,W,H);
+  for(let i=0;i<4;i++){const y=(i/3)*H;LC.beginPath();LC.moveTo(0,y);LC.lineTo(W,y);LC.strokeStyle='rgba(0,212,255,0.06)';LC.lineWidth=0.5;LC.stroke();}
+  LC.beginPath();
+  latData.forEach((v,i)=>{const x=(i/(latData.length-1))*W,y=H-(v/100)*H;i===0?LC.moveTo(x,y):LC.lineTo(x,y);});
+  LC.strokeStyle='rgba(0,212,255,0.8)';LC.lineWidth=1.5;LC.stroke();
+  LC.beginPath();
+  latData.forEach((v,i)=>{const x=(i/(latData.length-1))*W,y=H-(v/100)*H;i===0?LC.moveTo(x,y):LC.lineTo(x,y);});
+  LC.lineTo(W,H);LC.lineTo(0,H);LC.closePath();LC.fillStyle='rgba(0,212,255,0.05)';LC.fill();
+  const lv=latData[latData.length-1];const lx=W-1,ly=H-(lv/100)*H;
+  LC.beginPath();LC.arc(lx,ly,3,0,Math.PI*2);LC.fillStyle='#00d4ff';LC.fill();
+  LC.beginPath();LC.arc(lx,ly,6,0,Math.PI*2);LC.fillStyle='rgba(0,212,255,0.2)';LC.fill();
+}
+setInterval(()=>{
+  latData.shift();
+  const base=orbState==='speaking'?55:orbState==='listening'?35:18;
+  latData.push(base+Math.random()*30);
+  drawLat();
+},450);
+drawLat();
+
+// ══════════════════════════════════════════════════
+// METRICS FLICKER
+// ══════════════════════════════════════════════════
+setInterval(()=>{
+  const m1=62+Math.random()*22,m2=78+Math.random()*17,m3=86+Math.random()*12;
+  document.getElementById('m1').style.width=m1+'%';document.getElementById('m1v').textContent=Math.round(m1)+'%';
+  document.getElementById('m2').style.width=m2+'%';document.getElementById('m2v').textContent=Math.round(m2)+'%';
+  document.getElementById('m3').style.width=m3+'%';document.getElementById('m3v').textContent=Math.round(m3)+'%';
+},2500);
+
+// ══════════════════════════════════════════════════
+// VOICE STATE MACHINE
+// ══════════════════════════════════════════════════
+let orbState='idle';
+let rec=null,isListening=false,currentTranscript='',currentAudio=null;
+let dotsTimer=null;
+const history=[];
+
+const JARVIS_SYS=`You are JARVIS, a sharp and efficient AI assistant for Claw Creative, a web design agency in Indianapolis run by Shameel Khairi (also known as Mr. Khairi, pronounced Carry). Never use markdown, asterisks, bullet points, numbered lists, hash symbols, or any special formatting characters. Speak in plain natural sentences only. Keep responses under 3 sentences unless more detail is explicitly requested. You represent Claw Creative which targets Indianapolis small businesses. Services: First Claw $249.99 single page site, Full Grip $499.99 full multi-page site with animations, Monthly Care $49.99 per month. Live agency site is at clawcreative.net. Demo client is La Piedad Mexican Cuisine. IMPORTANT ROUTING RULE: If the user asks you to perform any task that requires internet access, web searches, database lookups, building websites, deploying code, sending emails or messages, or any action outside this browser window, end your response with exactly: [OPENCLAW_ACTION: the exact task]. Do not claim you will perform the task yourself.`;
+
+function setState(s){
+  orbState=s;
+  const labels={idle:'TAP TO SPEAK',listening:'LISTENING — SPEAK NOW',thinking:'PROCESSING',speaking:'SPEAKING — TAP TO INTERRUPT'};
+  document.getElementById('orb-state').textContent=labels[s]||'TAP TO SPEAK';
+  const col={idle:'var(--cyan)',listening:'var(--green)',thinking:'var(--yellow)',speaking:'var(--amber)'};
+  document.getElementById('orb-state').style.color=col[s]||'var(--cyan)';
+  document.getElementById('orb-state').style.textShadow=`0 0 10px ${col[s]||'var(--cyan)'}`;
+  const sb=document.getElementById('sound-bars');
+  sb.classList.toggle('show',s==='speaking');
+  clearInterval(dotsTimer);
+  const dots=document.getElementById('loading-dots');
+  dots.classList.remove('show');dots.textContent='';
+  if(s==='thinking'){
+    dots.classList.add('show');
+    const frames=['·','· ·','· · ·'];let fi=0;
+    dots.textContent=frames[0];
+    dotsTimer=setInterval(()=>{fi=(fi+1)%3;dots.textContent=frames[fi];},400);
   }
 }
 
-async function vpAsk(text) {
-  VP.history.push({ role: 'user', content: text });
-  try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': VP.CLAUDE_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-5',
-        max_tokens: 300,
-        system: JARVIS_SYS,
-        messages: VP.history
-      })
-    });
-    const d = await r.json();
-    const reply = d.content?.[0]?.text || 'Apologies sir, no response was generated.';
-    VP.history.push({ role: 'assistant', content: reply });
-    if (VP.history.length > 20) VP.history = VP.history.slice(-20);
-    return reply;
-  } catch (e) {
-    return 'I am having trouble reaching my systems, sir. Please check your connection.';
-  }
+function setStatus(t){
+  document.getElementById('orb-status').textContent=t;
+  document.getElementById('main-status').textContent=t;
 }
 
-async function vpSpeak(text) {
-  vpSetState('speaking');
-  try {
-    const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + VP.VOICE_ID, {
-      method: 'POST',
-      headers: { 'xi-api-key': VP.EL_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+function addLog(role,text){
+  const log=document.getElementById('history-log');
+  const e=document.createElement('div');e.className='log-e';
+  const ts=fmtTime(new Date());
+  e.innerHTML=`<span class="lr">${role} · ${ts}</span><br>${text.substring(0,90)}${text.length>90?'...':''}`;
+  log.appendChild(e);log.scrollTop=log.scrollHeight;
+}
+
+function vpToggle(){
+  if(orbState==='speaking'){vpInterrupt();return;}
+  if(orbState==='listening'){vpStop();return;}
+  if(orbState==='thinking') return;
+  vpListen();
+}
+
+function vpListen(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){addLog('ERROR','Speech recognition requires Chrome, sir.');setStatus('USE CHROME');return;}
+  currentTranscript='';
+  document.getElementById('you-said').textContent='—';
+  document.getElementById('jarvis-said').textContent='...';
+  rec=new SR();rec.continuous=true;rec.interimResults=true;rec.lang='en-US';
+  rec.onresult=e=>{
+    let fin='',int='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)fin+=e.results[i][0].transcript;
+      else int+=e.results[i][0].transcript;
+    }
+    currentTranscript+=fin;
+    document.getElementById('you-said').textContent=(currentTranscript+int).trim()||'—';
+  };
+  rec.onerror=e=>{addLog('ERROR','Mic: '+e.error);setState('idle');setStatus('MIC ERROR');};
+  rec.onend=()=>{if(orbState==='listening')vpFinalize();};
+  setState('listening');setStatus('LISTENING — SPEAK NOW');
+  try{rec.start();}catch(e){setStatus('MIC START ERROR');}
+}
+
+function vpStop(){
+  if(rec){try{rec.stop();}catch(e){}rec=null;}
+}
+
+async function vpFinalize(){
+  if(rec){try{rec.stop();}catch(e){}rec=null;}
+  const text=currentTranscript.trim();
+  if(!text){setState('idle');setStatus('NO INPUT DETECTED');return;}
+  document.getElementById('you-said').textContent=text;
+  setState('thinking');setStatus('PROCESSING...');
+  addLog('YOU',text);
+  const reply=await vpAsk(text);
+  const actionMatch=reply.match(/\[OPENCLAW_ACTION:\s*([^\]]+)\]/);
+  const spoken=reply.replace(/\[OPENCLAW_ACTION:[^\]]+\]/g,'').trim();
+  if(spoken){document.getElementById('jarvis-said').textContent=spoken;addLog('JARVIS',spoken);}
+  if(actionMatch) showAction(actionMatch[1].trim());
+  if(spoken){await vpSpeak(spoken);}else{setState('idle');setStatus('SYSTEM READY');}
+}
+
+async function vpAsk(text){
+  history.push({role:'user',content:text});
+  // Try claude-opus-4-5 first, fall back to claude-3-5-sonnet
+  const models=['claude-opus-4-5','claude-3-5-sonnet-20241022'];
+  for(const model of models){
+    try{
+      console.log('[JARVIS] Trying model:',model);
+      const r=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'x-api-key':CLAUDE_KEY,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body:JSON.stringify({model,max_tokens:300,system:JARVIS_SYS,messages:history})
+      });
+      console.log('[JARVIS] Claude response status:',r.status);
+      if(!r.ok){const err=await r.text();console.error('[JARVIS] Claude error:',err);continue;}
+      const d=await r.json();
+      const reply=d.content?.[0]?.text||'No response generated.';
+      history.push({role:'assistant',content:reply});
+      if(history.length>20)history.splice(0,history.length-20);
+      document.getElementById('claude-dot').style.background='var(--green)';
+      document.getElementById('claude-dot').style.boxShadow='0 0 6px var(--green)';
+      document.getElementById('claude-status').textContent=model.split('-')[1].toUpperCase()+' LINK';
+      return reply;
+    }catch(e){console.error('[JARVIS] Claude fetch error:',e);}
+  }
+  document.getElementById('claude-dot').style.background='var(--red)';
+  document.getElementById('claude-status').textContent='CLAUDE FAIL';
+  return 'I am having trouble reaching my neural systems, sir. Please check your connection.';
+}
+
+async function vpSpeak(text){
+  if(!voiceId){setStatus('NO VOICE ID — RELOAD');setState('idle');return;}
+  setState('speaking');setStatus('TRANSMITTING...');
+  try{
+    console.log('[JARVIS] TTS request. voiceId:',voiceId,'text length:',text.length);
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voiceId,{
+      method:'POST',
+      headers:{'xi-api-key':EL_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({
         text,
-        model_id: 'eleven_turbo_v2_5',
-        voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.1, use_speaker_boost: true }
+        model_id:'eleven_turbo_v2_5',
+        voice_settings:{stability:0.5,similarity_boost:0.8,style:0.1,use_speaker_boost:true}
       })
     });
-    if (!r.ok) throw new Error(await r.text());
-    const blob = await r.blob();
-    const url = URL.createObjectURL(blob);
-    VP.currentAudio = new Audio(url);
-    await new Promise(res => {
-      VP.currentAudio.onended = res;
-      VP.currentAudio.onerror = res;
-      VP.currentAudio.play();
-    });
+    console.log('[JARVIS] TTS response status:',r.status);
+    if(!r.ok){const e=await r.text();console.error('[JARVIS] TTS error:',e);throw new Error('TTS status '+r.status);}
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    currentAudio=new Audio(url);
+    await new Promise(res=>{currentAudio.onended=res;currentAudio.onerror=e=>{console.error('[JARVIS] Audio error:',e);res();};currentAudio.play().catch(e=>{console.error('[JARVIS] Play error:',e);res();});});
     URL.revokeObjectURL(url);
-  } catch (e) {
-    console.error('TTS error:', e);
+  }catch(e){
+    console.error('[JARVIS] TTS failed:',e);
+    setStatus('TTS ERROR — CHECK CONSOLE');
   }
-  VP.currentAudio = null;
-  vpSetState('idle');
+  currentAudio=null;setState('idle');setStatus('SYSTEM READY');
 }
 
-function vpInterrupt() {
-  if (VP.currentAudio) {
-    VP.currentAudio.pause();
-    VP.currentAudio.src = '';
-    VP.currentAudio = null;
-  }
-  vpSetState('idle');
+function vpInterrupt(){
+  if(currentAudio){currentAudio.pause();currentAudio.src='';currentAudio=null;}
+  setState('idle');setStatus('INTERRUPTED');
 }
 
-function vpShowAction(text) {
-  const box = document.getElementById('action-box');
-  document.getElementById('action-box-text').textContent = text;
-  document.getElementById('action-confirm').style.display = 'none';
-  box.classList.add('show');
-  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+// ══════════════════════════════════════════════════
+// OPENCLAW ACTION BOX (inline under jarvis-said)
+// ══════════════════════════════════════════════════
+function showAction(text){
+  // Show a brief notification in status bar
+  setStatus('⚡ OPENCLAW: '+text.substring(0,60));
+  navigator.clipboard.writeText(text).catch(()=>{});
+  addLog('ACTION',text);
 }
 
-function sendAction() {
-  const text = document.getElementById('action-box-text').textContent;
-  navigator.clipboard.writeText(text).catch(() => {});
-  document.getElementById('action-confirm').style.display = 'block';
-  setTimeout(() => { document.getElementById('action-confirm').style.display = 'none'; }, 3000);
-}
-
-// AUTO-GREET (no auto TTS — needs user gesture first)
-(function() {
-  const h = new Date().getHours();
-  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  setTimeout(() => {
-    vpAddMsg('jarvis', g + '. I am JARVIS, online and ready. Tap the orb to speak, sir.');
-  }, 1500);
-})();
+// ══════════════════════════════════════════════════
+// AUTO-GREET
+// ══════════════════════════════════════════════════
+setTimeout(()=>{
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('jarvis-said').textContent=g+'. JARVIS online. Tap the orb to speak, sir.';
+  addLog('JARVIS',g+'. JARVIS online. Tap the orb to speak, sir.');
+},1200);
 </script>
 </body>
 </html>
