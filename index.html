@@ -868,6 +868,27 @@
     }, { threshold: 0.5 });
     document.querySelectorAll('.stat-number[data-target]').forEach(el => counterObserver.observe(el));
 
+    // TYPEWRITER + HAPTICS
+    function typeWriter(el, text, speed = 55) {
+      el.textContent = '';
+      let i = 0;
+      function tick() {
+        if (i < text.length) {
+          el.textContent += text[i];
+          if (navigator.vibrate) navigator.vibrate(1);
+          i++;
+          setTimeout(tick, speed);
+        }
+      }
+      tick();
+    }
+    const eyebrow = document.querySelector('.hero-eyebrow');
+    if (eyebrow) {
+      const originalText = eyebrow.textContent;
+      eyebrow.textContent = '';
+      setTimeout(() => typeWriter(eyebrow, originalText, 55), 400);
+    }
+
     // MOBILE MENU
     const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobileMenu');
