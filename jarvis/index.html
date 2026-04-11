@@ -244,10 +244,10 @@ footer{text-align:center;padding:20px 28px 32px;font-size:10px;letter-spacing:3p
       <!-- CONNECT STATE -->
       <div id="spotify-connect">
         <div class="sp-instruct">
-          To connect Spotify: <a href="https://developer.spotify.com/dashboard" target="_blank">developer.spotify.com/dashboard</a> → Create App → Add redirect URI: <strong>https://www.clawcreative.net/jarvis/</strong> → paste Client ID below.
+          Client ID configured. Hit Connect to authorize Spotify access. Make sure <strong>https://www.clawcreative.net/jarvis/</strong> is added as a Redirect URI in your <a href="https://developer.spotify.com/dashboard" target="_blank">Spotify Developer Dashboard</a>.
         </div>
         <div class="sp-input-row">
-          <input id="sp-client-id" type="text" placeholder="Paste Spotify Client ID here..."/>
+          <input id="sp-client-id" type="text" value="48280dcbbc82418a99fdd0df9c1b6804" style="opacity:0.5"/>
           <button class="sp-btn" onclick="spotifyLogin()">CONNECT</button>
         </div>
       </div>
@@ -672,9 +672,10 @@ const SP={
   token:localStorage.getItem('sp_token')||null,
   refreshToken:localStorage.getItem('sp_refresh')||null,
   tokenExpiry:parseInt(localStorage.getItem('sp_expiry')||'0'),
-  clientId:localStorage.getItem('spotify_client_id')||'',
+  clientId:localStorage.getItem('spotify_client_id')||'48280dcbbc82418a99fdd0df9c1b6804',
   pollTimer:null,
 };
+localStorage.setItem('spotify_client_id','48280dcbbc82418a99fdd0df9c1b6804');
 
 // Pre-fill client ID input
 if(SP.clientId)document.getElementById('sp-client-id').value=SP.clientId;
