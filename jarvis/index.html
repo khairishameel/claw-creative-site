@@ -780,13 +780,15 @@ async function elSpeak(text){
     const blob=await res.blob();
     const url=URL.createObjectURL(blob);
     const audio=new Audio(url);
-    await new Promise((resolve,reject)=>{audio.onended=resolve;audio.onerror=reject;audio.play();});
+    vCurrentAudio=audio;vSpeaking=true;
+    await new Promise((resolve,reject)=>{audio.onended=()=>{vSpeaking=false;vCurrentAudio=null;resolve();};audio.onerror=reject;audio.play();});
     URL.revokeObjectURL(url);
   } catch(e){
     console.error('EL TTS error:',e);
     setVStatus('TTS ERROR — '+String(e.message).substring(0,40).toUpperCase());
     browserSpeak(text);
   }
+  vSpeaking=false;vCurrentAudio=null;
   setVOrb(''); setVLabel('TAP TO SPEAK'); setVStatus('SYSTEM READY');
 }
 
@@ -822,7 +824,7 @@ if(window.speechSynthesis){
 } else { initVoice(); }
 
 // ─── VOICE COMMAND ORB ───
-let vListening=false,vRec=null,vTranscript='';
+let vListening=false,vRec=null,vTranscript='',vCurrentAudio=null,vSpeaking=false;
 
 function setVOrb(state){
   const orb=document.getElementById('v-orb');
@@ -833,8 +835,17 @@ function setVLabel(t){document.getElementById('v-core-lbl').textContent=t;}
 function setVStatus(t){document.getElementById('v-status-lbl').textContent=t;}
 
 function toggleVoice(){
+  if(vSpeaking){interruptJarvis();return;}
   if(vListening) finalizeVoice();
   else startVoiceListen();
+}
+
+function interruptJarvis(){
+  if(vCurrentAudio){vCurrentAudio.pause();vCurrentAudio.src='';vCurrentAudio=null;}
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  vSpeaking=false;
+  setVOrb('');setVLabel('TAP TO SPEAK');setVStatus('INTERRUPTED');
+  setTimeout(()=>{setVStatus('SYSTEM READY');startVoiceListen();},300);
 }
 
 function startVoiceListen(){
