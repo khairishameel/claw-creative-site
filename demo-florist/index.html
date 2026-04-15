@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Petal & Stem — Indianapolis Florist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:    #b85c7a;
+      --rose-lt: #e08aaa;
+      --blush:   #f5e6ec;
+      --sage:    #6b8c6b;
+      --sage-lt: #9ab89a;
+      --cream:   #fdfaf7;
+      --linen:   #f0e8de;
+      --dark:    #2a1f1f;
+      --text:    #3d2d2d;
+      --muted:   #7a6060;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--cream); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.75; overflow-x: hidden; }
+    h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--linen); }
+    ::-webkit-scrollbar-thumb { background: var(--rose); border-radius: 4px; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 20px 48px; display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.4s, padding 0.4s, box-shadow 0.4s;
+    }
+    nav.scrolled { background: rgba(253,250,247,0.96); padding: 14px 48px; box-shadow: 0 2px 20px rgba(42,31,31,0.08); }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--rose); letter-spacing: 0.5px; text-decoration: none; }
+    .nav-logo span { color: var(--sage); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--text); font-size: 0.875rem; font-weight: 400; letter-spacing: 0.3px; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--rose); }
+    .nav-cta { background: var(--rose); color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: background 0.2s, transform 0.2s; }
+    .nav-cta:hover { background: #a04d6c; transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #f9eef3 0%, #e8f0e8 50%, #f5e6ec 100%);
+      position: relative; overflow: hidden; text-align: center; padding: 120px 24px 60px;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -60px; right: -60px; width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(184,92,122,0.12) 0%, transparent 70%);
+      border-radius: 50%; animation: float 8s ease-in-out infinite;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: -80px; left: -80px; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(107,140,107,0.10) 0%, transparent 70%);
+      border-radius: 50%; animation: float 10s ease-in-out infinite reverse;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
+    .hero-content { position: relative; z-index: 1; max-width: 720px; }
+    .hero-eyebrow { font-size: 0.8rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--sage); margin-bottom: 18px; }
+    .hero h1 { font-size: clamp(3rem, 7vw, 5.5rem); color: var(--dark); line-height: 1.1; margin-bottom: 24px; }
+    .hero h1 em { color: var(--rose); font-style: italic; }
+    .hero p { font-size: 1.15rem; color: var(--muted); max-width: 520px; margin: 0 auto 36px; }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { background: var(--rose); color: #fff; padding: 14px 32px; border-radius: 40px; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 4px 18px rgba(184,92,122,0.35); }
+    .btn-primary:hover { background: #a04d6c; transform: translateY(-2px); box-shadow: 0 6px 24px rgba(184,92,122,0.45); }
+    .btn-secondary { background: transparent; color: var(--sage); padding: 14px 32px; border-radius: 40px; text-decoration: none; font-weight: 500; font-size: 0.95rem; border: 1.5px solid var(--sage); transition: all 0.2s; }
+    .btn-secondary:hover { background: var(--sage); color: #fff; }
+    .hero-blooms { font-size: 3rem; margin-bottom: 24px; line-height: 1; }
+
+    /* STRIP */
+    .strip { background: var(--rose); color: #fff; padding: 16px 48px; display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; font-size: 0.85rem; font-weight: 400; letter-spacing: 0.5px; }
+    .strip span::before { content: '✦ '; opacity: 0.7; }
+
+    /* SERVICES */
+    .services { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+    .section-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--rose); margin-bottom: 12px; }
+    .section-title { font-size: clamp(2rem, 4vw, 3rem); color: var(--dark); margin-bottom: 16px; }
+    .section-sub { color: var(--muted); max-width: 540px; }
+    .section-header { margin-bottom: 60px; }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }
+    .service-card { background: var(--linen); border-radius: 20px; padding: 40px 32px; transition: transform 0.3s, box-shadow 0.3s; }
+    .service-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(42,31,31,0.1); }
+    .service-icon { font-size: 2.4rem; margin-bottom: 18px; }
+    .service-card h3 { font-size: 1.25rem; color: var(--dark); margin-bottom: 10px; }
+    .service-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+    .service-tag { display: inline-block; margin-top: 16px; font-size: 0.8rem; color: var(--rose); font-weight: 500; }
+
+    /* GALLERY */
+    .gallery-section { background: var(--linen); padding: 100px 48px; }
+    .gallery-inner { max-width: 1200px; margin: 0 auto; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 16px; margin-top: 60px; }
+    .gallery-item { border-radius: 16px; overflow: hidden; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 4rem; transition: transform 0.3s; }
+    .gallery-item:hover { transform: scale(1.03); }
+    .gallery-item.tall { grid-row: span 2; aspect-ratio: unset; }
+    .gi-1 { background: linear-gradient(135deg, #f0d0dc, #e8b8cc); }
+    .gi-2 { background: linear-gradient(135deg, #d0e8d0, #b8d4b8); }
+    .gi-3 { background: linear-gradient(135deg, #f5e6d0, #edd4b4); }
+    .gi-4 { background: linear-gradient(135deg, #e8d0f0, #d4b8e8); }
+    .gi-5 { background: linear-gradient(135deg, #f0e8d0, #e8d8b8); }
+    .gi-6 { background: linear-gradient(135deg, #d0e0f0, #b8d0e8); }
+    .gallery-caption { text-align: center; margin-top: 32px; color: var(--muted); font-size: 0.875rem; font-style: italic; }
+
+    /* SEASONAL */
+    .seasonal { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+    .seasonal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-top: 60px; }
+    .seasonal-card { border-radius: 20px; overflow: hidden; background: #fff; box-shadow: 0 4px 24px rgba(42,31,31,0.06); transition: transform 0.3s, box-shadow 0.3s; }
+    .seasonal-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(42,31,31,0.12); }
+    .seasonal-img { height: 200px; display: flex; align-items: center; justify-content: center; font-size: 5rem; }
+    .img-spring { background: linear-gradient(135deg, #fce4ec, #f8bbd0); }
+    .img-summer { background: linear-gradient(135deg, #fff9c4, #ffe082); }
+    .img-fall { background: linear-gradient(135deg, #ffe0b2, #ffcc80); }
+    .seasonal-body { padding: 24px 28px; }
+    .seasonal-body h3 { font-size: 1.2rem; color: var(--dark); margin-bottom: 8px; }
+    .seasonal-body p { font-size: 0.875rem; color: var(--muted); margin-bottom: 16px; }
+    .price-tag { font-size: 1.1rem; font-weight: 600; color: var(--rose); }
+
+    /* ABOUT */
+    .about { background: linear-gradient(135deg, #f9eef3, #e8f0e8); padding: 100px 48px; }
+    .about-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-visual { display: flex; align-items: center; justify-content: center; height: 400px; background: linear-gradient(135deg, #f0d0dc, #d0e8d0); border-radius: 30px; font-size: 6rem; }
+    .about-text .section-title { margin-bottom: 20px; }
+    .about-text p { color: var(--muted); margin-bottom: 20px; }
+    .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
+    .stat { text-align: center; background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(42,31,31,0.05); }
+    .stat-num { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--rose); display: block; }
+    .stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* TESTIMONIALS */
+    .testimonials { padding: 100px 48px; max-width: 1100px; margin: 0 auto; }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; margin-top: 60px; }
+    .testimonial-card { background: var(--linen); border-radius: 20px; padding: 36px 30px; position: relative; }
+    .testimonial-card::before { content: '"'; font-family: 'Playfair Display', serif; font-size: 5rem; color: var(--rose); opacity: 0.2; position: absolute; top: 8px; left: 24px; line-height: 1; }
+    .testimonial-text { font-size: 0.95rem; color: var(--text); line-height: 1.75; margin-bottom: 20px; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .author-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; background: var(--blush); }
+    .author-name { font-weight: 500; font-size: 0.9rem; color: var(--dark); }
+    .author-occasion { font-size: 0.8rem; color: var(--muted); }
+    .stars { color: #f4b942; font-size: 0.9rem; margin-bottom: 12px; }
+
+    /* ORDER FORM */
+    .order-section { background: var(--dark); color: #fff; padding: 100px 48px; }
+    .order-inner { max-width: 760px; margin: 0 auto; text-align: center; }
+    .order-inner .section-label { color: var(--rose-lt); }
+    .order-inner .section-title { color: #fff; margin-bottom: 12px; }
+    .order-inner .section-sub { color: #b0a0a0; margin: 0 auto 48px; }
+    .order-form { background: rgba(255,255,255,0.05); border-radius: 24px; padding: 48px; text-align: left; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 0.8rem; color: #c0b0b0; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px; padding: 12px 16px; color: #fff; font-size: 0.95rem; font-family: inherit;
+      transition: border 0.2s;
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: #806060; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--rose); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-submit { width: 100%; background: var(--rose); color: #fff; border: none; padding: 16px; border-radius: 40px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.2s, transform 0.2s; margin-top: 8px; font-family: inherit; }
+    .form-submit:hover { background: #a04d6c; transform: translateY(-1px); }
+    .form-note { text-align: center; color: #806060; font-size: 0.8rem; margin-top: 16px; }
+
+    /* FOOTER */
+    footer { background: #1a1212; color: #c0a0a0; padding: 60px 48px 32px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px; margin-bottom: 48px; }
+    .footer-brand .nav-logo { display: block; margin-bottom: 16px; }
+    .footer-brand p { font-size: 0.875rem; line-height: 1.7; color: #907070; }
+    .footer-col h4 { color: #fff; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 18px; font-family: 'Inter', sans-serif; font-weight: 500; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; font-size: 0.875rem; }
+    .footer-col ul li a { color: #907070; text-decoration: none; transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--rose-lt); }
+    .footer-bottom { border-top: 1px solid #2a1818; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-bottom p { font-size: 0.8rem; color: #605050; }
+    .claw-credit { font-size: 0.78rem; color: #504040; }
+    .claw-credit a { color: var(--rose); text-decoration: none; }
+
+    /* SCROLL ANIMATIONS */
+    .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      nav.scrolled { padding: 12px 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 20px 50px; }
+      .services, .seasonal, .testimonials { padding: 70px 20px; }
+      .gallery-section, .order-section { padding: 70px 20px; }
+      .about { padding: 70px 20px; }
+      .about-inner { grid-template-columns: 1fr; gap: 40px; }
+      .about-visual { height: 240px; font-size: 4rem; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      .gallery-item.tall { grid-row: span 1; aspect-ratio: 1; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .order-form { padding: 28px 20px; }
+      .strip { gap: 20px; padding: 14px 20px; font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#" class="nav-logo">Petal <span>&</span> Stem</a>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#seasonal">Seasonal</a></li>
+      <li><a href="#about">Our Story</a></li>
+    </ul>
+    <a href="#order" class="nav-cta">Order Now</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-blooms">🌸🌿🌺</div>
+      <p class="hero-eyebrow">Indianapolis Florist · Est. 2014</p>
+      <h1>Flowers that <em>say everything</em></h1>
+      <p>From everyday arrangements to dream weddings — locally grown, thoughtfully crafted, delivered across Indianapolis.</p>
+      <div class="hero-btns">
+        <a href="#order" class="btn-primary">Request an Arrangement</a>
+        <a href="#gallery" class="btn-secondary">View Our Work</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STRIP -->
+  <div class="strip">
+    <span>Same-Day Delivery Available</span>
+    <span>Wedding &amp; Event Specialists</span>
+    <span>Locally Sourced Blooms</span>
+    <span>Custom Orders Welcome</span>
+  </div>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <div class="section-header fade-up">
+      <p class="section-label">What We Do</p>
+      <h2 class="section-title">Every occasion,<br />beautifully arranged</h2>
+      <p class="section-sub">Whether it's a single stem or a full wedding installation, we bring the same care to every bloom.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card fade-up">
+        <div class="service-icon">💍</div>
+        <h3>Weddings &amp; Events</h3>
+        <p>From intimate ceremonies to grand receptions — full florals, bouquets, centerpieces, arches, and day-of coordination.</p>
+        <span class="service-tag">Custom Quote →</span>
+      </div>
+      <div class="service-card fade-up">
+        <div class="service-icon">🌷</div>
+        <h3>Everyday Arrangements</h3>
+        <p>Fresh-cut bouquets, bud vases, and seasonal stems — perfect for birthdays, anniversaries, or just because.</p>
+        <span class="service-tag">Starting at $45 →</span>
+      </div>
+      <div class="service-card fade-up">
+        <div class="service-icon">🏢</div>
+        <h3>Corporate &amp; Office</h3>
+        <p>Weekly or monthly floral subscriptions for offices, lobbies, restaurants, and event spaces across Indianapolis.</p>
+        <span class="service-tag">Request Pricing →</span>
+      </div>
+      <div class="service-card fade-up">
+        <div class="service-icon">🕯️</div>
+        <h3>Sympathy &amp; Tributes</h3>
+        <p>Thoughtful arrangements for memorial services, sympathy baskets, and celebration-of-life ceremonies.</p>
+        <span class="service-tag">Same-Day Available →</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="gallery-section" id="gallery">
+    <div class="gallery-inner">
+      <div class="section-header fade-up">
+        <p class="section-label">Our Work</p>
+        <h2 class="section-title">Every stem tells a story</h2>
+        <p class="section-sub">A glimpse at recent arrangements — from studio bouquets to full wedding installations.</p>
+      </div>
+      <div class="gallery-grid fade-up">
+        <div class="gallery-item gi-1 tall">🌸</div>
+        <div class="gallery-item gi-2">🌿</div>
+        <div class="gallery-item gi-3">🌺</div>
+        <div class="gallery-item gi-4">🌼</div>
+        <div class="gallery-item gi-5">🌻</div>
+        <div class="gallery-item gi-6 tall">💐</div>
+      </div>
+      <p class="gallery-caption fade-up">Follow us on Instagram @petal.and.stem.indy for daily inspiration</p>
+    </div>
+  </section>
+
+  <!-- SEASONAL -->
+  <section class="seasonal" id="seasonal">
+    <div class="section-header fade-up">
+      <p class="section-label">Right Now</p>
+      <h2 class="section-title">Spring collection</h2>
+      <p class="section-sub">Fresh arrivals curated for the season — available for order or same-day delivery.</p>
+    </div>
+    <div class="seasonal-grid">
+      <div class="seasonal-card fade-up">
+        <div class="seasonal-img img-spring">🌸</div>
+        <div class="seasonal-body">
+          <h3>Cherry Blossom Bundle</h3>
+          <p>A soft pink arrangement of Japanese cherry blossom branches, ranunculus, and baby's breath — perfect for spring celebrations.</p>
+          <span class="price-tag">From $65</span>
+        </div>
+      </div>
+      <div class="seasonal-card fade-up">
+        <div class="seasonal-img img-summer">🌻</div>
+        <div class="seasonal-body">
+          <h3>Golden Sunflower Bouquet</h3>
+          <p>Bold sunflowers with lush greenery and warm accent blooms. Bright, cheerful, and grown right here in Indiana.</p>
+          <span class="price-tag">From $55</span>
+        </div>
+      </div>
+      <div class="seasonal-card fade-up">
+        <div class="seasonal-img img-fall">🌺</div>
+        <div class="seasonal-body">
+          <h3>Garden Rose Collection</h3>
+          <p>Full, lush garden roses in blush and cream — a timeless statement piece for weddings, events, or home.</p>
+          <span class="price-tag">From $85</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-inner">
+      <div class="about-visual fade-up">🌿</div>
+      <div class="about-text fade-up">
+        <p class="section-label">Our Story</p>
+        <h2 class="section-title">Rooted in Indianapolis,<br />grown with intention</h2>
+        <p>Petal &amp; Stem started in 2014 with a small studio on the near-northside and a belief that flowers should feel personal — not generic. We work with local Indiana growers whenever possible and keep our arrangements seasonal and honest.</p>
+        <p>Every order is handled by our small team. No outsourcing, no shortcuts. Just careful work and flowers that actually look like the photos.</p>
+        <div class="about-stats">
+          <div class="stat"><span class="stat-num">10+</span><span class="stat-label">Years in Indy</span></div>
+          <div class="stat"><span class="stat-num">800+</span><span class="stat-label">Weddings Done</span></div>
+          <div class="stat"><span class="stat-num">5★</span><span class="stat-label">Google Rating</span></div>
+          <div class="stat"><span class="stat-num">Local</span><span class="stat-label">Growers Only</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials">
+    <div class="section-header fade-up">
+      <p class="section-label">Reviews</p>
+      <h2 class="section-title">What our clients say</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-up">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">The wedding florals were beyond what we imagined. Every arrangement looked exactly like the inspiration photos we shared — and the bridal bouquet made me cry the second I saw it.</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👰</div>
+          <div><div class="author-name">Sarah M.</div><div class="author-occasion">Wedding — June 2025</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">I order weekly bouquets for our office reception area. The quality is always consistent, the arrangements are always fresh, and the team is incredibly easy to work with.</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🏢</div>
+          <div><div class="author-name">James K.</div><div class="author-occasion">Corporate Client — Ongoing</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">Same-day delivery saved me when I forgot our anniversary. The arrangement arrived in perfect condition and my wife loved it. Will absolutely be ordering again.</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">💑</div>
+          <div><div class="author-name">Derek T.</div><div class="author-occasion">Anniversary Arrangement</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORDER FORM -->
+  <section class="order-section" id="order">
+    <div class="order-inner">
+      <p class="section-label">Get Started</p>
+      <h2 class="section-title">Request an arrangement</h2>
+      <p class="section-sub">Tell us about your occasion and budget — we'll follow up within 2 hours to confirm availability and details.</p>
+      <form class="order-form" onsubmit="handleSubmit(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" placeholder="First &amp; Last Name" />
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" placeholder="you@email.com" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" placeholder="(317) 000-0000" />
+          </div>
+          <div class="form-group">
+            <label>Occasion</label>
+            <select>
+              <option value="">Select occasion...</option>
+              <option>Wedding / Event</option>
+              <option>Birthday</option>
+              <option>Anniversary</option>
+              <option>Corporate / Office</option>
+              <option>Sympathy</option>
+              <option>Just Because</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date Needed</label>
+            <input type="date" />
+          </div>
+          <div class="form-group">
+            <label>Approximate Budget</label>
+            <select>
+              <option value="">Select range...</option>
+              <option>Under $75</option>
+              <option>$75 – $150</option>
+              <option>$150 – $300</option>
+              <option>$300 – $600</option>
+              <option>$600+</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tell us more</label>
+          <textarea placeholder="Colors, style preferences, inspiration, delivery address..."></textarea>
+        </div>
+        <button type="submit" class="form-submit">Send My Request 🌸</button>
+        <p class="form-note">We respond within 2 hours during business hours · Tue–Sat 9am–6pm · Sun 10am–4pm</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo">Petal <span>&</span> Stem</a>
+          <p>Indianapolis florist specializing in weddings, events, and everyday arrangements. Locally grown whenever possible.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="#">Weddings</a></li>
+            <li><a href="#">Everyday Bouquets</a></li>
+            <li><a href="#">Corporate</a></li>
+            <li><a href="#">Sympathy</a></li>
+            <li><a href="#">Delivery</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="#">(317) 555-0180</a></li>
+            <li><a href="#">hello@petalandstem.com</a></li>
+            <li><a href="#">Near-Northside, Indianapolis</a></li>
+            <li><a href="#">Tue–Sat 9am–6pm</a></li>
+            <li><a href="#">@petal.and.stem.indy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Petal &amp; Stem. All rights reserved.</p>
+        <p class="claw-credit">Demo built by <a href="https://www.clawcreative.net" target="_blank">Claw Creative</a> · Want one for your business? <a href="https://www.clawcreative.net" target="_blank">Let's talk.</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Nav scroll effect
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // Scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Form submit
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('.form-submit');
+      btn.textContent = '✓ Request Sent — We\'ll be in touch!';
+      btn.style.background = '#6b8c6b';
+      btn.disabled = true;
+    }
+
+    // Select style fix
+    document.querySelectorAll('select').forEach(s => {
+      s.style.color = s.value ? '#fff' : '#806060';
+      s.addEventListener('change', () => {
+        s.style.color = s.value ? '#fff' : '#806060';
+      });
+    });
+  </script>
+</body>
+</html>
