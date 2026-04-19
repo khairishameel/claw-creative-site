@@ -94,14 +94,14 @@
     }
     .nav-logo { display: inline-flex; align-items: center; gap: 10px; }
     .nav-logo img {
-      height: 60px; width: auto; display: block;
-      filter: drop-shadow(0 2px 10px rgba(247,76,48,0.25));
+      height: 96px; width: auto; display: block;
+      filter: drop-shadow(0 2px 12px rgba(247,76,48,0.3));
       transition: height 0.25s ease;
     }
-    nav.scrolled .nav-logo img { height: 44px; }
+    nav.scrolled .nav-logo img { height: 64px; }
     @media (max-width: 640px) {
-      .nav-logo img { height: 46px; }
-      nav.scrolled .nav-logo img { height: 36px; }
+      .nav-logo img { height: 60px; }
+      nav.scrolled .nav-logo img { height: 46px; }
     }
     .nav-links { display: flex; gap: 32px; list-style: none; }
     .nav-links a {
@@ -612,7 +612,7 @@
 
   <!-- NAV -->
   <nav id="navbar">
-    <a href="#hero" class="nav-logo"><img src="claw-wordmark.png" alt="Claw Creative" /></a>
+    <a href="#hero" class="nav-logo"><img src="claw-wordmark.png?v=3" alt="Claw Creative" /></a>
     <ul class="nav-links">
       <li><a href="#services">Pricing</a></li>
       <li><a href="#process">Process</a></li>
