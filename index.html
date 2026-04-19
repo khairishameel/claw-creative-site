@@ -92,7 +92,17 @@
       border-bottom: 1px solid rgba(247,76,48,0.1);
       padding: 14px 48px;
     }
-    .nav-logo img { height: 36px; width: auto; }
+    .nav-logo { display: inline-flex; align-items: center; gap: 10px; }
+    .nav-logo img {
+      height: 60px; width: auto; display: block;
+      filter: drop-shadow(0 2px 10px rgba(247,76,48,0.25));
+      transition: height 0.25s ease;
+    }
+    nav.scrolled .nav-logo img { height: 44px; }
+    @media (max-width: 640px) {
+      .nav-logo img { height: 46px; }
+      nav.scrolled .nav-logo img { height: 36px; }
+    }
     .nav-links { display: flex; gap: 32px; list-style: none; }
     .nav-links a {
       color: var(--peach); text-decoration: none;
