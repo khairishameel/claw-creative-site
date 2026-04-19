@@ -57,7 +57,13 @@
       font-size: 1.6rem; font-weight: 700;
       color: var(--gold); text-decoration: none;
       letter-spacing: 0.08em; text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 10px;
     }
+    .nav-logo img {
+      height: 44px; width: auto; display: block;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
+    }
+    nav.scrolled .nav-logo img { height: 38px; }
     .nav-links { display: flex; gap: 36px; list-style: none; }
     .nav-links a {
       color: var(--cream); text-decoration: none;
@@ -465,7 +471,7 @@
 
   <!-- NAV -->
   <nav id="navbar">
-    <a href="#hero" class="nav-logo">La Piedad</a>
+    <a href="#hero" class="nav-logo" aria-label="La Piedad home"><img src="assets/logo.png" alt="La Piedad" /></a>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
       <li><a href="#menu">Menu</a></li>
