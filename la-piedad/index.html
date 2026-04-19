@@ -155,13 +155,18 @@
       opacity: 0; animation: fadeUp 1s ease 0.7s forwards;
     }
     .hero-title {
-      font-size: clamp(4rem, 9vw, 8rem);
-      font-weight: 700; line-height: 1;
-      color: var(--cream); text-transform: uppercase;
-      letter-spacing: 0.04em; margin-bottom: 16px;
+      display: flex; justify-content: center; align-items: center;
+      margin-bottom: 28px;
       opacity: 0; animation: fadeUp 1s ease 0.9s forwards;
     }
-    .hero-title span { color: var(--gold); }
+    .hero-title img {
+      max-width: min(640px, 85vw);
+      width: 100%; height: auto;
+      filter: drop-shadow(0 6px 24px rgba(0,0,0,0.55));
+    }
+    @media (max-width: 640px) {
+      .hero-title img { max-width: 80vw; }
+    }
     .hero-sub {
       font-family: 'Open Sans', sans-serif;
       font-size: 1rem; color: var(--cream-dim);
@@ -501,7 +506,7 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <p class="hero-eyebrow">Broad Ripple · Indianapolis</p>
-      <h1 class="hero-title">La <span>Piedad</span></h1>
+      <h1 class="hero-title"><img src="assets/logo.png?v=3" alt="La Piedad" /></h1>
       <p class="hero-sub">Authentic Mexican Cuisine</p>
       <a href="#menu" class="hero-cta">See Our Menu</a>
     </div>
