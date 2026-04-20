@@ -105,7 +105,11 @@
       .nav-logo img { height: 42px; }
       nav.scrolled .nav-logo img { height: 34px; }
     }
-    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links {
+      display: flex; gap: 32px; list-style: none;
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+    }
     .nav-links a {
       color: var(--peach); text-decoration: none;
       font-size: 0.82rem; font-weight: 600;
