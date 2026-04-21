@@ -1031,23 +1031,27 @@ body.page-leaving { opacity: 0; transform: translateY(-8px); transition: opacity
    No rectangles, no borders, images float in the design.
 ================================================================ */
 .feathered-image {
-  -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 95%);
-          mask-image: radial-gradient(ellipse at center, black 50%, transparent 95%);
-  filter: drop-shadow(0 12px 32px rgba(247, 76, 48, 0.08))
-          drop-shadow(0 4px 12px rgba(36, 15, 14, 0.06));
+  /* Aggressive multi-stop feather — solid core to soft edge to fully transparent
+     at 90%. The tiny blur softens any lingering hard pixels so the art
+     genuinely sinks into the cream background rather than sitting on top of it. */
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, rgba(0, 0, 0, 0.8) 55%, transparent 90%);
+          mask-image: radial-gradient(ellipse at center, black 30%, rgba(0, 0, 0, 0.8) 55%, transparent 90%);
+  filter: blur(0.5px);
   display: block;
   width: 100%;
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
 }
+/* For anything still reading as boxy, add .blend to multiply against the cream bg */
+.feathered-image.blend { mix-blend-mode: multiply; }
 .feathered-image.soft {
-  -webkit-mask-image: radial-gradient(ellipse at center, black 45%, transparent 88%);
-          mask-image: radial-gradient(ellipse at center, black 45%, transparent 88%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 22%, rgba(0, 0, 0, 0.75) 48%, transparent 85%);
+          mask-image: radial-gradient(ellipse at center, black 22%, rgba(0, 0, 0, 0.75) 48%, transparent 85%);
 }
 .feathered-image.tall {
-  -webkit-mask-image: radial-gradient(ellipse 70% 80% at center, black 55%, transparent 95%);
-          mask-image: radial-gradient(ellipse 70% 80% at center, black 55%, transparent 95%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 80% at center, black 28%, rgba(0, 0, 0, 0.8) 55%, transparent 92%);
+          mask-image: radial-gradient(ellipse 70% 80% at center, black 28%, rgba(0, 0, 0, 0.8) 55%, transparent 92%);
 }
 .feathered-float {
   animation: featherFloat 6s ease-in-out infinite;
