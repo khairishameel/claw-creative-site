@@ -5,63 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Experimental Test — Three.js Diagnostic</title>
   <style>
-    html, body {
-      margin: 0; padding: 0;
-      width: 100%; height: 100%;
-      background: #0d1117;
-      color: #10b981;
-      font-family: 'JetBrains Mono', Consolas, monospace;
-      overflow: hidden;
-    }
-    #status {
-      position: fixed; top: 16px; left: 16px; z-index: 10;
-      font-size: 13px; line-height: 1.7;
-      background: rgba(0,0,0,0.55);
-      padding: 14px 18px;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 8px;
-      max-width: 90vw;
-    }
-    #status div { white-space: pre; }
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #0d1117; color: #10b981; font-family: 'JetBrains Mono', Consolas, monospace; overflow: hidden; }
+    #status { position: fixed; top: 16px; left: 16px; z-index: 10; font-size: 13px; line-height: 1.7; background: rgba(0,0,0,0.55); padding: 14px 18px; border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; max-width: 90vw; }
+    #status div { white-space: pre-wrap; }
     #status .ok  { color: #10b981; }
     #status .bad { color: #ef4444; }
+    #status .warn{ color: #facc15; }
     #status .info { color: #f5f5f5; }
-    canvas#test-canvas {
-      display: block;
-      width: 100vw;
-      height: 100vh;
-      position: fixed;
-      top: 0; left: 0;
-      z-index: 1;
+    canvas#test-canvas { display: block; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; z-index: 1; }
+    .help {
+      position: fixed; bottom: 16px; left: 16px; right: 16px;
+      z-index: 20; font-size: 13px; line-height: 1.6;
+      color: #c8ccd4; background: rgba(0,0,0,0.65);
+      padding: 16px 20px; border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 8px; display: none;
     }
+    .help.show { display: block; }
+    .help strong { color: #10b981; }
+    .help code { background: rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 4px; color: #10b981; }
   </style>
 </head>
 <body>
   <div id="status"></div>
+  <div id="help" class="help"></div>
   <canvas id="test-canvas"></canvas>
 
-  <!-- Self-logging so any user can see what's happening without DevTools -->
   <script>
     const status = document.getElementById('status');
-    function log(msg, kind) {
-      const line = document.createElement('div');
-      line.className = kind || 'info';
-      line.textContent = '> ' + msg;
-      status.appendChild(line);
-      console.log('[test]', msg);
-    }
-    function err(msg) { log(msg, 'bad'); }
-    function ok(msg)  { log(msg, 'ok'); }
+    const helpEl = document.getElementById('help');
+    function log(m, k){ const d = document.createElement('div'); d.className = k || 'info'; d.textContent = '> ' + m; status.appendChild(d); console.log('[test]', m); }
+    function ok(m){ log(m, 'ok'); } function err(m){ log(m, 'bad'); } function warn(m){ log(m, 'warn'); }
+    function showHelp(html){ helpEl.innerHTML = html; helpEl.classList.add('show'); }
 
     log('document ready');
     log('canvas element: ' + !!document.getElementById('test-canvas'));
   </script>
 
-  <!-- Primary CDN -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
-    onload="window.__threeSource = 'cdnjs'"
-    onerror="window.__threeCdnFailed = true"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+          onload="window.__threeSource='cdnjs'"
+          onerror="window.__threeCdnFailed=true"></script>
 
   <script>
     function tryFallbackCDN() {
@@ -74,50 +56,89 @@
       });
     }
 
+    // Try creating a WebGL context with EVERY combination of options
+    // until one works. Returns { gl, isWebGL2, options } or null.
+    function tryContexts(canvas) {
+      const attempts = [
+        // Most permissive first — don't care about quality, just give us SOMETHING
+        { type: 'webgl2', opts: { failIfMajorPerformanceCaveat: false, powerPreference: 'low-power', antialias: false, alpha: true, depth: true, stencil: false, preserveDrawingBuffer: false } },
+        { type: 'webgl',  opts: { failIfMajorPerformanceCaveat: false, powerPreference: 'low-power', antialias: false, alpha: true, depth: true, stencil: false, preserveDrawingBuffer: false } },
+        { type: 'webgl2', opts: { failIfMajorPerformanceCaveat: false, powerPreference: 'default', antialias: false, alpha: true } },
+        { type: 'webgl',  opts: { failIfMajorPerformanceCaveat: false, powerPreference: 'default', antialias: false, alpha: true } },
+        { type: 'experimental-webgl', opts: { failIfMajorPerformanceCaveat: false, antialias: false, alpha: true } },
+        { type: 'webgl', opts: {} },   // bare-bones last resort
+      ];
+      for (const a of attempts) {
+        try {
+          const gl = canvas.getContext(a.type, a.opts);
+          if (gl) return { gl, isWebGL2: a.type === 'webgl2', type: a.type, options: a.opts };
+        } catch (e) { /* try next */ }
+      }
+      return null;
+    }
+
     (async () => {
-      // Give the primary <script> tag a moment to settle
       await new Promise((r) => setTimeout(r, 150));
 
       if (typeof THREE === 'undefined') {
-        err('PRIMARY CDN (cdnjs.cloudflare.com) did not deliver three.js');
-        log('trying fallback (cdn.jsdelivr.net)...');
+        warn('primary CDN did not deliver three.js → trying jsdelivr');
         const ok2 = await tryFallbackCDN();
         if (!ok2 || typeof THREE === 'undefined') {
-          err('FALLBACK CDN also failed');
-          err('Both CDNs blocked or unreachable.');
-          err('Check: network, VPN, ad-blocker, DNS.');
+          err('both CDNs failed.');
+          showHelp(`<strong>Cannot load Three.js.</strong> Check network / VPN / ad-blocker / DNS. Both CDNs (cdnjs.cloudflare.com and cdn.jsdelivr.net) failed to respond.`);
           return;
         }
       }
+      ok('THREE loaded (source: ' + (window.__threeSource || 'unknown') + ') · r' + THREE.REVISION);
 
-      ok('THREE loaded (source: ' + (window.__threeSource || 'unknown') + ')');
-      ok('THREE revision: r' + THREE.REVISION);
+      const canvas = document.getElementById('test-canvas');
+      log('canvas CSS size: ' + canvas.clientWidth + ' x ' + canvas.clientHeight);
 
+      // STEP 1: Try to get a raw WebGL context ourselves with every fallback option.
+      const ctxResult = tryContexts(canvas);
+      if (!ctxResult) {
+        err('Every WebGL context-creation attempt FAILED.');
+        err('This means the browser is refusing to give this page WebGL.');
+        showHelp(`
+<strong>WebGL context refused.</strong> Most common causes (in order):
+<ul style="margin:10px 0 0 18px">
+  <li><strong>Too many WebGL tabs open.</strong> Chrome caps at ~16 contexts. Close every other tab that uses WebGL/Three.js (including any previous Claw Creative /experimental tabs), then hard-refresh this page (<code>Ctrl+Shift+R</code>).</li>
+  <li><strong>Hardware acceleration is off.</strong> In Chrome: <code>chrome://settings/system</code> → toggle ON "Use hardware acceleration when available" → restart Chrome.</li>
+  <li><strong>GPU driver issue.</strong> Visit <code>chrome://gpu</code> and look at "Graphics Feature Status". If "WebGL" is not "Hardware accelerated", your GPU is blocklisted.</li>
+  <li><strong>Chrome flag override:</strong> <code>chrome://flags/#ignore-gpu-blocklist</code> → Enable → Relaunch.</li>
+</ul>
+After fixing one of the above, hard-refresh this page.`);
+        return;
+      }
+      ok('raw WebGL context acquired (type: ' + ctxResult.type + ')');
+      try { ok('GL vendor: ' + ctxResult.gl.getParameter(ctxResult.gl.VENDOR)); } catch(e){}
+      try { ok('GL renderer: ' + ctxResult.gl.getParameter(ctxResult.gl.RENDERER)); } catch(e){}
+
+      // STEP 2: Hand that context to Three.js
       try {
-        const canvas = document.getElementById('test-canvas');
-        log('canvas CSS size: ' + canvas.clientWidth + ' x ' + canvas.clientHeight);
-
         const scene = new THREE.Scene();
-        log('scene created');
-
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.z = 5;
-        log('camera created · z=5 · aspect=' + (window.innerWidth / window.innerHeight).toFixed(2));
 
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false });
+        // Pass the context WE created in step 1 — avoids Three.js doing its own getContext which was failing
+        const renderer = new THREE.WebGLRenderer({
+          canvas,
+          context: ctxResult.gl,
+          antialias: false,
+          alpha: true,
+          powerPreference: 'low-power',
+          failIfMajorPerformanceCaveat: false,
+        });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x0d1117, 1);  // dark navy clear color
-
-        const gl = renderer.getContext();
-        if (!gl) { err('WebGL context is NULL — GPU/browser blocked it'); return; }
-        ok('renderer created · ctx=' + (gl.getParameter(gl.VERSION) || 'unknown'));
-        log('canvas backing: ' + canvas.width + ' x ' + canvas.height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        renderer.setClearColor(0x0d1117, 1);
+        ok('THREE.WebGLRenderer built on top of our context');
 
         const geometry = new THREE.TorusKnotGeometry(1, 0.3, 64, 8);
         const material = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true });
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
-        ok('torus knot mesh added to scene');
+        ok('torus knot mesh added');
 
         let frames = 0;
         function animate() {
@@ -128,10 +149,9 @@
           frames++;
         }
         animate();
-        ok('animation loop started — you should see an emerald rotating torus knot');
-        setTimeout(() => {
-          ok('frames rendered so far: ' + frames + '  (should be ~60/sec)');
-        }, 1000);
+        ok('animation loop running');
+        setTimeout(() => ok('frames after 1s: ' + frames + '   (expected ~60)'), 1100);
+        setTimeout(() => { if (frames < 10) err('ALARM: very low framerate, rendering is stuck'); else ok('OK · torus knot should be visible on screen'); }, 1500);
 
         window.addEventListener('resize', () => {
           camera.aspect = window.innerWidth / window.innerHeight;
@@ -139,12 +159,12 @@
           renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); err('webglcontextlost fired'); });
-        canvas.addEventListener('webglcontextrestored', () => { ok('webglcontextrestored fired'); });
-
+        canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); err('webglcontextlost'); });
+        canvas.addEventListener('webglcontextrestored', () => ok('webglcontextrestored'));
       } catch (exc) {
-        err('INIT CRASHED: ' + exc.message);
+        err('THREE render setup crashed: ' + exc.message);
         console.error(exc);
+        showHelp('<strong>Three.js render setup failed</strong> even after context was acquired. Error: <code>' + exc.message + '</code>');
       }
     })();
   </script>
