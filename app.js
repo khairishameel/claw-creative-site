@@ -80,30 +80,45 @@
   function initCountUp() {
     const els = document.querySelectorAll('[data-count]');
     if (!els.length) return;
+    const run = (el) => {
+      if (el.dataset._ran === '1') return;
+      el.dataset._ran = '1';
+      const target = parseFloat(el.dataset.count);
+      if (isNaN(target)) return;
+      const suffix = el.dataset.suffix || '';
+      const prefix = el.dataset.prefix || '';
+      const dur = parseInt(el.dataset.dur || '1600', 10);
+      const isFloat = !Number.isInteger(target);
+      const start = performance.now();
+      const tick = (now) => {
+        const p = Math.min(1, (now - start) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const val = target * eased;
+        el.textContent = prefix + (isFloat ? val.toFixed(1) : Math.round(val).toLocaleString()) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    if (!('IntersectionObserver' in window)) { els.forEach(run); return; }
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-          const el = entry.target;
-          const target = parseFloat(el.dataset.count);
-          const suffix = el.dataset.suffix || '';
-          const prefix = el.dataset.prefix || '';
-          const dur = parseInt(el.dataset.dur || '1400', 10);
-          const start = performance.now();
-          const tick = (now) => {
-            const p = Math.min(1, (now - start) / dur);
-            const eased = 1 - Math.pow(1 - p, 3);
-            const val = target * eased;
-            el.textContent = prefix + (Number.isInteger(target) ? Math.round(val).toLocaleString() : val.toFixed(1)) + suffix;
-            if (p < 1) requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
-          io.unobserve(el);
+          run(entry.target);
+          io.unobserve(entry.target);
         });
       },
-      { threshold: 0.5 }
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
     );
     els.forEach((el) => io.observe(el));
+    // Safety net: if after 4s any counter is still visible but unfired, run it.
+    setTimeout(() => {
+      els.forEach((el) => {
+        if (el.dataset._ran === '1') return;
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) run(el);
+      });
+    }, 4000);
   }
 
   /* --- Typewriter hero (data-typewriter on element) --- */
