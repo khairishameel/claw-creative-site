@@ -8,40 +8,30 @@
   <link rel="icon" type="image/png" href="/claw-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
 
-  <!-- ============ LIBS IN HEAD (blocking, synchronous) ============ -->
-  <!-- OrbitControls MUST load AFTER three.min.js because it attaches to window.THREE -->
+  <!-- LIBS (load order: three → OrbitControls → gsap → ScrollTrigger) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://unpkg.com/[email protected]/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/[email protected]/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg-top:    #0d1117;
-      --bg-mid:    #161b22;
-      --bg-card:   #1a2029;
-      --bg-elev:   #1e2530;
-      --line:      rgba(255, 255, 255, 0.08);
-      --line-em:   rgba(16, 185, 129, 0.35);
-      --ink:       #f5f5f5;
-      --ink-soft:  #c8ccd4;
-      --ink-dim:   #7c8594;
-      --emerald:   #10b981;
-      --em-glow:   rgba(16, 185, 129, 0.4);
-      --em-dim:    rgba(16, 185, 129, 0.55);
-      --ease:      cubic-bezier(0.25, 0.1, 0.25, 1);
+      --bg-top: #0d1117; --bg-mid: #161b22; --bg-card: #1a2029; --bg-elev: #1e2530;
+      --line: rgba(255,255,255,0.08); --line-em: rgba(16,185,129,0.35);
+      --ink: #f5f5f5; --ink-soft: #c8ccd4; --ink-dim: #7c8594;
+      --emerald: #10b981; --em-glow: rgba(16,185,129,0.4); --em-dim: rgba(16,185,129,0.55);
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
     }
-    html, body { min-height: 100vh; overflow-x: hidden; }
+    html, body { overflow-x: hidden; }
     body {
       background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 50%, var(--bg-top) 100%);
       background-attachment: fixed;
       color: var(--ink);
       font-family: 'Space Grotesk', system-ui, sans-serif;
-      font-weight: 300;
-      line-height: 1.6;
+      font-weight: 300; line-height: 1.6; min-height: 100vh;
     }
     body::after {
       content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -51,21 +41,17 @@
     }
     h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 500; letter-spacing: -0.02em; }
 
-    /* ---------- ONE canvas, fixed full viewport ---------- */
+    /* The single fixed canvas — proven pattern from /experimental-test */
     #webgl-canvas {
-      position: fixed;
-      top: 0; left: 0;
+      position: fixed; top: 0; left: 0;
       width: 100vw; height: 100vh;
-      z-index: 1;
+      z-index: 1; display: block;
       pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.6s var(--ease);
-      display: block;
     }
-    #webgl-canvas.visible { opacity: 1; }
     #webgl-canvas.interactive { pointer-events: auto; cursor: grab; }
     #webgl-canvas.interactive:active { cursor: grabbing; }
 
+    /* Content layer sits above the canvas */
     .page-content { position: relative; z-index: 2; }
 
     /* NAV */
@@ -73,101 +59,44 @@
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       padding: 22px 48px;
       display: flex; align-items: center; justify-content: space-between;
-      background: rgba(13, 17, 23, 0.65);
+      background: rgba(13,17,23,0.65);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--line);
     }
-    .exp-nav-logo {
-      display: inline-flex; align-items: center; gap: 12px;
-      font-family: 'Playfair Display', serif; font-style: italic;
-      color: var(--ink); text-decoration: none; font-size: 1.2rem;
-    }
-    .exp-nav-logo::before {
-      content: ''; width: 8px; height: 8px; border-radius: 50%;
-      background: var(--emerald); box-shadow: 0 0 14px var(--emerald);
-      animation: emDot 1.8s ease-in-out infinite;
-    }
+    .exp-nav-logo { display: inline-flex; align-items: center; gap: 12px; font-family: 'Playfair Display', serif; font-style: italic; color: var(--ink); text-decoration: none; font-size: 1.2rem; }
+    .exp-nav-logo::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 14px var(--emerald); animation: emDot 1.8s ease-in-out infinite; }
     @keyframes emDot { 0%,100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.4); opacity: 1; } }
     .exp-nav-links { display: flex; gap: 28px; list-style: none; font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; }
     .exp-nav-links a { color: var(--ink-soft); text-decoration: none; transition: color 0.3s; font-weight: 500; }
     .exp-nav-links a:hover { color: var(--emerald); }
-    .exp-nav-cta {
-      padding: 10px 22px; border-radius: 999px;
-      background: var(--emerald); color: #00110a;
-      text-decoration: none; font-weight: 600; font-size: 0.82rem;
-      letter-spacing: 0.06em; transition: all 0.3s;
-      box-shadow: 0 0 24px var(--em-glow);
-    }
+    .exp-nav-cta { padding: 10px 22px; border-radius: 999px; background: var(--emerald); color: #00110a; text-decoration: none; font-weight: 600; font-size: 0.82rem; letter-spacing: 0.06em; transition: all 0.3s; box-shadow: 0 0 24px var(--em-glow); }
     .exp-nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 40px var(--em-glow); }
     @media (max-width: 900px) { .exp-nav-links { display: none; } nav.exp-nav { padding: 18px 24px; } }
 
-    section.exp-section {
+    section {
       min-height: 100vh;
       padding: 140px 48px;
       display: flex; align-items: center;
       position: relative;
     }
-    section.exp-section .container { max-width: 1280px; margin: 0 auto; width: 100%; }
+    section .container { max-width: 1280px; margin: 0 auto; width: 100%; }
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; width: 100%; }
+    .spacer { min-height: 60vh; width: 100%; } /* transparent space that lets canvas scene show through */
     @media (max-width: 900px) {
       .split { grid-template-columns: 1fr; gap: 32px; text-align: center; }
-      section.exp-section { padding: 100px 24px; min-height: auto; }
+      section { padding: 100px 24px; min-height: auto; }
     }
 
-    .three-slot {
-      width: 100%; max-width: 520px;
-      aspect-ratio: 1; margin: 0 auto;
-      position: relative;
-    }
-    .three-slot .fallback { display: none; width: 100%; height: 100%; }
-
-    .hero-section {
-      min-height: 100vh; padding-top: 160px;
-      text-align: center; flex-direction: column; justify-content: center;
-    }
-    .hero-section h1 {
-      font-size: clamp(2.8rem, 7vw, 6rem);
-      line-height: 1.02; font-weight: 600; color: var(--ink);
-      max-width: 980px; margin: 0 auto 24px;
-    }
-    .hero-section h1 .em {
-      background: linear-gradient(120deg, var(--emerald) 10%, #6ee7c4 50%, var(--emerald) 90%);
-      background-size: 200% 100%;
-      -webkit-background-clip: text; background-clip: text;
-      color: transparent; font-style: italic;
-      animation: gradFlow 8s ease-in-out infinite;
-    }
+    .hero-section { min-height: 100vh; padding-top: 160px; text-align: center; flex-direction: column; justify-content: center; }
+    .hero-section h1 { font-size: clamp(2.8rem, 7vw, 6rem); line-height: 1.02; font-weight: 600; max-width: 980px; margin: 0 auto 24px; }
+    .hero-section h1 .em { background: linear-gradient(120deg, var(--emerald) 10%, #6ee7c4 50%, var(--emerald) 90%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; font-style: italic; animation: gradFlow 8s ease-in-out infinite; }
     @keyframes gradFlow { 0%,100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
-    .hero-section p.sub {
-      font-size: 1.2rem; color: var(--ink-soft);
-      max-width: 680px; margin: 0 auto 32px;
-    }
-    .hero-slot { width: 100%; max-width: 460px; aspect-ratio: 1; margin: 0 auto 28px; position: relative; }
-    .hero-slot .fallback { display: none; width: 100%; height: 100%; }
-    .eyebrow {
-      font-size: 0.72rem; letter-spacing: 0.35em;
-      text-transform: uppercase; color: var(--emerald);
-      font-weight: 600; margin-bottom: 18px;
-    }
-    .hint {
-      display: inline-block;
-      font-size: 0.64rem; letter-spacing: 0.28em; text-transform: uppercase;
-      color: var(--emerald); opacity: 0.6; font-weight: 500;
-    }
+    .hero-section p.sub { font-size: 1.2rem; color: var(--ink-soft); max-width: 680px; margin: 0 auto 32px; }
+    .eyebrow { font-size: 0.72rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--emerald); font-weight: 600; margin-bottom: 18px; }
+    .hint { display: inline-block; font-size: 0.64rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--emerald); opacity: 0.6; font-weight: 500; }
     .hint::before { content: '⤹ '; }
-
-    .btn-em {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 18px 40px;
-      background: var(--emerald); color: #00110a;
-      text-decoration: none; font-weight: 700; font-size: 0.88rem;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      border-radius: 999px;
-      box-shadow: 0 0 32px var(--em-glow), inset 0 1px 2px rgba(255,255,255,0.3);
-      transition: all 0.3s var(--ease);
-      border: 1px solid rgba(16, 185, 129, 0.6);
-    }
+    .btn-em { display: inline-flex; align-items: center; gap: 10px; padding: 18px 40px; background: var(--emerald); color: #00110a; text-decoration: none; font-weight: 700; font-size: 0.88rem; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 999px; box-shadow: 0 0 32px var(--em-glow), inset 0 1px 2px rgba(255,255,255,0.3); transition: all 0.3s var(--ease); border: 1px solid rgba(16,185,129,0.6); }
     .btn-em:hover { transform: translateY(-3px); box-shadow: 0 0 56px var(--em-glow); }
     .fine { color: var(--ink-dim); font-size: 0.78rem; margin-top: 28px; letter-spacing: 0.04em; }
 
@@ -175,111 +104,39 @@
     h2 .em { color: var(--emerald); font-style: italic; }
     .muted { color: var(--ink-soft); }
 
-    /* DNA pin section */
-    .dna-pin-section { position: relative; padding: 0; min-height: 100vh; }
+    /* DNA pin section — tall so ScrollTrigger has room to scrub */
+    .dna-pin-section { position: relative; min-height: 100vh; padding: 0; }
     .dna-pin-inner { height: 100vh; display: grid; place-items: center; padding: 48px 32px; }
     .dna-overlay {
-      position: relative; z-index: 3;
-      max-width: 560px; text-align: center;
-      background: rgba(13, 17, 23, 0.78);
+      position: relative; z-index: 3; max-width: 560px; text-align: center;
+      background: rgba(13,17,23,0.78);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid var(--line-em);
-      border-radius: 20px;
+      border: 1px solid var(--line-em); border-radius: 20px;
       padding: 36px 28px;
-      box-shadow: 0 40px 80px -30px rgba(0,0,0,0.8), 0 0 60px rgba(16, 185, 129, 0.08);
-      opacity: 0;
-      transition: opacity 0.5s var(--ease);
+      box-shadow: 0 40px 80px -30px rgba(0,0,0,0.8), 0 0 60px rgba(16,185,129,0.08);
+      opacity: 0; transition: opacity 0.5s var(--ease);
     }
     .dna-overlay.in { opacity: 1; }
     .dna-overlay h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); margin-bottom: 14px; line-height: 1.15; }
     .dna-overlay p { color: var(--ink-soft); font-size: 1rem; line-height: 1.55; margin-top: 10px; }
-    .dna-overlay .example {
-      display: inline-block; margin-top: 18px;
-      padding: 6px 14px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid var(--line-em);
-      border-radius: 999px;
-      color: var(--emerald);
-      font-size: 0.72rem; letter-spacing: 0.18em;
-      text-transform: uppercase; font-weight: 600;
-    }
-    .dna-mobile-slot { display: none; }
+    .dna-overlay .example { display: inline-block; margin-top: 18px; padding: 6px 14px; background: rgba(16,185,129,0.1); border: 1px solid var(--line-em); border-radius: 999px; color: var(--emerald); font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
 
-    .process-list {
-      max-width: 620px; margin: 40px auto 0;
-      list-style: none; counter-reset: pstep;
-    }
-    .process-list li {
-      counter-increment: pstep;
-      padding: 22px 0 22px 64px;
-      border-bottom: 1px solid var(--line);
-      position: relative; font-size: 1.15rem; color: var(--ink);
-      text-align: left;
-    }
+    .process-list { max-width: 620px; margin: 40px auto 0; list-style: none; counter-reset: pstep; }
+    .process-list li { counter-increment: pstep; padding: 22px 0 22px 64px; border-bottom: 1px solid var(--line); position: relative; font-size: 1.15rem; color: var(--ink); text-align: left; }
     .process-list li:last-child { border-bottom: none; }
-    .process-list li::before {
-      content: counter(pstep, decimal-leading-zero);
-      position: absolute; left: 0; top: 22px;
-      font-family: 'Playfair Display', serif; font-style: italic;
-      font-size: 1.4rem; color: var(--emerald);
-    }
+    .process-list li::before { content: counter(pstep, decimal-leading-zero); position: absolute; left: 0; top: 22px; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.4rem; color: var(--emerald); }
 
-    .no-price-card {
-      max-width: 780px; margin: 0 auto;
-      padding: 64px 48px;
-      background: linear-gradient(135deg, var(--bg-card), var(--bg-elev));
-      border: 1px solid var(--em-dim);
-      border-radius: 20px;
-      text-align: center;
-      box-shadow: 0 0 80px rgba(16, 185, 129, 0.08);
-    }
+    .no-price-card { max-width: 780px; margin: 0 auto; padding: 64px 48px; background: linear-gradient(135deg, var(--bg-card), var(--bg-elev)); border: 1px solid var(--em-dim); border-radius: 20px; text-align: center; box-shadow: 0 0 80px rgba(16,185,129,0.08); }
 
-    .cta-final {
-      min-height: 70vh;
-      padding: 140px 48px;
-      text-align: center;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    .cta-final h2 {
-      font-size: clamp(3rem, 7vw, 6rem);
-      font-weight: 500; line-height: 1.05;
-      margin-bottom: 44px; letter-spacing: -0.03em;
-    }
+    .cta-final { min-height: 70vh; padding: 140px 48px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .cta-final h2 { font-size: clamp(3rem, 7vw, 6rem); font-weight: 500; line-height: 1.05; margin-bottom: 44px; letter-spacing: -0.03em; }
 
     .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
     .reveal.in { opacity: 1; transform: translateY(0); }
 
-    /* ======================================================================
-       NO-WEBGL MODE — when mobile OR init fails OR context is permanently lost.
-       CSS hides the canvas and shows polished SVG fallbacks.
-       Triggered by adding class "no-webgl" to <html>.
-       ====================================================================== */
-    html.no-webgl #webgl-canvas { display: none; }
-    html.no-webgl .three-slot .fallback,
-    html.no-webgl .hero-slot .fallback { display: block; }
-    html.no-webgl .dna-mobile-slot { display: flex; }
-    html.no-webgl .dna-pin-section { min-height: auto; }
-    html.no-webgl .dna-pin-inner { height: auto; padding: 60px 24px; flex-direction: column; }
-
-    .svg-orb {
-      width: 100%; height: 100%;
-      display: block;
-      filter: drop-shadow(0 0 22px rgba(16,185,129,0.4));
-      animation: svgSpin 22s linear infinite;
-    }
-    @keyframes svgSpin { to { transform: rotate(360deg); } }
-
-    .fallback { position: relative; }
-    .fallback::before {
-      content: ''; position: absolute; inset: 0; border-radius: 50%;
-      background: radial-gradient(circle at center, rgba(16,185,129,0.25) 0%, transparent 65%);
-      z-index: 0; pointer-events: none;
-    }
-    .fallback > svg { position: relative; z-index: 1; }
-
-    /* Runtime-injected transient toast — we ONLY create this element
-       programmatically on webglcontextlost. Never in the static DOM. */
+    /* Fallback toast — ONLY created dynamically via JS on webglcontextlost.
+       Not in the static DOM. */
     .webgl-toast {
       position: fixed; bottom: 24px; left: 50%;
       transform: translateX(-50%);
@@ -290,15 +147,13 @@
       color: var(--emerald);
       font-size: 0.78rem; letter-spacing: 0.08em;
       z-index: 500;
-      animation: toastIn 0.4s var(--ease);
     }
-    @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
   </style>
 </head>
 <body>
 
-<!-- ONE canvas — explicit width/height attributes for safety -->
-<canvas id="webgl-canvas" width="1" height="1" aria-hidden="true"></canvas>
+<!-- ONE canvas. Same pattern as experimental-test, verified working. -->
+<canvas id="webgl-canvas"></canvas>
 
 <nav class="exp-nav">
   <a href="/" class="exp-nav-logo">Claw Creative · experimental</a>
@@ -314,34 +169,15 @@
 
 <div class="page-content">
 
-  <!-- HERO -->
-  <section class="exp-section hero-section" id="hero-section" data-slot="hero">
+  <!-- HERO (hero torus knot renders behind the text) -->
+  <section class="hero-section" id="hero-section">
     <div class="eyebrow reveal">Experimental · 3D Animation</div>
     <h1 class="reveal">3D animation,<br/><span class="em">made accessible</span>.</h1>
     <p class="sub reveal">
       Most agencies charge $10,000 for animated content. We bring it to small businesses
       for a fraction. Custom 3D work for brands that want to look unreal.
     </p>
-    <div class="hero-slot" aria-hidden="true">
-      <div class="fallback">
-        <svg class="svg-orb" viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="orb-glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#10b981" stop-opacity="0.9"/>
-              <stop offset="60%" stop-color="#10b981" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-          <circle r="70" fill="url(#orb-glow)"/>
-          <g fill="none" stroke="#10b981" stroke-width="1.2" opacity="0.9">
-            <path d="M 0,-65 C 40,-65 65,-40 65,0 C 65,40 40,65 0,65 C -40,65 -65,40 -65,0 C -65,-40 -40,-65 0,-65 Z"/>
-            <path d="M 0,-55 C 35,-55 55,-35 55,0 C 55,35 35,55 0,55 C -35,55 -55,35 -55,0 C -55,-35 -35,-55 0,-55 Z" transform="rotate(30)"/>
-            <path d="M 0,-45 C 28,-45 45,-28 45,0 C 45,28 28,45 0,45 C -28,45 -45,28 -45,0 C -45,-28 -28,-45 0,-45 Z" transform="rotate(60)"/>
-          </g>
-          <circle r="4" fill="#10b981"/>
-        </svg>
-      </div>
-    </div>
+    <div class="spacer" aria-hidden="true"></div>
     <div class="hint reveal" style="margin-bottom:28px">Drag to explore</div>
     <div class="reveal">
       <a href="/contact?plan=experimental" class="btn-em">Request a Quote</a>
@@ -350,38 +186,11 @@
   </section>
 
   <!-- GLOBE -->
-  <section class="exp-section" id="globe-section" data-slot="globe">
+  <section id="globe-section">
     <div class="container">
       <div class="split">
         <div class="reveal">
-          <div class="three-slot" aria-hidden="true">
-            <div class="fallback">
-              <svg class="svg-orb" viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <radialGradient id="globe-glow" cx="50%" cy="50%" r="55%">
-                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
-                    <stop offset="70%" stop-color="#10b981" stop-opacity="0.1"/>
-                    <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-                  </radialGradient>
-                </defs>
-                <circle r="75" fill="url(#globe-glow)"/>
-                <g fill="none" stroke="#10b981" stroke-width="1" opacity="0.85">
-                  <circle r="62"/>
-                  <ellipse rx="62" ry="20"/>
-                  <ellipse rx="62" ry="40"/>
-                  <ellipse rx="20" ry="62"/>
-                  <ellipse rx="40" ry="62"/>
-                </g>
-                <g fill="#10b981" opacity="0.55">
-                  <circle cx="-20" cy="-22" r="11"/>
-                  <circle cx="30" cy="-5" r="14"/>
-                  <circle cx="-8" cy="30" r="9"/>
-                  <circle cx="35" cy="28" r="7"/>
-                </g>
-                <circle r="62" fill="none" stroke="#10b981" stroke-width="0.6" opacity="0.4" stroke-dasharray="2 4"/>
-              </svg>
-            </div>
-          </div>
+          <div class="spacer" aria-hidden="true"></div>
           <div class="hint" style="display:block;text-align:center;margin-top:8px">Drag to spin</div>
         </div>
         <div class="reveal">
@@ -396,8 +205,8 @@
     </div>
   </section>
 
-  <!-- DNA (pinned) -->
-  <section class="dna-pin-section" id="dna-section" data-slot="dna">
+  <!-- DNA scroll zoom (pinned) -->
+  <section class="dna-pin-section" id="dna-section">
     <div class="dna-pin-inner">
       <div class="dna-overlay" id="dna-overlay">
         <div class="eyebrow">Scroll storytelling</div>
@@ -409,49 +218,11 @@
         </p>
         <div class="example">Example use · biotech product page</div>
       </div>
-      <div class="dna-mobile-slot three-slot" style="max-width:560px;margin:32px auto 0">
-        <div class="fallback">
-          <svg viewBox="-100 -180 200 360" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;filter:drop-shadow(0 0 24px rgba(16,185,129,0.35))">
-            <defs>
-              <linearGradient id="s1" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6"/>
-                <stop offset="100%" stop-color="#a855f7"/>
-              </linearGradient>
-              <linearGradient id="s2" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#ec4899"/>
-                <stop offset="100%" stop-color="#f97316"/>
-              </linearGradient>
-            </defs>
-            <g stroke-width="3" fill="none">
-              <path d="M -50 -160 Q 0 -130 50 -110 Q 0 -90 -50 -70 Q 0 -50 50 -30 Q 0 -10 -50 10 Q 0 30 50 50 Q 0 70 -50 90 Q 0 110 50 130 Q 0 150 -50 170" stroke="url(#s1)"/>
-              <path d="M 50 -160 Q 0 -130 -50 -110 Q 0 -90 50 -70 Q 0 -50 -50 -30 Q 0 -10 50 10 Q 0 30 -50 50 Q 0 70 50 90 Q 0 110 -50 130 Q 0 150 50 170" stroke="url(#s2)"/>
-            </g>
-            <g stroke="#ffffff" stroke-opacity="0.25" stroke-width="1">
-              <line x1="-50" y1="-160" x2="50" y2="-160"/><line x1="50" y1="-120" x2="-50" y2="-120"/>
-              <line x1="-50" y1="-80"  x2="50" y2="-80" /><line x1="50" y1="-40"  x2="-50" y2="-40" />
-              <line x1="-50" y1="0"    x2="50" y2="0"   /><line x1="50" y1="40"   x2="-50" y2="40"  />
-              <line x1="-50" y1="80"   x2="50" y2="80"  /><line x1="50" y1="120"  x2="-50" y2="120" />
-              <line x1="-50" y1="160"  x2="50" y2="160" />
-            </g>
-            <g>
-              <circle cx="-50" cy="-160" r="6" fill="#ef4444"/><circle cx="50" cy="-160" r="6" fill="#ef4444"/>
-              <circle cx="50" cy="-120" r="6" fill="#facc15"/><circle cx="-50" cy="-120" r="6" fill="#facc15"/>
-              <circle cx="-50" cy="-80"  r="6" fill="#22c55e"/><circle cx="50" cy="-80"  r="6" fill="#22c55e"/>
-              <circle cx="50"  cy="-40" r="6" fill="#3b82f6"/><circle cx="-50" cy="-40"  r="6" fill="#3b82f6"/>
-              <circle cx="-50" cy="0"   r="6" fill="#ef4444"/><circle cx="50"  cy="0"   r="6" fill="#ef4444"/>
-              <circle cx="50"  cy="40"  r="6" fill="#facc15"/><circle cx="-50" cy="40"  r="6" fill="#facc15"/>
-              <circle cx="-50" cy="80"  r="6" fill="#22c55e"/><circle cx="50"  cy="80"  r="6" fill="#22c55e"/>
-              <circle cx="50"  cy="120" r="6" fill="#3b82f6"/><circle cx="-50" cy="120" r="6" fill="#3b82f6"/>
-              <circle cx="-50" cy="160" r="6" fill="#ef4444"/><circle cx="50"  cy="160" r="6" fill="#ef4444"/>
-            </g>
-          </svg>
-        </div>
-      </div>
     </div>
   </section>
 
   <!-- PRODUCT -->
-  <section class="exp-section" id="product-section" data-slot="product">
+  <section id="product-section">
     <div class="container">
       <div class="split">
         <div class="reveal">
@@ -464,35 +235,15 @@
           <p class="muted" style="margin-top:16px;font-size:1rem">Now you can too.</p>
         </div>
         <div class="reveal">
-          <div class="three-slot" aria-hidden="true">
-            <div class="fallback">
-              <svg class="svg-orb" viewBox="-100 -120 200 240" xmlns="http://www.w3.org/2000/svg" style="animation-duration: 16s">
-                <defs>
-                  <linearGradient id="phone-fill" x1="0" x2="1" y1="0" y2="1">
-                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
-                    <stop offset="100%" stop-color="#10b981" stop-opacity="0.05"/>
-                  </linearGradient>
-                </defs>
-                <g transform="rotate(-15)">
-                  <rect x="-45" y="-95" width="90" height="190" rx="14" fill="url(#phone-fill)" stroke="#10b981" stroke-width="1.3"/>
-                  <rect x="-38" y="-82" width="76" height="164" rx="8" fill="#10b981" fill-opacity="0.08" stroke="#10b981" stroke-opacity="0.6" stroke-width="0.8"/>
-                  <rect x="-10" y="-92" width="20" height="3" rx="1.5" fill="#10b981" opacity="0.7"/>
-                  <rect x="-14" y="85" width="28" height="2" rx="1" fill="#10b981" opacity="0.7"/>
-                  <line x1="-38" y1="-40" x2="38" y2="-40" stroke="#10b981" stroke-opacity="0.25"/>
-                  <line x1="-38" y1="0"   x2="38" y2="0"   stroke="#10b981" stroke-opacity="0.35"/>
-                  <line x1="-38" y1="40"  x2="38" y2="40"  stroke="#10b981" stroke-opacity="0.25"/>
-                </g>
-              </svg>
-            </div>
-          </div>
+          <div class="spacer" aria-hidden="true"></div>
           <div class="hint" style="display:block;text-align:center;margin-top:8px">Drag to rotate</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PROCESS -->
-  <section class="exp-section" id="process" style="min-height:auto">
+  <!-- PROCESS (no 3D) -->
+  <section id="process" style="min-height:auto">
     <div class="container" style="text-align:center">
       <div class="reveal">
         <div class="eyebrow">The process</div>
@@ -508,7 +259,7 @@
   </section>
 
   <!-- NO PRICING -->
-  <section class="exp-section" style="min-height:auto">
+  <section style="min-height:auto">
     <div class="container">
       <div class="no-price-card reveal">
         <div class="eyebrow">Pricing</div>
@@ -534,7 +285,7 @@
 
 </div>
 
-<!-- Scroll reveals (always runs) -->
+<!-- Scroll reveals -->
 <script>
   (() => {
     const io = new IntersectionObserver((entries) => {
@@ -548,363 +299,174 @@
   })();
 </script>
 
-<!-- =============================================================
-     THE 3D ENGINE
-     Everything is wrapped in DOMContentLoaded and try/catch.
-     If ANY step fails, we add `no-webgl` to <html> and CSS shows SVGs.
-     NO hardcoded "3D rendering paused" text anywhere in the DOM.
-     ============================================================= -->
+<!-- THE ENGINE — built up from the proven test foundation -->
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('[experimental] DOMContentLoaded fired');
+// ============================================================================
+// Foundation (same code as /experimental-test, proven to work):
+//   - canvas, scene, camera, renderer, mesh, animate loop
+// Features layered on top:
+//   - multiple groups (hero / globe / dna / product) in the same scene
+//   - GSAP ScrollTrigger to swap active group and drive DNA scroll zoom
+//   - OrbitControls on globe + product
+// ============================================================================
 
-  // -------- 1. Mobile check first --------
-  const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  const narrow = window.innerWidth < 768;
-  if (uaMobile || narrow) {
-    console.info('[experimental] mobile detected → SVG fallbacks, no 3D');
-    document.documentElement.classList.add('no-webgl');
-    return;
-  }
+(() => {
+  // Basic sanity
+  if (typeof THREE === 'undefined') { console.error('THREE not loaded'); return; }
+  const hasOrbit = typeof THREE.OrbitControls !== 'undefined';
+  const hasGSAP  = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
+  console.log('[exp] libs · THREE r' + THREE.REVISION + ' · OrbitControls=' + hasOrbit + ' · gsap=' + hasGSAP);
 
-  // -------- 2. WebGL availability test --------
-  function isWebGLAvailable() {
-    try {
-      const c = document.createElement('canvas');
-      const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
-      if (!gl) return false;
-      // Ensure we can actually call basic methods
-      gl.getParameter(gl.VERSION);
-      return true;
-    } catch (e) { return false; }
-  }
-
-  if (!isWebGLAvailable()) {
-    console.warn('[experimental] WebGL unavailable → SVG fallbacks');
-    document.documentElement.classList.add('no-webgl');
-    return;
-  }
-  console.log('[experimental] WebGL available');
-
-  // -------- 3. Library presence check --------
-  if (typeof THREE === 'undefined') {
-    console.error('[experimental] THREE is undefined — three.min.js failed to load');
-    document.documentElement.classList.add('no-webgl');
-    return;
-  }
-  if (typeof THREE.OrbitControls === 'undefined') {
-    console.error('[experimental] THREE.OrbitControls undefined — OrbitControls.js failed or wrong version');
-    // non-fatal: we can still render without OrbitControls
-    console.warn('[experimental] continuing without OrbitControls — interactive sections will auto-rotate only');
-  }
-  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-    console.error('[experimental] GSAP or ScrollTrigger undefined');
-    document.documentElement.classList.add('no-webgl');
-    return;
-  }
-  console.log('[experimental] libs present · THREE r' + THREE.REVISION + ' · gsap ' + gsap.version);
-
-  // -------- 4. Canvas exists --------
+  // ----- Foundation (proven) -----
   const canvas = document.getElementById('webgl-canvas');
-  if (!canvas) {
-    console.error('[experimental] canvas element not found');
-    document.documentElement.classList.add('no-webgl');
-    return;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setClearColor(0x000000, 0);
+  camera.position.set(0, 0, 5);
+  console.log('[exp] canvas + renderer + camera initialized');
+
+  // ----- Four groups, all at origin, toggled .visible per section -----
+
+  // HERO — torus knot (same as /experimental-test, just made a group)
+  const heroGroup = new THREE.Group();
+  {
+    const g = new THREE.TorusKnotGeometry(1, 0.3, 64, 8);
+    const m = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true });
+    heroGroup.add(new THREE.Mesh(g, m));
   }
-  console.log('[experimental] Canvas element found');
+  scene.add(heroGroup);
 
-  // -------- 5. Guarded init --------
-  try {
-    runEngine(canvas);
-  } catch (err) {
-    console.error('[experimental] Three.js init failed:', err);
-    document.documentElement.classList.add('no-webgl');
-  }
-
-  function runEngine(canvas) {
-    gsap.registerPlugin(ScrollTrigger);
-    console.log('[experimental] ScrollTrigger registered');
-
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: false,
-      alpha: true,
-      powerPreference: 'default',
-      stencil: false,
-      depth: true,
+  // GLOBE — wireframe sphere + landmass blobs
+  const globeGroup = new THREE.Group();
+  {
+    const g = new THREE.SphereGeometry(1, 32, 32);
+    const m = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.8 });
+    globeGroup.add(new THREE.Mesh(g, m));
+    const fg = new THREE.SphereGeometry(0.98, 24, 24);
+    const fm = new THREE.MeshBasicMaterial({ color: 0x0d1117, transparent: true, opacity: 0.85 });
+    globeGroup.add(new THREE.Mesh(fg, fm));
+    const landMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+    [
+      { lat: 40, lon: -95, s: 0.32 },
+      { lat: 0,  lon: -55, s: 0.24 },
+      { lat: 15, lon:  20, s: 0.34 },
+      { lat: 50, lon:  80, s: 0.38 },
+      { lat: -22, lon: 135, s: 0.18 },
+    ].forEach(({lat, lon, s}) => {
+      const phi = (90 - lat) * Math.PI / 180;
+      const theta = (lon + 180) * Math.PI / 180;
+      const patch = new THREE.Mesh(new THREE.CircleGeometry(s, 14), landMat);
+      patch.position.setFromSphericalCoords(1.01, phi, theta);
+      patch.lookAt(0,0,0); patch.rotateY(Math.PI);
+      globeGroup.add(patch);
     });
-    renderer.setSize(window.innerWidth, window.innerHeight, false);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setClearColor(0x000000, 0);
-    console.log('[experimental] Renderer created');
+  }
+  globeGroup.visible = false;
+  scene.add(globeGroup);
 
-    // Sanity check — renderer actually has a context
-    const gl = renderer.getContext();
-    if (!gl) throw new Error('renderer.getContext() returned null');
-
-    // ---- Dynamic toast ONLY on context loss, never static ----
-    function showLossToast() {
-      if (document.querySelector('.webgl-toast')) return;
-      const t = document.createElement('div');
-      t.className = 'webgl-toast';
-      t.textContent = '3D rendering paused — scroll to resume';
-      document.body.appendChild(t);
+  // DNA — 40 base pairs, colorful
+  const dnaGroup = new THREE.Group();
+  {
+    const s1Mat = new THREE.MeshBasicMaterial({ color: new THREE.Color('hsl(240, 80%, 65%)') });
+    const s2Mat = new THREE.MeshBasicMaterial({ color: new THREE.Color('hsl(320, 80%, 65%)') });
+    const pairMats = [0xff4444, 0xffdd44, 0x44ff88, 0x4488ff].map(c => new THREE.MeshBasicMaterial({ color: c }));
+    const rungOverlayMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 });
+    const sphGeo = new THREE.SphereGeometry(0.15, 10, 10);
+    const rungGeo = new THREE.CylinderGeometry(0.05, 0.05, 3, 6);
+    const N = 40, spacing = 0.5, radius = 1.5;
+    for (let i = 0; i < N; i++) {
+      const angle = i * 0.4;
+      const y = i * spacing - (N * spacing) / 2;
+      const s1 = new THREE.Mesh(sphGeo, s1Mat);
+      s1.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+      const s2 = new THREE.Mesh(sphGeo, s2Mat);
+      s2.position.set(Math.cos(angle + Math.PI) * radius, y, Math.sin(angle + Math.PI) * radius);
+      const rung = new THREE.Mesh(rungGeo, pairMats[i % 4]);
+      rung.position.set(0, y, 0); rung.rotation.z = Math.PI / 2; rung.rotation.y = angle;
+      rung.scale.y = (radius * 2) / 3;
+      const overlay = new THREE.Mesh(rungGeo, rungOverlayMat);
+      overlay.position.set(0, y, 0); overlay.rotation.z = Math.PI / 2; overlay.rotation.y = angle;
+      overlay.scale.set(0.38, (radius * 2) / 3, 0.38);
+      dnaGroup.add(s1); dnaGroup.add(s2); dnaGroup.add(rung); dnaGroup.add(overlay);
     }
-    function hideLossToast() {
-      const t = document.querySelector('.webgl-toast');
-      if (t) t.remove();
+  }
+  dnaGroup.visible = false;
+  scene.add(dnaGroup);
+
+  // PRODUCT — wireframe phone
+  const productGroup = new THREE.Group();
+  {
+    const body = new THREE.BoxGeometry(1.4, 2.8, 0.18);
+    const bw = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.85 });
+    const bf = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.12 });
+    productGroup.add(new THREE.LineSegments(new THREE.WireframeGeometry(body), bw));
+    productGroup.add(new THREE.Mesh(body, bf));
+    const screen = new THREE.BoxGeometry(1.24, 2.5, 0.03);
+    const sw = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.5 });
+    const sf = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.18 });
+    const sMesh = new THREE.Mesh(screen, sf); sMesh.position.z = 0.1;
+    productGroup.add(sMesh);
+    productGroup.add(new THREE.LineSegments(new THREE.WireframeGeometry(screen), sw));
+  }
+  productGroup.visible = false;
+  scene.add(productGroup);
+
+  console.log('[exp] all groups built · hero=' + heroGroup.children.length + ' · globe=' + globeGroup.children.length + ' · dna=' + dnaGroup.children.length + ' · product=' + productGroup.children.length);
+
+  // ----- OrbitControls (shared, attached to camera) -----
+  let controls = null;
+  if (hasOrbit) {
+    controls = new THREE.OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enablePan = false;
+    controls.enableZoom = false;
+    controls.autoRotate = false;
+    controls.enabled = false;
+    console.log('[exp] OrbitControls attached');
+  }
+
+  // ----- Camera position targets per slot (used by ScrollTrigger) -----
+  const CAM_DEFAULT_Z = 5;
+
+  // ----- Active slot tracking -----
+  let activeSlot = 'hero';
+  function setSlot(name) {
+    if (name === activeSlot) return;
+    activeSlot = name;
+    heroGroup.visible    = name === 'hero';
+    globeGroup.visible   = name === 'globe';
+    dnaGroup.visible     = name === 'dna';
+    productGroup.visible = name === 'product';
+    // Reset camera for non-DNA slots (DNA section controls camera Z via ScrollTrigger scrub)
+    if (name !== 'dna') {
+      camera.position.set(0, 0, CAM_DEFAULT_Z);
+      camera.lookAt(0, 0, 0);
     }
-
-    canvas.addEventListener('webglcontextlost', (e) => {
-      e.preventDefault();
-      console.warn('[experimental] webglcontextlost');
-      showLossToast();
-      stopLoop();
-    }, false);
-
-    canvas.addEventListener('webglcontextrestored', () => {
-      console.info('[experimental] webglcontextrestored — rebuilding');
-      hideLossToast();
-      try { buildAllScenes(); startLoop(); }
-      catch (err) {
-        console.error('[experimental] restore failed', err);
-        document.documentElement.classList.add('no-webgl');
-      }
-    }, false);
-
-    // ---- Scenes store ----
-    const scenes = {};
-    let activeSlot = null;
-
-    // SANITY TEST: render a spinning cube in the hero scene to prove the pipeline works,
-    // then we add the torus knot and the rest. The cube confirms context + renderer + scene.
-    function buildHero() {
-      console.log('[experimental] Building hero scene...');
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.set(0, 0, 5);
-      console.log('[experimental] Scene created · Camera created (hero)');
-
-      // Torus knot — the actual hero visual, per spec
-      const geo = new THREE.TorusKnotGeometry(1, 0.3, 80, 16);
-      const mat = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.95 });
-      const mesh = new THREE.Mesh(geo, mat);
-      scene.add(mesh);
-
-      return {
-        scene, camera,
-        update: () => { mesh.rotation.x += 0.005; mesh.rotation.y += 0.007; },
-        onResize: () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); },
-        setActive: () => {}, setInactive: () => {},
-        interactive: false,
-        dispose: () => { geo.dispose(); mat.dispose(); },
-      };
+    // OrbitControls: enable only on globe + product
+    if (controls) {
+      controls.enabled = (name === 'globe' || name === 'product');
+      controls.autoRotate = controls.enabled;
+      controls.autoRotateSpeed = name === 'globe' ? 0.6 : 0.8;
+      controls.reset && null; // no-op; just a note that we don't want to reset and fight our camera.set
     }
+    canvas.classList.toggle('interactive', name === 'globe' || name === 'product');
+    console.log('[exp] slot → ' + name);
+  }
 
-    function buildGlobe() {
-      console.log('[experimental] Building globe scene...');
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.set(0, 0, 3.2);
+  // ----- ScrollTriggers -----
+  if (hasGSAP) {
+    gsap.registerPlugin(ScrollTrigger);
 
-      const group = new THREE.Group();
-      const geo = new THREE.SphereGeometry(1, 32, 32);
-      const mat = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.8 });
-      group.add(new THREE.Mesh(geo, mat));
-
-      const fillGeo = new THREE.SphereGeometry(0.98, 24, 24);
-      const fillMat = new THREE.MeshBasicMaterial({ color: 0x0d1117, transparent: true, opacity: 0.85 });
-      group.add(new THREE.Mesh(fillGeo, fillMat));
-
-      const landMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
-      const landGeos = [];
-      [
-        { lat:  40, lon: -95, size: 0.32 },
-        { lat:   0, lon: -55, size: 0.24 },
-        { lat:  15, lon:  20, size: 0.34 },
-        { lat:  50, lon:  80, size: 0.38 },
-        { lat: -22, lon: 135, size: 0.18 },
-      ].forEach(({lat, lon, size}) => {
-        const phi = (90 - lat) * Math.PI / 180;
-        const theta = (lon + 180) * Math.PI / 180;
-        const g = new THREE.CircleGeometry(size, 14);
-        landGeos.push(g);
-        const p = new THREE.Mesh(g, landMat);
-        p.position.setFromSphericalCoords(1.01, phi, theta);
-        p.lookAt(0,0,0); p.rotateY(Math.PI);
-        group.add(p);
-      });
-      scene.add(group);
-
-      let controls = null;
-      if (typeof THREE.OrbitControls !== 'undefined') {
-        controls = new THREE.OrbitControls(camera, canvas);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.08;
-        controls.enablePan = false;
-        controls.enableZoom = false;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.6;
-        controls.enabled = false;
-        let t = null;
-        controls.addEventListener('start', () => { controls.autoRotate = false; if (t) { clearTimeout(t); t = null; } });
-        controls.addEventListener('end',   () => { if (t) clearTimeout(t); t = setTimeout(() => { controls.autoRotate = true; }, 2500); });
-      }
-
-      return {
-        scene, camera, controls,
-        update: () => { if (controls && controls.enabled) controls.update(); else group.rotation.y += 0.003; },
-        onResize: () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); },
-        setActive: () => { if (controls) controls.enabled = true; },
-        setInactive: () => { if (controls) controls.enabled = false; },
-        interactive: !!controls,
-        dispose: () => {
-          geo.dispose(); mat.dispose(); fillGeo.dispose(); fillMat.dispose();
-          landMat.dispose(); landGeos.forEach(g => g.dispose());
-          if (controls) controls.dispose();
-        },
-      };
-    }
-
-    function buildDNA() {
-      console.log('[experimental] Building DNA helix scene...');
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.05, 200);
-      camera.position.set(0, 0, 22);
-
-      const helix = new THREE.Group();
-      const strand1Mat = new THREE.MeshBasicMaterial({ color: new THREE.Color('hsl(240, 80%, 65%)') });
-      const strand2Mat = new THREE.MeshBasicMaterial({ color: new THREE.Color('hsl(320, 80%, 65%)') });
-      const pairMats = [0xff4444, 0xffdd44, 0x44ff88, 0x4488ff].map(c => new THREE.MeshBasicMaterial({ color: c }));
-      const rungOverlayMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 });
-      const sphGeo = new THREE.SphereGeometry(0.15, 10, 10);
-      const rungGeo = new THREE.CylinderGeometry(0.05, 0.05, 3, 6);
-
-      const N = 40;
-      const spacing = 0.5;
-      const radius = 1.5;
-      for (let i = 0; i < N; i++) {
-        const angle = i * 0.4;
-        const y = i * spacing - (N * spacing) / 2;
-
-        const s1 = new THREE.Mesh(sphGeo, strand1Mat);
-        s1.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
-        helix.add(s1);
-
-        const s2 = new THREE.Mesh(sphGeo, strand2Mat);
-        s2.position.set(Math.cos(angle + Math.PI) * radius, y, Math.sin(angle + Math.PI) * radius);
-        helix.add(s2);
-
-        const rung = new THREE.Mesh(rungGeo, pairMats[i % 4]);
-        rung.position.set(0, y, 0);
-        rung.rotation.z = Math.PI / 2;
-        rung.rotation.y = angle;
-        rung.scale.y = (radius * 2) / 3;
-        helix.add(rung);
-
-        const overlay = new THREE.Mesh(rungGeo, rungOverlayMat);
-        overlay.position.set(0, y, 0);
-        overlay.rotation.z = Math.PI / 2;
-        overlay.rotation.y = angle;
-        overlay.scale.set(0.38, (radius * 2) / 3, 0.38);
-        helix.add(overlay);
-      }
-      scene.add(helix);
-      console.log('[experimental] Helix group built (' + N + ' base pairs)');
-
-      return {
-        scene, camera, helix,
-        update: () => { helix.rotation.y += 0.004; },
-        onResize: () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); },
-        setActive: () => {}, setInactive: () => {},
-        interactive: false,
-        dispose: () => {
-          sphGeo.dispose(); rungGeo.dispose();
-          strand1Mat.dispose(); strand2Mat.dispose();
-          pairMats.forEach(m => m.dispose());
-          rungOverlayMat.dispose();
-        },
-      };
-    }
-
-    function buildProduct() {
-      console.log('[experimental] Building product scene...');
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.set(0, 0, 5);
-
-      const group = new THREE.Group();
-      const body = new THREE.BoxGeometry(1.4, 2.8, 0.18);
-      const bodyWireMat = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.85 });
-      const bodyFillMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.12 });
-      group.add(new THREE.LineSegments(new THREE.WireframeGeometry(body), bodyWireMat));
-      group.add(new THREE.Mesh(body, bodyFillMat));
-      const screen = new THREE.BoxGeometry(1.24, 2.5, 0.03);
-      const screenWireMat = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.5 });
-      const screenFillMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.18 });
-      const sMesh = new THREE.Mesh(screen, screenFillMat);
-      sMesh.position.z = 0.1;
-      group.add(sMesh);
-      group.add(new THREE.LineSegments(new THREE.WireframeGeometry(screen), screenWireMat));
-      scene.add(group);
-
-      let controls = null;
-      if (typeof THREE.OrbitControls !== 'undefined') {
-        controls = new THREE.OrbitControls(camera, canvas);
-        controls.enableDamping = true; controls.dampingFactor = 0.08;
-        controls.enablePan = false; controls.enableZoom = false;
-        controls.autoRotate = true; controls.autoRotateSpeed = 0.8;
-        controls.enabled = false;
-        let t = null;
-        controls.addEventListener('start', () => { controls.autoRotate = false; if (t) { clearTimeout(t); t = null; } });
-        controls.addEventListener('end',   () => { if (t) clearTimeout(t); t = setTimeout(() => { controls.autoRotate = true; }, 2500); });
-      }
-
-      return {
-        scene, camera, controls,
-        update: () => { if (controls && controls.enabled) controls.update(); else group.rotation.y += 0.005; },
-        onResize: () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); },
-        setActive: () => { if (controls) controls.enabled = true; },
-        setInactive: () => { if (controls) controls.enabled = false; },
-        interactive: !!controls,
-        dispose: () => {
-          body.dispose(); screen.dispose();
-          bodyWireMat.dispose(); bodyFillMat.dispose(); screenWireMat.dispose(); screenFillMat.dispose();
-          if (controls) controls.dispose();
-        },
-      };
-    }
-
-    function buildAllScenes() {
-      Object.values(scenes).forEach(s => { try { s.dispose(); } catch (_) {} });
-      for (const k in scenes) delete scenes[k];
-      scenes.hero    = buildHero();
-      scenes.globe   = buildGlobe();
-      scenes.dna     = buildDNA();
-      scenes.product = buildProduct();
-      console.log('[experimental] All scenes built');
-    }
-
-    function setActive(name) {
-      if (activeSlot === name) return;
-      if (activeSlot && scenes[activeSlot]) scenes[activeSlot].setInactive();
-      activeSlot = name;
-      if (activeSlot && scenes[activeSlot]) scenes[activeSlot].setActive();
-      canvas.classList.toggle('visible', !!activeSlot);
-      const interactive = activeSlot && scenes[activeSlot] && scenes[activeSlot].interactive;
-      canvas.classList.toggle('interactive', !!interactive);
-    }
-
-    // ---- ScrollTriggers ----
     ScrollTrigger.create({ trigger: '#hero-section',    start: 'top 80%', end: 'bottom 20%',
-      onEnter: () => setActive('hero'), onEnterBack: () => setActive('hero') });
+      onEnter: () => setSlot('hero'), onEnterBack: () => setSlot('hero') });
     ScrollTrigger.create({ trigger: '#globe-section',   start: 'top 60%', end: 'bottom 40%',
-      onEnter: () => setActive('globe'), onEnterBack: () => setActive('globe') });
+      onEnter: () => setSlot('globe'), onEnterBack: () => setSlot('globe') });
     ScrollTrigger.create({ trigger: '#product-section', start: 'top 60%', end: 'bottom 40%',
-      onEnter: () => setActive('product'), onEnterBack: () => setActive('product') });
-    ScrollTrigger.create({ trigger: '#process', start: 'top 70%',
-      onEnter: () => setActive(null), onEnterBack: () => setActive('product') });
+      onEnter: () => setSlot('product'), onEnterBack: () => setSlot('product') });
 
     // DNA pin + scrub
     ScrollTrigger.create({
@@ -913,64 +475,67 @@ document.addEventListener('DOMContentLoaded', () => {
       end: '+=300%',
       pin: true,
       scrub: 1,
-      onEnter:     () => setActive('dna'),
-      onEnterBack: () => setActive('dna'),
-      onLeave:     () => setActive('product'),
-      onLeaveBack: () => setActive('globe'),
+      onEnter:     () => setSlot('dna'),
+      onEnterBack: () => setSlot('dna'),
+      onLeave:     () => setSlot('product'),
+      onLeaveBack: () => setSlot('globe'),
       onUpdate: (self) => {
-        const cam = scenes.dna.camera;
+        if (activeSlot !== 'dna') return;
         const p = self.progress;
-        let z;
-        if (p < 0.6) z = 20 - (20 - (-2)) * (p / 0.6);
-        else         z = -2 - ((p - 0.6) / 0.4) * 13;
-        cam.position.z = z;
-        cam.lookAt(0, 0, 0);
+        // 0 → 0.6 : z goes 20 → -2 (zooming in)
+        // 0.6 → 1 : z goes -2 → -15 (passing through)
+        const z = (p < 0.6)
+          ? 20 - (22 * (p / 0.6))
+          : -2 - ((p - 0.6) / 0.4) * 13;
+        camera.position.z = z;
+        camera.position.x = 0; camera.position.y = 0;
+        camera.lookAt(0, 0, 0);
         const overlay = document.getElementById('dna-overlay');
         if (overlay) overlay.classList.toggle('in', p > 0.25 && p < 0.85);
       },
     });
-
-    // ---- Render loop ----
-    let rafId = null, paused = false;
-    function frame() {
-      rafId = requestAnimationFrame(frame);
-      if (paused) return;
-      if (!activeSlot) return;
-      const s = scenes[activeSlot];
-      if (!s) return;
-      s.update();
-      renderer.render(s.scene, s.camera);
-    }
-    function startLoop() { if (rafId == null) { console.log('[experimental] Animation loop started'); frame(); } }
-    function stopLoop()  { if (rafId != null) cancelAnimationFrame(rafId); rafId = null; }
-
-    document.addEventListener('visibilitychange', () => {
-      paused = document.hidden;
-      if (!paused) startLoop();
-    });
-
-    // ---- Resize ----
-    let resizeTimer = null;
-    window.addEventListener('resize', () => {
-      if (resizeTimer) clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        renderer.setSize(window.innerWidth, window.innerHeight, false);
-        Object.values(scenes).forEach(s => s.onResize && s.onResize());
-        ScrollTrigger.refresh();
-      }, 150);
-    });
-
-    // ---- Boot ----
-    buildAllScenes();
-    ScrollTrigger.refresh();
-    setActive('hero');
-    // Force one render so first paint isn't blank
-    renderer.render(scenes.hero.scene, scenes.hero.camera);
-    console.log('[experimental] First frame rendered');
-    startLoop();
-    console.log('[experimental] Three.js scene initialized successfully');
+    console.log('[exp] ScrollTriggers registered');
   }
-});
+
+  // ----- Animate (same RAF pattern as /experimental-test) -----
+  function animate() {
+    requestAnimationFrame(animate);
+    // per-group auto-spin
+    if (activeSlot === 'hero')    { heroGroup.rotation.x += 0.005; heroGroup.rotation.y += 0.005; }
+    if (activeSlot === 'globe')   { if (!controls || !controls.enabled) globeGroup.rotation.y += 0.003; }
+    if (activeSlot === 'dna')     { dnaGroup.rotation.y += 0.004; }
+    if (activeSlot === 'product') { if (!controls || !controls.enabled) productGroup.rotation.y += 0.005; }
+    if (controls && controls.enabled) controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+  console.log('[exp] animation loop started');
+
+  // ----- Resize -----
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    if (hasGSAP) ScrollTrigger.refresh();
+  });
+
+  // ----- WebGL context loss: inject toast dynamically, remove when restored -----
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    console.warn('[exp] webglcontextlost');
+    if (!document.querySelector('.webgl-toast')) {
+      const t = document.createElement('div');
+      t.className = 'webgl-toast';
+      t.textContent = '3D rendering paused — scroll to resume';
+      document.body.appendChild(t);
+    }
+  });
+  canvas.addEventListener('webglcontextrestored', () => {
+    console.info('[exp] webglcontextrestored');
+    const t = document.querySelector('.webgl-toast');
+    if (t) t.remove();
+  });
+})();
 </script>
 
 </body>

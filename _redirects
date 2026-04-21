@@ -7,6 +7,7 @@
 /marketing        /pages/marketing.html        200
 /domains          /pages/domains.html          200
 /experimental     /pages/experimental.html     200
+/experimental-test /pages/experimental-test.html 200
 /work             /pages/work.html             200
 /process          /pages/process.html          200
 /about            /pages/about.html            200
@@ -19,6 +20,7 @@
 /marketing/       /pages/marketing.html        200
 /domains/         /pages/domains.html          200
 /experimental/    /pages/experimental.html     200
+/experimental-test/ /pages/experimental-test.html 200
 /work/            /pages/work.html             200
 /process/         /pages/process.html          200
 /about/           /pages/about.html            200
