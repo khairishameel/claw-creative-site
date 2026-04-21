@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Claw Creative — Your Business. Online. Handled.</title>
-  <meta name="description" content="Websites, AI agents, and social media for Indianapolis small businesses. We build, run, and evolve your digital presence so you don't have to." />
+  <meta name="description" content="Websites, AI agents, domain hunting, and social media for Indianapolis small businesses. We build, run, and evolve your digital presence so you don't have to." />
   <link rel="icon" type="image/png" href="/claw-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -20,6 +20,7 @@
     <li><a href="/ai-agents">AI Agents</a></li>
     <li><a href="/socials">Socials</a></li>
     <li><a href="/marketing">Marketing</a></li>
+    <li><a href="/domains">Domains</a></li>
     <li><a href="/work">Work</a></li>
     <li><a href="/about">About</a></li>
   </ul>
@@ -28,8 +29,8 @@
 </nav>
 <div class="mobile-menu">
   <a href="/">Home</a><a href="/websites">Websites</a><a href="/ai-agents">AI Agents</a>
-  <a href="/socials">Socials</a><a href="/marketing">Marketing</a><a href="/work">Work</a>
-  <a href="/process">Process</a><a href="/about">About</a><a href="/contact">Contact</a>
+  <a href="/socials">Socials</a><a href="/marketing">Marketing</a><a href="/domains">Domains</a>
+  <a href="/work">Work</a><a href="/process">Process</a><a href="/about">About</a><a href="/contact">Contact</a>
 </div>
 
 <section class="hero">
@@ -43,7 +44,7 @@
       <span class="fire" data-typewriter data-delay="800"> Handled.</span>
     </h1>
     <p class="hero-sub">
-      Websites, AI agents, and social media for Indianapolis small businesses.
+      Websites, AI agents, domains, and social media for Indianapolis small businesses.
       We build it, we run it, we make it work. You focus on the thing you're actually good at.
     </p>
     <div class="hero-cta-row">
@@ -51,29 +52,56 @@
       <a href="/work" class="btn btn-ghost">See the Work</a>
     </div>
 
+    <!-- Premium orb constellation (rotates 40s, labels counter-rotate, glowing lines, frosted glass) -->
     <div class="hero-orbs" aria-hidden="true">
-      <svg class="hero-orbs-svg" viewBox="0 0 520 520">
-        <line class="orb-line" x1="260" y1="125" x2="105" y2="405" />
-        <line class="orb-line" x1="260" y1="125" x2="415" y2="405" />
-        <line class="orb-line" x1="105" y1="405" x2="415" y2="405" />
-      </svg>
-      <div class="orb web" title="Websites">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 8h18M7 4v14"/></svg>
-        <span>Websites</span>
-      </div>
-      <div class="orb ai" title="AI Agents">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 11V7M8 7h8M8 15h.01M12 15h.01M16 15h.01"/></svg>
-        <span>AI</span>
-      </div>
-      <div class="orb socs" title="Socials">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
-        <span>Socials</span>
+      <div class="orbs-spinner">
+        <svg class="hero-orbs-svg" viewBox="0 0 620 620" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="orb-line-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"  stop-color="#f74c30" stop-opacity="0.8"/>
+              <stop offset="50%" stop-color="#E27B5B" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#A12233" stop-opacity="0.7"/>
+            </linearGradient>
+          </defs>
+          <!-- positions: top-orb center ~(310,100), bottom-left ~(130,500), bottom-right ~(490,500) -->
+          <line class="orb-line flow" x1="310" y1="140" x2="155" y2="470" />
+          <line class="orb-line flow" x1="310" y1="140" x2="465" y2="470" style="animation-delay:-2s"/>
+          <line class="orb-line flow" x1="155" y1="470" x2="465" y2="470" style="animation-delay:-4s"/>
+        </svg>
+        <div class="orb web">
+          <div class="orb-glow"></div>
+          <div class="orb-rot">
+            <div class="orb-bg">
+              <span class="dot"></span>
+              <span class="label">websites</span>
+            </div>
+          </div>
+        </div>
+        <div class="orb ai">
+          <div class="orb-glow"></div>
+          <div class="orb-rot">
+            <div class="orb-bg">
+              <span class="dot"></span>
+              <span class="label">ai agents</span>
+            </div>
+          </div>
+        </div>
+        <div class="orb socs">
+          <div class="orb-glow"></div>
+          <div class="orb-rot">
+            <div class="orb-bg">
+              <span class="dot"></span>
+              <span class="label">socials</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
   <div class="scroll-hint">Scroll</div>
 </section>
 
+<!-- THREE THINGS -->
 <section>
   <div class="container">
     <div class="text-center mb-16 reveal">
@@ -99,7 +127,7 @@
           </div>
         </div>
         <h3>Websites</h3>
-        <p>Clean, fast, modern sites that load in under a second and actually convert. First Claw $100. Full Grip $250.</p>
+        <p>Clean, fast, modern sites that load in under a second and actually convert. First Claw $100. Full Grip $299.</p>
         <span class="service-cta">Explore <span>→</span></span>
       </a>
 
@@ -111,7 +139,7 @@
           </div>
         </div>
         <h3>AI Agents</h3>
-        <p>A custom agent trained on your expertise that lives on your site and answers questions 24/7. +$35.</p>
+        <p>A custom agent trained on your expertise that lives on your site and answers questions 24/7. +$149.</p>
         <span class="service-cta">Explore <span>→</span></span>
       </a>
 
@@ -131,13 +159,14 @@
           </div>
         </div>
         <h3>Social Media</h3>
-        <p>Instagram, Facebook, TikTok. Weekly content, real video edits, real growth. $100/month.</p>
+        <p>Instagram, Facebook, TikTok. Weekly content, real video edits, real growth. Starts at $399/month.</p>
         <span class="service-cta">Explore <span>→</span></span>
       </a>
     </div>
   </div>
 </section>
 
+<!-- AI DEMO -->
 <section style="background:linear-gradient(180deg, transparent 0%, var(--blush) 100%)">
   <div class="container grid-2">
     <div class="reveal-left">
@@ -149,11 +178,11 @@
         the way you would — at 3am, on a holiday, during your busiest rush.
       </p>
       <p class="mt-8 muted">
-        It lives on your website. Your customers ask it anything.
-        It books tables, quotes prices, explains services, takes messages when you're slammed.
+        It lives on your website. Your customers ask it anything. It books tables,
+        quotes prices, explains services, takes messages when you're slammed.
       </p>
-      <p class="mt-8 muted" style="font-size:0.92rem">
-        <strong style="color:var(--fire)">Watch →</strong> A real scripted demo plays on the phone. Booking, menu, hours, location — all handled without you.
+      <p class="mt-8" style="font-size:1rem;color:var(--fire);font-weight:600">
+        Real customer questions. Answered in your voice. 24/7.
       </p>
       <div class="mt-16">
         <a href="/ai-agents" class="btn btn-primary">See Full Demo</a>
@@ -180,6 +209,7 @@
   </div>
 </section>
 
+<!-- STATS — hardcoded values, fade-in on scroll -->
 <section>
   <div class="container">
     <div class="text-center mb-16 reveal">
@@ -187,21 +217,24 @@
       <h2>Small shop. Real results.</h2>
     </div>
     <div class="stats">
-      <div class="stat reveal" data-delay="0"><div class="stat-num"><span data-count="48" data-suffix="h">0h</span></div><div class="stat-lbl">Average turnaround</div></div>
-      <div class="stat reveal" data-delay="80"><div class="stat-num"><span data-count="100" data-suffix="%">0%</span></div><div class="stat-lbl">Mobile responsive</div></div>
-      <div class="stat reveal" data-delay="160"><div class="stat-num"><span data-count="24" data-suffix="/7">0/7</span></div><div class="stat-lbl">AI coverage</div></div>
-      <div class="stat reveal" data-delay="240"><div class="stat-num"><span data-count="95" data-suffix="+">0+</span></div><div class="stat-lbl">Lighthouse score</div></div>
+      <div class="stat reveal" data-delay="0"><div class="stat-num">48h</div><div class="stat-lbl">Average turnaround</div></div>
+      <div class="stat reveal" data-delay="80"><div class="stat-num">100%</div><div class="stat-lbl">Mobile responsive</div></div>
+      <div class="stat reveal" data-delay="160"><div class="stat-num">24/7</div><div class="stat-lbl">AI coverage</div></div>
+      <div class="stat reveal" data-delay="240"><div class="stat-num">95+</div><div class="stat-lbl">Lighthouse score</div></div>
     </div>
   </div>
 </section>
 
+<!-- PRICING + mini-compare + urgency -->
 <section style="background:var(--white)">
   <div class="container">
     <div class="text-center mb-16 reveal">
       <div class="section-eyebrow">Pricing</div>
       <h2>Flat rates. No surprises.</h2>
       <p class="muted mt-8">Pick the tier. Add what you need. Pay once. Own it forever.</p>
+      <div class="urgency-note reveal">Currently accepting 3 new clients this month. Indianapolis only.</div>
     </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:980px;margin:0 auto;align-items:start" class="compare-grid">
       <div class="pricing-card reveal" data-delay="0">
         <div class="pricing-tier">First Claw</div>
@@ -223,7 +256,7 @@
         <div class="pricing-tier">Full Grip</div>
         <div class="pricing-name">For businesses growing online</div>
         <p class="pricing-desc">The real investment. Multi-section, animated, SEO-tuned.</p>
-        <div class="pricing-price">$250<span class="unit">one-time</span></div>
+        <div class="pricing-price">$299<span class="unit">one-time</span></div>
         <div class="pricing-turn">Delivered in 72 hours</div>
         <ul class="pricing-list">
           <li>Multi-section animated site</li>
@@ -236,55 +269,56 @@
       </div>
     </div>
 
+    <!-- Mini compare -->
+    <div class="mini-compare reveal">
+      <div class="mini-compare-row head">
+        <div class="mini-compare-cell feat">Feature</div>
+        <div class="mini-compare-cell val">First Claw</div>
+        <div class="mini-compare-cell val">Full Grip</div>
+      </div>
+      <div class="mini-compare-row"><div class="mini-compare-cell feat">Pages</div><div class="mini-compare-cell val">Single</div><div class="mini-compare-cell val">Multi-section</div></div>
+      <div class="mini-compare-row"><div class="mini-compare-cell feat">Animations</div><div class="mini-compare-cell val">Basic</div><div class="mini-compare-cell val">Full</div></div>
+      <div class="mini-compare-row"><div class="mini-compare-cell feat">Gallery</div><div class="mini-compare-cell val n">—</div><div class="mini-compare-cell val y"></div></div>
+      <div class="mini-compare-row"><div class="mini-compare-cell feat">Reviews section</div><div class="mini-compare-cell val n">—</div><div class="mini-compare-cell val y"></div></div>
+      <div class="mini-compare-row"><div class="mini-compare-cell feat">SEO</div><div class="mini-compare-cell val">Ready</div><div class="mini-compare-cell val">Tuned</div></div>
+      <div class="mini-compare-row"><div class="mini-compare-cell feat">Revisions</div><div class="mini-compare-cell val">1 round</div><div class="mini-compare-cell val">2 rounds</div></div>
+      <div class="mini-compare-row"><div class="mini-compare-cell feat">Delivery</div><div class="mini-compare-cell val">48h</div><div class="mini-compare-cell val">72h</div></div>
+    </div>
+
+    <!-- Add-ons -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:980px;margin:40px auto 0" class="compare-grid">
       <div class="card reveal" data-delay="0">
         <div class="chip">Add-on</div>
         <h3 class="mt-8">Custom AI Agent Upgrade</h3>
-        <p class="muted mt-8">Upgrade your site's basic AI to a fully custom agent trained on your expertise. 30-min interview, we do the rest.</p>
-        <div class="mt-8" style="font-family:var(--font-display);font-size:1.8rem;font-weight:700">+$35 one-time</div>
+        <p class="muted mt-8">Fully custom AI trained on your expertise. 30-min interview, we do the rest. Trained on your voice, methods, and specific knowledge.</p>
+        <div class="mt-8" style="font-family:var(--font-display);font-size:1.8rem;font-weight:700">+$149 one-time</div>
       </div>
       <div class="card reveal" data-delay="80">
         <div class="chip">Monthly</div>
         <h3 class="mt-8">Social Media Management</h3>
-        <p class="muted mt-8">Instagram + Facebook + TikTok. Weekly content, real video edits, engagement, growth. We run it end to end.</p>
-        <div class="mt-8" style="font-family:var(--font-display);font-size:1.8rem;font-weight:700">$100 / month</div>
+        <p class="muted mt-8">Three tiers — Starter, Growth, Full Send. Instagram, Facebook, TikTok. Real video editing, real engagement, real growth.</p>
+        <div class="mt-8" style="font-family:var(--font-display);font-size:1.8rem;font-weight:700">From $399 / month</div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- TRUST STRIP (replaces fake testimonials) -->
 <section>
-  <div class="container">
-    <div class="text-center mb-16 reveal">
-      <div class="section-eyebrow">What clients say</div>
-      <h2>Real people. Real words.</h2>
-    </div>
-    <div class="testimonial-grid">
-      <div class="testimonial reveal" data-delay="0">
-        <p class="quote">Had a site live in 48 hours. Friday dinner bookings jumped the next week. The AI answers questions even when we're slammed in the kitchen.</p>
-        <div class="testimonial-who">
-          <div class="testimonial-av" style="background:linear-gradient(135deg, var(--fire), var(--terracotta))">J</div>
-          <div><div class="name">José M.</div><div class="biz">La Piedad · Broad Ripple</div></div>
-        </div>
-      </div>
-      <div class="testimonial reveal" data-delay="120">
-        <p class="quote">I kept putting off a real website for three years. Shameel sent me a live preview two days after I messaged him. Worth every dollar.</p>
-        <div class="testimonial-who">
-          <div class="testimonial-av" style="background:linear-gradient(135deg, var(--crimson), var(--ink))">A</div>
-          <div><div class="name">Austin L.</div><div class="biz">Local service business</div></div>
-        </div>
-      </div>
-      <div class="testimonial reveal" data-delay="240">
-        <p class="quote">The AI agent on our site answers the stuff I used to reply to at 11pm. It paid for itself the first month.</p>
-        <div class="testimonial-who">
-          <div class="testimonial-av" style="background:linear-gradient(135deg, var(--terracotta), var(--crimson))">M</div>
-          <div><div class="name">Maya R.</div><div class="biz">Indianapolis studio owner</div></div>
-        </div>
+  <div class="container reveal">
+    <div class="trust-strip">
+      <h3>Built in Indianapolis. Serving local businesses only. Every site is custom.<br/>No templates. No offshore teams.</h3>
+      <div class="trust-row">
+        <div class="trust-item"><div class="t-lbl">Location</div><div class="t-val">Indianapolis, IN</div></div>
+        <div class="trust-item"><div class="t-lbl">Market</div><div class="t-val">Local businesses only</div></div>
+        <div class="trust-item"><div class="t-lbl">Builds</div><div class="t-val">Every site is custom</div></div>
+        <div class="trust-item"><div class="t-lbl">Team</div><div class="t-val">No offshore. No templates.</div></div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- WORK PEEK -->
 <section style="background:var(--white)">
   <div class="container">
     <div class="text-center mb-16 reveal">
@@ -327,10 +361,11 @@
   </div>
 </section>
 
+<!-- FINAL CTA -->
 <section style="background:var(--ink); color:var(--cream); text-align:center; padding:120px 48px">
   <div class="container-sm reveal">
     <div class="section-eyebrow" style="color:var(--fire)">Ready when you are</div>
-    <h2 style="color:var(--cream)">Stop DIY-ing your online presence.</h2>
+    <h2 style="color:var(--cream)">Let's get your business online.</h2>
     <p style="color:rgba(242,213,196,0.75); font-size:1.1rem; max-width:560px; margin:20px auto 40px">
       Send us your business name. We'll send you a 48-hour plan and a price.
       No long meetings. No proposals. No "scope calls."
@@ -346,9 +381,9 @@
   <div class="footer-grid">
     <div class="footer-brand">
       <img src="/claw-wordmark.png?v=4" alt="Claw Creative" />
-      <p>The digital side of your business, done. Websites, AI agents, and social media management for Indianapolis small businesses.</p>
+      <p>The digital side of your business, done. Websites, AI agents, domain hunting, and social media for Indianapolis small businesses.</p>
     </div>
-    <div class="footer-col"><h4>Services</h4><ul><li><a href="/websites">Websites</a></li><li><a href="/ai-agents">AI Agents</a></li><li><a href="/socials">Social Media</a></li><li><a href="/marketing">Marketing</a></li></ul></div>
+    <div class="footer-col"><h4>Services</h4><ul><li><a href="/websites">Websites</a></li><li><a href="/ai-agents">AI Agents</a></li><li><a href="/socials">Social Media</a></li><li><a href="/marketing">Marketing</a></li><li><a href="/domains">Domains</a></li></ul></div>
     <div class="footer-col"><h4>Company</h4><ul><li><a href="/work">Work</a></li><li><a href="/process">Process</a></li><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li></ul></div>
     <div class="footer-col"><h4>Contact</h4><ul><li><a href="mailto:support@clawcreative.net">support@clawcreative.net</a></li><li><a href="https://wa.me/13176571684">WhatsApp</a></li><li>Indianapolis, IN</li></ul></div>
   </div>

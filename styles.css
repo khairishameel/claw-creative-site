@@ -678,53 +678,368 @@ body { transition: opacity 0.3s var(--ease); }
 body.page-leaving { opacity: 0; transform: translateY(-8px); transition: opacity 0.25s var(--ease), transform 0.25s var(--ease); }
 
 /* ================================================================
-   HERO ORBS — connected glowing service visual
+   HERO ORBS — premium frosted glass constellation
+   (Websites · AI · Socials connected by glowing energy lines,
+    whole thing rotates 40s; labels counter-rotate to stay upright)
 ================================================================ */
 .hero-orbs {
   position: relative;
   width: 100%;
-  max-width: 520px;
+  max-width: 620px;
   aspect-ratio: 1;
-  margin: 40px auto 0;
-  opacity: 0; animation: fadeUp 1.2s var(--ease) 1.1s forwards;
+  margin: 72px auto 0;
+  opacity: 0;
+  animation: fadeUp 1.4s var(--ease) 1.1s forwards;
 }
-.hero-orbs-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.orb-line { stroke: var(--fire); stroke-width: 1.5; opacity: 0.25; stroke-dasharray: 6 8; animation: orbDash 8s linear infinite; }
-@keyframes orbDash { to { stroke-dashoffset: -112; } }
+.orbs-spinner {
+  position: absolute; inset: 0;
+  animation: orbsSpin 40s linear infinite;
+  transform-origin: center;
+}
+@keyframes orbsSpin { to { transform: rotate(360deg); } }
+
+.hero-orbs-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.orb-line {
+  fill: none;
+  stroke: url(#orb-line-gradient);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.55;
+  transition: opacity 0.6s var(--ease), stroke-width 0.6s var(--ease);
+  filter: drop-shadow(0 0 6px rgba(247, 76, 48, 0.4));
+}
+.hero-orbs:hover .orb-line { opacity: 0.95; stroke-width: 2.6; }
+.orb-line.flow {
+  stroke-dasharray: 140;
+  stroke-dashoffset: 0;
+  animation: orbFlow 6s linear infinite;
+}
+@keyframes orbFlow { to { stroke-dashoffset: -280; } }
+
 .orb {
   position: absolute;
-  width: 118px; height: 118px;
+  width: 200px; height: 200px;
   border-radius: 50%;
-  display: grid; place-items: center;
-  color: var(--white);
-  font-family: var(--font-display);
-  font-weight: 700; font-size: 0.8rem;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  text-align: center;
-  animation: orbFloat 6s ease-in-out infinite;
-  cursor: pointer;
+  transition: filter 0.5s var(--ease);
 }
-.orb::before {
-  content: ''; position: absolute; inset: -18px;
+.orb.web  { top: 0;   left: 50%; margin-left: -100px; }
+.orb.ai   { bottom: 4%; left: 2%; }
+.orb.socs { bottom: 4%; right: 2%; }
+
+.orb-rot {
+  width: 100%; height: 100%;
+  animation: orbsCounterSpin 40s linear infinite;
+  transform-origin: center;
+}
+@keyframes orbsCounterSpin { to { transform: rotate(-360deg); } }
+
+.orb-glow {
+  position: absolute; inset: -45px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--fire-glow), transparent 70%);
-  animation: orbPulse 3.2s ease-in-out infinite;
+  background: radial-gradient(circle, var(--orb-color), transparent 65%);
+  opacity: 0.55;
+  animation: orbGlowPulse 5.5s ease-in-out infinite;
   z-index: -1;
 }
-.orb svg { width: 28px; height: 28px; margin-bottom: 4px; }
-.orb.web   { background: linear-gradient(135deg, var(--fire), var(--crimson));    top: 8%;   left: 50%; transform: translateX(-50%); animation-delay: 0s; }
-.orb.ai    { background: linear-gradient(135deg, var(--terracotta), var(--fire)); bottom: 12%; left: 6%;  animation-delay: 1.5s; }
-.orb.socs  { background: linear-gradient(135deg, var(--crimson), var(--ink));     bottom: 12%; right: 6%;  animation-delay: 3s; }
-.orb:hover { transform: scale(1.08); animation-play-state: paused; }
-.orb.web:hover   { transform: translateX(-50%) scale(1.08); }
-@keyframes orbFloat { 0%,100% { translate: 0 0; } 50% { translate: 0 -14px; } }
-.orb.web { animation-name: orbFloatCenter; }
-@keyframes orbFloatCenter { 0%,100% { translate: -50% 0; } 50% { translate: -50% -14px; } }
-@keyframes orbPulse { 0%,100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.12); } }
+.orb.ai   .orb-glow { animation-delay: 1.8s; }
+.orb.socs .orb-glow { animation-delay: 3.6s; }
+@keyframes orbGlowPulse {
+  0%,100% { opacity: 0.45; transform: scale(1); }
+  50%     { opacity: 0.85; transform: scale(1.14); }
+}
+
+.orb-bg {
+  position: relative;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(253, 251, 247, 0.55) 100%);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1.5px solid rgba(255,255,255,0.95);
+  display: grid; place-items: center;
+  box-shadow:
+    0 24px 50px -12px rgba(36, 15, 14, 0.18),
+    inset 0 2px 3px rgba(255,255,255,0.9),
+    inset 0 -6px 14px rgba(247, 76, 48, 0.06);
+  transition: transform 0.45s var(--ease), box-shadow 0.45s var(--ease);
+  cursor: pointer;
+}
+.orb .label {
+  font-family: 'Playfair Display', 'Space Grotesk', serif;
+  font-weight: 500;
+  font-size: 1.45rem;
+  font-style: italic;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  text-align: center;
+  line-height: 1;
+}
+.orb .dot {
+  position: absolute; top: 22px; right: 22px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--orb-color);
+  box-shadow: 0 0 14px var(--orb-color);
+  opacity: 0.85;
+  animation: orbDotPulse 2.2s ease-in-out infinite;
+}
+@keyframes orbDotPulse { 0%,100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.35); opacity: 1; } }
+
+.orb.web  { --orb-color: rgba(247, 76, 48, 0.55); }
+.orb.ai   { --orb-color: rgba(226, 123, 91, 0.55); }
+.orb.socs { --orb-color: rgba(161, 34, 51, 0.5);  }
+
+.orb:hover .orb-bg {
+  transform: scale(1.06);
+  box-shadow:
+    0 36px 70px -12px rgba(36, 15, 14, 0.22),
+    0 0 60px var(--orb-color),
+    inset 0 2px 3px rgba(255,255,255,1),
+    inset 0 -6px 18px rgba(247, 76, 48, 0.12);
+}
+.orb:hover .orb-glow { opacity: 1; transform: scale(1.3); }
+.hero-orbs:has(.orb:hover) .orb-line { opacity: 1; stroke-width: 3; }
+
+@media (max-width: 640px) {
+  .hero-orbs { max-width: 380px; margin-top: 48px; }
+  .orb { width: 128px; height: 128px; }
+  .orb.web  { margin-left: -64px; }
+  .orb .label { font-size: 1.05rem; }
+  .orb .dot { top: 14px; right: 14px; width: 8px; height: 8px; }
+  .orb-glow { inset: -30px; }
+}
+
+/* ================================================================
+   Trust strip (replaces fake testimonials)
+================================================================ */
+.trust-strip {
+  max-width: 980px; margin: 0 auto;
+  padding: 44px 40px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 40px -24px rgba(36, 15, 14, 0.12);
+  text-align: center;
+}
+.trust-strip h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin-bottom: 22px;
+  letter-spacing: -0.01em;
+}
+.trust-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 18px;
+}
+.trust-item {
+  padding: 18px 12px;
+  border-radius: var(--radius);
+  background: var(--cream);
+  border: 1px solid var(--line);
+}
+.trust-item .t-lbl {
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--fire);
+  margin-bottom: 6px;
+}
+.trust-item .t-val {
+  font-family: var(--font-display);
+  font-size: 1rem; font-weight: 600;
+  color: var(--ink);
+}
+@media (max-width: 720px) { .trust-row { grid-template-columns: 1fr 1fr; } }
+
+/* ================================================================
+   Urgency note
+================================================================ */
+.urgency-note {
+  display: inline-block;
+  margin-top: 22px;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--terracotta);
+  letter-spacing: 0.01em;
+}
+.urgency-note::before {
+  content: '●';
+  display: inline-block;
+  font-size: 0.6rem;
+  color: var(--terracotta);
+  margin-right: 8px;
+  transform: translateY(-2px);
+  animation: urgencyBlink 2.4s ease-in-out infinite;
+}
+@keyframes urgencyBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* ================================================================
+   Compact pricing comparison (home page)
+================================================================ */
+.mini-compare {
+  max-width: 720px;
+  margin: 40px auto 0;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.mini-compare-row {
+  display: grid; grid-template-columns: 1.2fr 1fr 1fr;
+  border-bottom: 1px solid var(--line);
+}
+.mini-compare-row:last-child { border-bottom: none; }
+.mini-compare-row.head {
+  background: var(--blush);
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink);
+}
+.mini-compare-cell { padding: 14px 18px; display: flex; align-items: center; font-size: 0.92rem; color: var(--ink-soft); }
+.mini-compare-cell.feat { font-weight: 600; color: var(--ink); }
+.mini-compare-cell.val  { justify-content: center; }
+.mini-compare-cell.val.y::before  { content: '✓'; color: var(--fire); font-weight: 700; margin-right: 6px; }
+.mini-compare-cell.val.n          { color: var(--ink-dim); }
 
 @media (max-width: 560px) {
-  .hero-orbs { max-width: 360px; }
-  .orb { width: 92px; height: 92px; font-size: 0.68rem; }
+  .mini-compare-cell { padding: 10px 12px; font-size: 0.82rem; }
+  .mini-compare-row.head { font-size: 0.64rem; }
+}
+
+/* ================================================================
+   Three-tier socials pricing
+================================================================ */
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.tier-grid .pricing-card { padding: 36px 32px; }
+.tier-grid .pricing-card.featured { padding: 48px 32px; }
+.tier-grid .pricing-price { font-size: 2.6rem; }
+.tier-grid .pricing-card.featured .pricing-price { font-size: 3rem; }
+@media (max-width: 940px) {
+  .tier-grid { grid-template-columns: 1fr; gap: 20px; }
+  .tier-grid .pricing-card.featured { transform: none; }
+}
+
+/* ================================================================
+   Domains page — hero visual (URL being caught)
+================================================================ */
+.domains-visual {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  margin: 56px auto 0;
+  aspect-ratio: 2.4/1;
+  opacity: 0;
+  animation: fadeUp 1.2s var(--ease) 1s forwards;
+}
+.domains-radar {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+}
+.radar-ring {
+  position: absolute;
+  border: 1.5px solid var(--fire);
+  border-radius: 50%;
+  opacity: 0;
+  animation: radarPing 3.2s ease-out infinite;
+}
+.radar-ring.r1 { width: 110px; height: 110px; animation-delay: 0s; }
+.radar-ring.r2 { width: 110px; height: 110px; animation-delay: 1s; }
+.radar-ring.r3 { width: 110px; height: 110px; animation-delay: 2s; }
+@keyframes radarPing {
+  0%   { opacity: 0.85; transform: scale(0.4); border-color: var(--fire); }
+  80%  { opacity: 0;    transform: scale(3.4); border-color: var(--terracotta); }
+  100% { opacity: 0;    transform: scale(3.4); }
+}
+.radar-core {
+  width: 92px; height: 92px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--fire), var(--crimson));
+  display: grid; place-items: center;
+  color: var(--white);
+  box-shadow: 0 0 40px var(--fire-glow), inset 0 2px 6px rgba(255,255,255,0.3);
+  animation: radarPulse 2.2s ease-in-out infinite;
+  z-index: 2;
+}
+.radar-core svg { width: 36px; height: 36px; }
+@keyframes radarPulse { 0%,100% { box-shadow: 0 0 40px var(--fire-glow); } 50% { box-shadow: 0 0 60px var(--fire-glow), 0 0 100px rgba(247, 76, 48, 0.3); } }
+
+.domain-float {
+  position: absolute;
+  top: 50%;
+  font-family: 'JetBrains Mono', 'Space Grotesk', monospace;
+  font-size: 0.92rem;
+  padding: 10px 18px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 12px 30px -8px rgba(36, 15, 14, 0.18);
+  color: var(--ink);
+  white-space: nowrap;
+  transform: translateY(-50%);
+  animation: domainDrift 9s ease-in-out infinite;
+}
+.domain-float::before {
+  content: ''; position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--terracotta);
+  box-shadow: 0 0 10px var(--terracotta);
+}
+.domain-float { padding-left: 34px; }
+.domain-float.f1 { left: 4%;   animation-delay: 0s; }
+.domain-float.f2 { right: 4%;  animation-delay: 2s; }
+.domain-float.f3 { left: 12%;  top: 20%; animation-delay: 4s; transform: none; }
+.domain-float.f4 { right: 10%; top: 78%; animation-delay: 1s; transform: none; }
+@keyframes domainDrift {
+  0%,100% { transform: translateY(-50%) translateX(0); opacity: 1; }
+  45%     { transform: translateY(-50%) translateX(-14px); opacity: 0.5; }
+  50%     { transform: translateY(-50%) translateX(-14px); opacity: 0; }
+  55%     { transform: translateY(-50%) translateX(14px);  opacity: 0; }
+  65%     { transform: translateY(-50%) translateX(0);     opacity: 1; }
+}
+.domain-float.f3, .domain-float.f4 {
+  animation-name: domainDriftVert;
+}
+@keyframes domainDriftVert {
+  0%,100% { opacity: 1; }
+  45%     { opacity: 0.4; }
+  50%     { opacity: 0; }
+  55%     { opacity: 0; }
+  65%     { opacity: 1; }
+}
+
+@media (max-width: 560px) {
+  .domains-visual { aspect-ratio: 1.8/1; }
+  .domain-float { font-size: 0.78rem; padding: 8px 14px 8px 28px; }
+  .radar-core { width: 72px; height: 72px; }
+  .radar-core svg { width: 28px; height: 28px; }
+}
+
+/* ================================================================
+   Mobile polish — make sure everything stacks at 375px
+================================================================ */
+@media (max-width: 760px) {
+  .compare-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .pricing-card.featured {
+    transform: none;
+    margin-top: 8px;
+  }
+  .phone-frame { max-width: 300px; }
+  .hero { padding: 120px 24px 60px; min-height: auto; }
+  .hero-content { padding: 0; }
+  h1 { font-size: clamp(2.2rem, 9vw, 3.4rem); }
 }
 
 /* ================================================================
