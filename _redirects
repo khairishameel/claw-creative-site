@@ -1,0 +1,24 @@
+# Netlify clean-URL rewrites for Claw Creative multi-page site
+# Maps /websites → /pages/websites.html etc. (no .html extension in URLs)
+
+/websites         /pages/websites.html         200
+/ai-agents        /pages/ai-agents.html        200
+/socials          /pages/socials.html          200
+/marketing        /pages/marketing.html        200
+/work             /pages/work.html             200
+/process          /pages/process.html          200
+/about            /pages/about.html            200
+/contact          /pages/contact.html          200
+
+# Trailing-slash variants
+/websites/        /pages/websites.html         200
+/ai-agents/       /pages/ai-agents.html        200
+/socials/         /pages/socials.html          200
+/marketing/       /pages/marketing.html        200
+/work/            /pages/work.html             200
+/process/         /pages/process.html          200
+/about/           /pages/about.html            200
+/contact/         /pages/contact.html          200
+
+# 404 fallback → home with nice message (optional)
+# /*              /index.html                  404
