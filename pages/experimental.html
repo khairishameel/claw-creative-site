@@ -1,822 +1,1515 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Experimental — 3D Animation — Claw Creative</title>
-  <meta name="description" content="3D animation, made accessible. Custom Blender-built visuals for small businesses. Quote-based. Limited capacity." />
-  <link rel="icon" type="image/png" href="/claw-icon.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Experimental — 3D Animation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/png" href="/claw-icon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Space Grotesk is loaded from Google Fonts above. The .sg class falls through
+   from its first preferred family name down to 'Space Grotesk' which resolves. */
+  :root{
+    --bg:#050a0e;
+    --panel:#0d1f17;
+    --border:#0a3d20;
+    --glow:#00ff88;
+    --glow-2:#00cc6a;
+    --glow-3:#0a9e50;
+    --hi:#39ff14;
+    --fg:#e8fff4;
+    --fg-2:#7ab89a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  html{overflow-x:clip;}
+  body{line-height:1.6;}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .serif{font-family:'Playfair Display',serif;}
+  .sg{font-family:'Space Grotesk Local','Space Grotesk',system-ui,sans-serif;font-weight:700;}
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/[email protected]/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  .label{font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--glow);}
+  .label.muted{color:var(--fg-2);}
+  .fine{font-size:13px;color:var(--fg-2);}
 
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --bg-top: #0d1117; --bg-mid: #161b22; --bg-card: #1a2029; --bg-elev: #1e2530;
-      --line: rgba(255,255,255,0.08); --line-em: rgba(16,185,129,0.35);
-      --ink: #f5f5f5; --ink-soft: #c8ccd4; --ink-dim: #7c8594;
-      --emerald: #10b981; --em-glow: rgba(16,185,129,0.4); --em-dim: rgba(16,185,129,0.55);
-      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-    }
-    html, body { overflow-x: hidden; }
-    body {
-      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 50%, var(--bg-top) 100%);
-      background-attachment: fixed;
-      color: var(--ink);
-      font-family: 'Space Grotesk', system-ui, sans-serif;
-      font-weight: 300; line-height: 1.6; min-height: 100vh;
-    }
-    body::after {
-      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 75% 50% at 50% 0%, rgba(16,185,129,0.08), transparent 60%),
-        radial-gradient(ellipse 60% 40% at 50% 100%, rgba(16,185,129,0.05), transparent 60%);
-    }
-    h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 500; letter-spacing: -0.02em; }
+  /* ======== NAV ======== */
+  nav.site{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 40px;
+    background:rgba(5,10,14,.72);
+    backdrop-filter:blur(14px) saturate(130%);
+    -webkit-backdrop-filter:blur(14px) saturate(130%);
+    border-bottom:1px solid rgba(0,255,136,.2);
+    box-shadow:0 1px 0 rgba(0,255,136,.08), 0 0 40px rgba(0,255,136,.06);
+  }
+  nav.site .brand{display:flex;align-items:center;gap:12px;font-family:'Space Grotesk','Space Grotesk Local',system-ui,sans-serif;font-weight:700;letter-spacing:-.01em;font-size:18px;color:var(--fg);text-decoration:none;}
+  nav.site .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--glow);box-shadow:0 0 12px var(--glow),0 0 24px rgba(0,255,136,.4);}
+  nav.site .brand img{height:28px;width:auto;display:block;filter:brightness(0) invert(1);opacity:.95;transition:opacity .2s;}
+  nav.site .brand:hover img{opacity:1;}
+  nav.site .brand .sep{color:var(--fg-2);font-weight:500;margin:0 2px;}
+  nav.site .brand .tag{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;color:var(--glow);font-size:15px;letter-spacing:.01em;}
+  nav.site ul{display:flex;gap:34px;list-style:none;margin:0;padding:0;font-size:14px;color:var(--fg);}
+  nav.site ul a{position:relative;padding:4px 0;color:var(--fg);opacity:.85;transition:opacity .2s;}
+  nav.site ul a:hover{opacity:1;}
+  nav.site ul a.active{opacity:1;color:var(--glow);}
+  nav.site ul a.active::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--glow);box-shadow:0 0 8px var(--glow);}
+  nav.site .cta{background:var(--glow);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;letter-spacing:.01em;box-shadow:0 0 0 rgba(0,255,136,0);transition:box-shadow .3s, transform .2s, filter .2s;}
+  nav.site .cta:hover{box-shadow:0 0 24px rgba(0,255,136,.45);filter:brightness(1.08);}
 
-    #webgl-canvas {
-      position: fixed; top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      z-index: 1; display: block;
-      pointer-events: none;
-    }
-    #webgl-canvas.interactive { pointer-events: auto; cursor: grab; }
-    #webgl-canvas.interactive:active { cursor: grabbing; }
-    .page-content { position: relative; z-index: 2; }
+  @media (max-width:860px){
+    nav.site{padding:14px 18px;}
+    nav.site ul{display:none;}
+  }
 
-    nav.exp-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 22px 48px;
-      display: flex; align-items: center; justify-content: space-between;
-      background: rgba(13,17,23,0.65);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--line);
-    }
-    .exp-nav-logo { display: inline-flex; align-items: center; gap: 12px; font-family: 'Playfair Display', serif; font-style: italic; color: var(--ink); text-decoration: none; font-size: 1.2rem; }
-    .exp-nav-logo::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 14px var(--emerald); animation: emDot 1.8s ease-in-out infinite; }
-    @keyframes emDot { 0%,100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.4); opacity: 1; } }
-    .exp-nav-links { display: flex; gap: 28px; list-style: none; font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; }
-    .exp-nav-links a { color: var(--ink-soft); text-decoration: none; transition: color 0.3s; font-weight: 500; }
-    .exp-nav-links a:hover { color: var(--emerald); }
-    .exp-nav-cta { padding: 10px 22px; border-radius: 999px; background: var(--emerald); color: #00110a; text-decoration: none; font-weight: 600; font-size: 0.82rem; letter-spacing: 0.06em; transition: all 0.3s; box-shadow: 0 0 24px var(--em-glow); }
-    .exp-nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 40px var(--em-glow); }
-    @media (max-width: 900px) { .exp-nav-links { display: none; } nav.exp-nav { padding: 18px 24px; } }
+  /* ======== GRID BG ======== */
+  .grid-bg{
+    position:absolute;inset:-2%;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(0,255,136,.06) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,255,136,.06) 1px,transparent 1px);
+    background-size:64px 64px;
+    opacity:.5;
+    mask-image:radial-gradient(ellipse 90% 60% at 50% 50%, black 40%, transparent 80%);
+    -webkit-mask-image:radial-gradient(ellipse 90% 60% at 50% 50%, black 40%, transparent 80%);
+    animation:pulseScale 8s ease-in-out infinite;
+  }
+  @keyframes pulseScale{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+  .breath{
+    position:absolute;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 70% 55% at 50% 55%, #0d1f17 0%, #0a161b 35%, var(--bg) 70%);
+    animation:breath 4s ease-in-out infinite;
+  }
+  @keyframes breath{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
 
-    section { min-height: 100vh; padding: 140px 48px; display: flex; align-items: center; position: relative; }
-    section .container { max-width: 1280px; margin: 0 auto; width: 100%; }
-    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; width: 100%; }
-    .spacer { min-height: 60vh; width: 100%; }
-    @media (max-width: 900px) {
-      .split { grid-template-columns: 1fr; gap: 32px; text-align: center; }
-      section { padding: 100px 24px; min-height: auto; }
-    }
+  /* ======== HERO ======== */
+  section{position:relative;}
+  .hero{min-height:100vh;display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center;padding:80px 64px;overflow:hidden;}
+  .hero .left{position:relative;z-index:2;max-width:760px;}
+  .hero h1{font-family:'Playfair Display',serif;font-weight:500;font-size:clamp(40px,6vw,80px);line-height:1.02;letter-spacing:-.02em;margin:18px 0 22px;color:var(--fg);}
+  .hero h1 em{font-style:italic;color:var(--glow);text-shadow:0 0 20px rgba(0,255,136,.4);font-weight:500;}
+  .hero p.sub{font-size:18px;color:var(--fg-2);max-width:560px;line-height:1.65;margin:0 0 28px;}
+  .btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:999px;font-weight:600;font-size:14px;letter-spacing:.02em;cursor:pointer;border:1px solid transparent;transition:all .25s;font-family:'Inter',sans-serif;}
+  .btn.primary{background:var(--glow);color:var(--bg);box-shadow:0 0 0 rgba(0,255,136,0);}
+  .btn.primary:hover{filter:brightness(1.1);box-shadow:0 0 24px rgba(0,255,136,.5),0 0 48px rgba(0,255,136,.2);}
+  .btn.ghost{background:transparent;color:var(--glow);border:1px solid var(--glow);}
+  .btn.ghost:hover{background:rgba(0,255,136,.08);box-shadow:0 0 16px rgba(0,255,136,.25);}
+  .btn.hi{background:var(--hi);color:var(--bg);box-shadow:0 0 0 rgba(57,255,20,0);padding:18px 32px;font-size:16px;}
+  .btn.hi:hover{filter:brightness(1.08);box-shadow:0 0 32px rgba(57,255,20,.55),0 0 64px rgba(57,255,20,.25);}
 
-    .hero-section { min-height: 100vh; padding-top: 160px; text-align: center; flex-direction: column; justify-content: center; }
-    .hero-section h1 { font-size: clamp(2.8rem, 7vw, 6rem); line-height: 1.02; font-weight: 600; max-width: 980px; margin: 0 auto 24px; }
-    .hero-section h1 .em { background: linear-gradient(120deg, var(--emerald) 10%, #6ee7c4 50%, var(--emerald) 90%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; font-style: italic; animation: gradFlow 8s ease-in-out infinite; }
-    @keyframes gradFlow { 0%,100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
-    .hero-section p.sub { font-size: 1.2rem; color: var(--ink-soft); max-width: 680px; margin: 0 auto 32px; }
-    .eyebrow { font-size: 0.72rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--emerald); font-weight: 600; margin-bottom: 18px; }
-    .hint { display: inline-block; font-size: 0.64rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--emerald); opacity: 0.6; font-weight: 500; }
-    .hint::before { content: '⤹ '; }
-    .btn-em { display: inline-flex; align-items: center; gap: 10px; padding: 18px 40px; background: var(--emerald); color: #00110a; text-decoration: none; font-weight: 700; font-size: 0.88rem; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 999px; box-shadow: 0 0 32px var(--em-glow), inset 0 1px 2px rgba(255,255,255,0.3); transition: all 0.3s var(--ease); border: 1px solid rgba(16,185,129,0.6); }
-    .btn-em:hover { transform: translateY(-3px); box-shadow: 0 0 56px var(--em-glow); }
-    .fine { color: var(--ink-dim); font-size: 0.78rem; margin-top: 28px; letter-spacing: 0.04em; }
+  .hero .right{position:relative;z-index:2;aspect-ratio:1/1;max-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .canvas-wrap{position:relative;width:100%;height:100%;border-radius:24px;overflow:hidden;}
+  .canvas-wrap canvas{display:block;width:100%!important;height:100%!important;cursor:grab;}
+  .canvas-wrap canvas:active{cursor:grabbing;}
+  .drag-label{margin-top:14px;}
 
-    h2 { font-size: clamp(2rem, 4.5vw, 3.4rem); line-height: 1.1; margin-bottom: 20px; }
-    h2 .em { color: var(--emerald); font-style: italic; }
-    .muted { color: var(--ink-soft); }
+  /* small crosshair ornament on hero canvas corners */
+  .corner{position:absolute;width:18px;height:18px;border:1px solid rgba(0,255,136,.45);pointer-events:none;}
+  .corner.tl{top:10px;left:10px;border-right:none;border-bottom:none;}
+  .corner.tr{top:10px;right:10px;border-left:none;border-bottom:none;}
+  .corner.bl{bottom:10px;left:10px;border-right:none;border-top:none;}
+  .corner.br{bottom:10px;right:10px;border-left:none;border-top:none;}
 
-    /* ============ DNA section — 300vh tall, canvas pins while scrolling ============ */
-    #dna-section {
-      height: 300vh;
-      position: relative;
-      padding: 0;
-    }
+  /* ======== SECTION: GLOBE ======== */
+  .globe-sec{background:var(--panel);padding:140px 64px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;overflow:hidden;}
+  .globe-sec::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 50%, rgba(0,255,136,.05) 0%, transparent 60%);pointer-events:none;}
+  .h2{font-family:'Playfair Display',serif;font-weight:500;font-size:clamp(32px,4.2vw,56px);line-height:1.05;letter-spacing:-.02em;margin:16px 0 20px;color:var(--fg);}
+  .h2 em{font-style:italic;color:var(--glow);}
+  .body{font-size:16px;line-height:1.75;color:var(--fg-2);max-width:520px;}
+  .hand-row{margin-top:22px;display:flex;align-items:center;gap:10px;color:var(--glow);font-size:13px;font-weight:500;}
+  .hand-row svg{width:18px;height:18px;}
 
-    /* ============ Narrative overlays — fixed on viewport, fade at scroll points ============ */
-    .dna-overlay {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 3;
-      max-width: 560px; width: 90vw;
-      text-align: center;
-      background: rgba(13,17,23,0.78);
-      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      border: 1px solid var(--line-em);
-      border-radius: 20px;
-      padding: 36px 28px;
-      box-shadow: 0 40px 80px -30px rgba(0,0,0,0.8), 0 0 60px rgba(16,185,129,0.08);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.45s var(--ease);
-    }
-    .dna-overlay.in { opacity: 1; }
-    .dna-overlay .eyebrow { margin-bottom: 10px; }
-    .dna-overlay h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); margin-bottom: 12px; line-height: 1.15; }
-    .dna-overlay p { color: var(--ink-soft); font-size: 1rem; line-height: 1.55; }
-    .dna-overlay .kpi {
-      display: inline-block; margin-top: 14px;
-      padding: 6px 14px;
-      background: rgba(16,185,129,0.1);
-      border: 1px solid var(--line-em);
-      border-radius: 999px;
-      color: var(--emerald);
-      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700;
-    }
+  .globe-wrap{position:relative;aspect-ratio:1/1;max-width:560px;justify-self:center;width:100%;}
+  .globe-wrap canvas{width:100%!important;height:100%!important;cursor:grab;}
+  .globe-wrap canvas:active{cursor:grabbing;}
+  .globe-rings{position:absolute;inset:-6%;border:1px dashed rgba(0,255,136,.18);border-radius:50%;animation:spin 60s linear infinite;pointer-events:none;}
+  .globe-rings.r2{inset:-14%;animation-duration:120s;animation-direction:reverse;border-style:dotted;border-color:rgba(0,255,136,.12);pointer-events:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
 
-    /* ============ Mockup browser frame shown at scroll >= 75% ============ */
-    #bio-mockup {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%) scale(0.96);
-      width: 88vw; max-width: 1040px;
-      height: 70vh; max-height: 640px;
-      background: rgba(13, 17, 23, 0.92);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px;
-      box-shadow: 0 60px 120px -30px rgba(0,0,0,0.8), 0 0 80px rgba(16,185,129,0.08);
-      overflow: hidden;
-      z-index: 2;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
-      backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
-    }
-    #bio-mockup.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
-    .mockup-chrome {
-      height: 38px;
-      display: flex; align-items: center; gap: 10px;
-      padding: 0 14px;
-      background: rgba(22, 27, 34, 0.95);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .mockup-dots { display: flex; gap: 6px; }
-    .mockup-dots span { width: 11px; height: 11px; border-radius: 50%; }
-    .mockup-dots span:nth-child(1) { background: #ef4444; }
-    .mockup-dots span:nth-child(2) { background: #facc15; }
-    .mockup-dots span:nth-child(3) { background: #22c55e; }
-    .mockup-url {
-      flex: 1;
-      margin-left: 14px;
-      padding: 5px 14px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 999px;
-      color: var(--ink-soft);
-      font-size: 0.76rem;
-      font-family: 'JetBrains Mono', Consolas, monospace;
-      letter-spacing: 0.01em;
-    }
-    .mockup-url .path { color: var(--emerald); }
-    .mockup-body {
-      display: grid;
-      grid-template-columns: 190px 1fr;
-      height: calc(100% - 38px);
-    }
-    .mockup-nav {
-      padding: 20px 16px;
-      border-right: 1px solid rgba(255,255,255,0.06);
-      background: rgba(255,255,255,0.02);
-      font-size: 0.82rem;
-    }
-    .mockup-brand {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      color: var(--emerald);
-      font-size: 1rem;
-      margin-bottom: 18px;
-      letter-spacing: 0.01em;
-    }
-    .mockup-nav ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .mockup-nav li { color: var(--ink-soft); padding: 6px 10px; border-radius: 6px; }
-    .mockup-nav li.active { background: rgba(16, 185, 129, 0.12); color: var(--emerald); }
-    .mockup-main {
-      position: relative;
-      padding: 24px 32px;
-    }
-    .mockup-main .molview-tag {
-      display: inline-block;
-      font-size: 0.64rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--emerald);
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    .mockup-main h3 {
-      font-size: 1.3rem;
-      color: var(--ink);
-      margin-bottom: 6px;
-    }
-    .mockup-main .sub {
-      font-size: 0.84rem;
-      color: var(--ink-soft);
-    }
-    .mockup-viewer {
-      position: absolute;
-      top: 86px; left: 32px; right: 32px; bottom: 24px;
-      border: 1px solid rgba(16, 185, 129, 0.2);
-      border-radius: 8px;
-      background: rgba(13, 17, 23, 0.4);
-    }
-    .mockup-viewer::after {
-      content: 'live molecular viewer';
-      position: absolute; bottom: 10px; left: 14px;
-      font-size: 0.62rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ink-dim);
-      font-weight: 600;
-    }
-    @media (max-width: 720px) {
-      #bio-mockup { height: 70vh; width: 94vw; }
-      .mockup-body { grid-template-columns: 1fr; }
-      .mockup-nav { display: none; }
-    }
+  /* ======== DNA SCROLL STORY ======== */
+  .dna{height:500vh;position:relative;background:#040709;}
+  .dna .sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
+  .dna canvas{position:absolute;inset:0;width:100%!important;height:100%!important;z-index:9;}
+  .dna .overlays{position:absolute;inset:0;pointer-events:none;z-index:10;display:flex;align-items:center;justify-content:center;}
+  .dna .overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,calc(-50% + 20px));opacity:0;transition:opacity .35s ease, transform .35s ease;max-width:720px;width:90%;text-align:center;}
+  .dna .overlay.on{opacity:1;transform:translate(-50%,-50%);}
+  .dna .overlay .kicker{color:var(--glow);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:18px;font-weight:600;}
+  .dna .overlay h3{font-family:'Playfair Display',serif;font-weight:500;font-size:clamp(36px,5vw,72px);line-height:1.03;letter-spacing:-.02em;margin:0 0 16px;color:var(--fg);text-shadow:0 4px 40px rgba(0,0,0,.7);}
+  .dna .overlay p{font-size:18px;line-height:1.65;color:var(--fg-2);margin:0;text-shadow:0 2px 20px rgba(0,0,0,.7);}
 
-    .process-list { max-width: 620px; margin: 40px auto 0; list-style: none; counter-reset: pstep; }
-    .process-list li { counter-increment: pstep; padding: 22px 0 22px 64px; border-bottom: 1px solid var(--line); position: relative; font-size: 1.15rem; color: var(--ink); text-align: left; }
-    .process-list li:last-child { border-bottom: none; }
-    .process-list li::before { content: counter(pstep, decimal-leading-zero); position: absolute; left: 0; top: 22px; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.4rem; color: var(--emerald); }
+  .dna .progress-rail{position:absolute;right:40px;top:50%;transform:translateY(-50%);height:40vh;width:2px;background:rgba(0,255,136,.15);z-index:12;}
+  .dna .progress-rail .fill{position:absolute;top:0;left:-1px;width:4px;background:var(--glow);box-shadow:0 0 12px var(--glow);transition:height .1s linear;}
+  .dna .stage-chip{position:absolute;left:40px;top:30px;z-index:12;display:flex;gap:10px;}
+  .dna .stage-chip span{font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 10px;border:1px solid rgba(0,255,136,.25);border-radius:4px;color:var(--fg-2);letter-spacing:.14em;}
+  .dna .stage-chip span.on{color:var(--glow);border-color:var(--glow);box-shadow:0 0 14px rgba(0,255,136,.35);}
 
-    .no-price-card { max-width: 780px; margin: 0 auto; padding: 64px 48px; background: linear-gradient(135deg, var(--bg-card), var(--bg-elev)); border: 1px solid var(--em-dim); border-radius: 20px; text-align: center; box-shadow: 0 0 80px rgba(16,185,129,0.08); }
-    .cta-final { min-height: 70vh; padding: 140px 48px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .cta-final h2 { font-size: clamp(3rem, 7vw, 6rem); font-weight: 500; line-height: 1.05; margin-bottom: 44px; letter-spacing: -0.03em; }
+  /* Browser mockup that appears at end */
+  .dna .mockup{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.78);opacity:0;transition:opacity .5s ease, transform .5s ease;
+    width:min(88%,980px);aspect-ratio:16/10;border-radius:14px;overflow:hidden;
+    background:#0a1512;border:1px solid var(--border);box-shadow:0 40px 120px rgba(0,0,0,.7), 0 0 60px rgba(0,255,136,.12);
+    z-index:8;pointer-events:none;
+  }
+  .dna .mockup.on{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  .dna .mockup .chrome{display:flex;align-items:center;gap:14px;padding:10px 14px;background:#08110e;border-bottom:1px solid var(--border);}
+  .dna .mockup .dots{display:flex;gap:6px;}
+  .dna .mockup .dots i{width:10px;height:10px;border-radius:50%;display:block;}
+  .dna .mockup .dots i:nth-child(1){background:#ff5f57;}
+  .dna .mockup .dots i:nth-child(2){background:#febc2e;}
+  .dna .mockup .dots i:nth-child(3){background:#28c840;}
+  .dna .mockup .url{flex:1;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-2);background:#050a0e;padding:6px 10px;border-radius:6px;border:1px solid var(--border);}
+  .dna .mockup .url em{color:var(--glow);font-style:normal;}
+  .dna .mockup .body-wrap{display:grid;grid-template-columns:200px 1fr;height:calc(100% - 44px);}
+  .dna .mockup .sidebar{background:#08130f;border-right:1px solid var(--border);padding:18px 14px;}
+  .dna .mockup .sidebar .s-label{font-size:10px;letter-spacing:.2em;color:var(--fg-2);text-transform:uppercase;margin-bottom:12px;}
+  .dna .mockup .sidebar ul{list-style:none;padding:0;margin:0;}
+  .dna .mockup .sidebar li{font-size:12px;padding:7px 10px;border-radius:6px;color:var(--fg-2);margin-bottom:2px;}
+  .dna .mockup .sidebar li.on{background:rgba(0,255,136,.08);color:var(--glow);border:1px solid rgba(0,255,136,.25);}
+  .dna .mockup .stage{position:relative;padding:24px;display:flex;flex-direction:column;}
+  .dna .mockup .page-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-2);letter-spacing:.2em;margin-bottom:6px;}
+  .dna .mockup .page-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--fg);margin:0 0 10px;}
+  .dna .mockup .widget{flex:1;border:1px solid var(--border);border-radius:10px;background:transparent;position:relative;overflow:hidden;box-shadow:inset 0 0 40px rgba(0,255,136,.15);}
+  .dna .mockup .widget::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%, rgba(0,255,136,.08), transparent 70%);pointer-events:none;}
 
-    .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
-    .reveal.in { opacity: 1; transform: translateY(0); }
+  .dna .widget-layer{position:absolute;inset:0;opacity:0;transition:opacity .5s ease;pointer-events:none;}
+  .dna .widget-layer[data-active="1"]{opacity:1;}
+  .dna .widget-layer canvas{position:absolute;inset:0;width:100%!important;height:100%!important;z-index:1;}
+  .dna .widget-caption{position:absolute;left:14px;bottom:12px;display:flex;align-items:center;gap:10px;z-index:3;pointer-events:none;}
+  .dna .widget-caption .wc-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--glow);background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.35);padding:4px 8px;border-radius:3px;}
+  .dna .widget-caption .wc-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-2);letter-spacing:.1em;}
+  .dna .widget-hud{position:absolute;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-2);letter-spacing:.1em;z-index:3;pointer-events:none;}
+  .dna .widget-hud.tl{top:12px;left:14px;}
+  .dna .widget-hud.tr{top:12px;right:14px;color:var(--glow);}
 
-    .webgl-toast {
-      position: fixed; bottom: 24px; left: 50%;
-      transform: translateX(-50%);
-      padding: 14px 22px;
-      background: rgba(13,17,23,0.92); border: 1px solid var(--line-em);
-      border-radius: 10px; color: var(--emerald);
-      font-size: 0.78rem; letter-spacing: 0.08em; z-index: 500;
-    }
-  </style>
+  /* Phase overlays: titles to the side of the pinned mockup */
+  .dna .phase{position:absolute;left:72px;top:50%;transform:translateY(-50%);max-width:360px;opacity:0;transition:opacity .45s ease;z-index:10;pointer-events:none;}
+  .dna .phase.on{opacity:1;}
+  .dna .phase em{display:block;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.3em;color:var(--glow);margin-bottom:14px;font-style:normal;}
+  .dna .phase b{display:block;font-family:'Playfair Display',serif;font-weight:500;font-size:clamp(42px,4.8vw,72px);line-height:1.02;color:var(--fg);margin-bottom:16px;}
+  .dna .phase p{font-size:17px;color:var(--fg-2);line-height:1.55;margin:0;}
+  @media (max-width:960px){.dna .phase{display:none;}}
+  .dna .mockup .widget .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--fg-2);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;opacity:0;transition:opacity .3s;pointer-events:none;}
+
+  /* ======== PRODUCT MOCKUP SECTION ======== */
+  .product{padding:140px 64px;text-align:center;overflow:hidden;}
+  .product .inner{max-width:1100px;margin:0 auto;}
+  .product-canvas{position:relative;aspect-ratio:16/10;width:100%;margin:40px auto 18px;border-radius:20px;overflow:hidden;}
+  .product-canvas canvas{width:100%!important;height:100%!important;cursor:grab;}
+  .product-canvas canvas:active{cursor:grabbing;}
+
+  /* ======== WHAT WE BUILD ======== */
+  .build{padding:140px 64px;background:transparent;}
+  .build .head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:56px;flex-wrap:wrap;}
+  .build .head p{max-width:420px;color:var(--fg-2);margin:0;}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .card{
+    position:relative;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:32px 28px 32px;overflow:hidden;
+    transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  }
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent, var(--glow), transparent);opacity:.55;transition:opacity .3s, height .3s, box-shadow .3s;}
+  .card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,255,136,.15), 0 0 0 1px rgba(0,255,136,.22);border-color:rgba(0,255,136,.3);}
+  .card:hover::before{opacity:1;height:2px;box-shadow:0 0 14px var(--glow);}
+  .card .num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-2);letter-spacing:.2em;margin-bottom:30px;}
+  .card h4{font-family:'Inter',sans-serif;font-size:20px;font-weight:600;margin:0 0 12px;color:var(--fg);letter-spacing:-.01em;}
+  .card p{font-size:15px;color:var(--fg-2);line-height:1.7;margin:0;}
+  .card .icon{width:40px;height:40px;border:1px solid rgba(0,255,136,.3);border-radius:10px;margin-bottom:24px;display:grid;place-items:center;color:var(--glow);background:rgba(0,255,136,.04);}
+
+  /* ======== PROCESS ======== */
+  .process{padding:140px 64px;background:var(--panel);overflow:hidden;position:relative;}
+  .process .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:56px;}
+  .step{position:relative;padding:28px 24px;border-left:1px solid rgba(0,255,136,.18);min-height:220px;}
+  .step .ghost{position:absolute;top:-28px;left:16px;font-family:'Playfair Display',serif;font-weight:500;font-size:140px;line-height:1;color:var(--glow);opacity:.1;pointer-events:none;user-select:none;}
+  .step h5{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--glow);margin:0 0 14px;}
+  .step p{font-size:16px;color:var(--fg);line-height:1.6;margin:0;position:relative;z-index:2;max-width:220px;}
+
+  /* ======== PRICING ======== */
+  .pricing{padding:160px 64px;text-align:center;overflow:hidden;}
+  .pricing .ring{position:absolute;inset:auto;left:50%;top:50%;width:820px;height:820px;border-radius:50%;transform:translate(-50%,-50%);border:1px solid rgba(0,255,136,.08);pointer-events:none;}
+  .pricing .ring.r2{width:560px;height:560px;border-style:dashed;}
+  .pricing .ring.r3{width:300px;height:300px;border-color:rgba(0,255,136,.15);}
+  .pricing .inner{position:relative;z-index:2;max-width:760px;margin:0 auto;}
+  .pricing p.body{margin:18px auto 32px;}
+
+  /* ======== FOOTER CTA ======== */
+  .foot{padding:160px 48px 80px;background:var(--panel);text-align:center;overflow:hidden;position:relative;border-top:1px solid var(--border);}
+  .foot h2{font-family:'Playfair Display',serif;font-weight:500;font-size:clamp(56px,9vw,136px);line-height:.95;letter-spacing:-.03em;margin:0 0 22px;color:var(--fg);}
+  .foot h2 em{color:var(--glow);font-style:italic;text-shadow:0 0 40px rgba(0,255,136,.35);}
+  .foot p{color:var(--fg-2);font-size:16px;max-width:480px;margin:0 auto 36px;}
+  .foot .meta{margin-top:80px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;border-top:1px solid var(--border);padding-top:28px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--fg-2);}
+
+  /* ======== Section label helper ======== */
+  .sec-label-row{display:flex;align-items:center;gap:12px;}
+  .sec-label-row::after{content:"";flex:1;height:1px;background:linear-gradient(90deg, rgba(0,255,136,.3), transparent);max-width:120px;}
+
+  /* ======== Live indicator (nav tiny) ======== */
+  .live-pill{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-2);letter-spacing:.18em;}
+  .live-pill i{width:6px;height:6px;background:var(--glow);border-radius:50%;box-shadow:0 0 10px var(--glow);animation:blink 1.4s infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* MOBILE FALLBACK PLACEHOLDER */
+  .mobile-3d{width:100%;aspect-ratio:1/1;max-width:360px;margin:0 auto;border-radius:50%;display:grid;place-items:center;color:var(--glow);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;text-align:center;
+    background:radial-gradient(circle at 50% 50%, rgba(0,255,136,.22) 0%, rgba(0,255,136,.06) 35%, transparent 70%);
+    border:1px solid rgba(0,255,136,.3);
+    box-shadow:inset 0 0 60px rgba(0,255,136,.15), 0 0 40px rgba(0,255,136,.15);
+    position:relative;
+  }
+  .mobile-3d::before{content:"";position:absolute;inset:8%;border-radius:50%;border:1px dashed rgba(0,255,136,.25);animation:spin 30s linear infinite;}
+  .mobile-3d b{display:block;font-size:11px;opacity:.8;}
+
+  /* ======== Responsive ======== */
+  @media (max-width:1020px){
+    .hero{grid-template-columns:1fr;gap:32px;padding:56px 24px;}
+    .hero .right{max-height:60vh;}
+    .globe-sec{grid-template-columns:1fr;padding:80px 24px;gap:40px;}
+    .cards{grid-template-columns:1fr;}
+    .process .grid{grid-template-columns:1fr 1fr;}
+    .build,.product,.process,.pricing{padding:80px 24px;}
+    .dna .progress-rail{right:16px;}
+    .dna .stage-chip{left:16px;top:16px;}
+  }
+  @media (max-width:600px){
+    .process .grid{grid-template-columns:1fr;}
+    .foot h2{font-size:52px;}
+  }
+</style>
 </head>
 <body>
 
-<canvas id="webgl-canvas"></canvas>
-
-<nav class="exp-nav">
-  <a href="/" class="exp-nav-logo">Claw Creative · experimental</a>
-  <ul class="exp-nav-links">
+<!-- ======= NAV ======= -->
+<nav class="site">
+  <a class="brand" href="/" aria-label="Claw Creative home">
+    <span class="dot"></span>
+    <img src="/claw-wordmark.png?v=5" alt="Claw Creative" />
+    <span class="tag">/ experimental</span>
+  </a>
+  <ul>
     <li><a href="/">Home</a></li>
     <li><a href="/websites">Websites</a></li>
     <li><a href="/ai-agents">AI Agents</a></li>
-    <li><a href="#dna-section">3D</a></li>
-    <li><a href="#process">Process</a></li>
+    <li><a href="/socials">Socials</a></li>
+    <li><a href="/marketing">Marketing</a></li>
+    <li><a href="/domains">Domains</a></li>
+    <li><a href="/work">Work</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="#" class="active">Experimental</a></li>
+    <li><a href="/contact">Contact</a></li>
   </ul>
-  <a href="/contact?plan=experimental" class="exp-nav-cta">Request a Quote</a>
+  <a class="cta" href="/contact?plan=experimental">Request a Quote →</a>
 </nav>
 
-<div class="page-content">
+<!-- ======= HERO ======= -->
+<section class="hero" id="hero">
+  <div class="breath"></div>
+  <div class="grid-bg"></div>
 
-  <!-- HERO -->
-  <section class="hero-section" id="hero-section">
-    <div class="eyebrow reveal">Experimental · 3D Animation</div>
-    <h1 class="reveal">3D animation,<br/><span class="em">made accessible</span>.</h1>
-    <p class="sub reveal">
-      Most agencies charge $10,000 for animated content. We bring it to small businesses
-      for a fraction. Custom 3D work for brands that want to look unreal.
-    </p>
-    <div class="spacer" aria-hidden="true"></div>
-    <div class="hint reveal" style="margin-bottom:28px">Drag to explore</div>
-    <div class="reveal">
-      <a href="/contact?plan=experimental" class="btn-em">Request a Quote</a>
+  <div class="left">
+    <div class="sec-label-row">
+      <span class="label">EXPERIMENTAL · 3D ANIMATION</span>
+      <span class="live-pill"><i></i>LIVE LAB · INDIANAPOLIS</span>
     </div>
-    <p class="fine reveal">Quote-based. Limited capacity. Reach out with your vision.</p>
-  </section>
-
-  <!-- GLOBE -->
-  <section id="globe-section">
-    <div class="container">
-      <div class="split">
-        <div class="reveal">
-          <div class="spacer" aria-hidden="true"></div>
-          <div class="hint" style="display:block;text-align:center;margin-top:8px">Drag to spin · real Earth</div>
-        </div>
-        <div class="reveal">
-          <div class="eyebrow">Interactive</div>
-          <h2>Globes, products,<br/>anything —<br/><span class="em">spin it yourself</span>.</h2>
-          <p class="muted" style="margin-top:20px;font-size:1.08rem">
-            Every visual we build is interactive by default. Your visitors don't just watch —
-            they grab it, spin it, explore it. This is what separates a website from an experience.
-          </p>
-        </div>
-      </div>
+    <h1>3D animation,<br/><em>made accessible.</em></h1>
+    <p class="sub">Most agencies charge $10,000 for animated content. We bring it to small businesses for a fraction. Custom 3D work built in Blender, delivered for your brand.</p>
+    <div class="btn-row">
+      <a class="btn primary" href="/contact?plan=experimental">Request a Quote</a>
+      <a class="btn ghost" href="#process">See How It Works</a>
     </div>
-  </section>
-
-  <!-- DNA section — 300vh tall, canvas pins while user scrolls through -->
-  <section id="dna-section"></section>
-
-  <!-- PRODUCT -->
-  <section id="product-section">
-    <div class="container">
-      <div class="split">
-        <div class="reveal">
-          <div class="eyebrow">Product visualization</div>
-          <h2>Your product.<br/>Rendered from<br/><span class="em">every angle</span>.</h2>
-          <p class="muted" style="margin-top:20px;font-size:1.08rem">
-            Customers interact, not just watch. They spin, tilt, and examine.
-            This is why Apple, Nike, and Tesla all use it.
-          </p>
-          <p class="muted" style="margin-top:16px;font-size:1rem">Now you can too.</p>
-        </div>
-        <div class="reveal">
-          <div class="spacer" aria-hidden="true"></div>
-          <div class="hint" style="display:block;text-align:center;margin-top:8px">Drag to rotate</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROCESS -->
-  <section id="process" style="min-height:auto">
-    <div class="container" style="text-align:center">
-      <div class="reveal">
-        <div class="eyebrow">The process</div>
-        <h2>Four steps.<br/>No noise.</h2>
-      </div>
-      <ol class="process-list reveal">
-        <li>You reach out with what you want.</li>
-        <li>We send you a treatment.</li>
-        <li>We animate it in Blender.</li>
-        <li>You get files that make your competitors look flat.</li>
-      </ol>
-    </div>
-  </section>
-
-  <section style="min-height:auto">
-    <div class="container">
-      <div class="no-price-card reveal">
-        <div class="eyebrow">Pricing</div>
-        <h2>Not a package.<br/>A conversation.</h2>
-        <p class="muted" style="margin:24px auto 36px;font-size:1.1rem;max-width:520px">
-          Every animation is custom. Every quote is tailored. Reach out. Tell us what you want.
-          We respond within 24 hours with a price that matches the scope.
-        </p>
-        <a href="/contact?plan=experimental" class="btn-em">Start the Conversation</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="cta-final reveal">
-    <h2>Ready to move<br/>in <span style="color:var(--emerald);font-style:italic">3D</span>?</h2>
-    <a href="/contact?plan=experimental" class="btn-em">Request a Quote</a>
-  </section>
-
-  <footer style="padding:48px 48px 64px; border-top:1px solid var(--line); text-align:center; color:var(--ink-dim); font-size:0.82rem; letter-spacing:0.06em">
-    <div style="margin-bottom:16px"><a href="/" style="color:var(--ink-soft); text-decoration:none; font-family:'Playfair Display',serif; font-style:italic; font-size:1rem">← back to Claw Creative</a></div>
-    <div>© 2026 Claw Creative · Experimental services</div>
-  </footer>
-
-</div>
-
-<!-- DNA narrative overlays — fixed on viewport, toggled by scroll progress -->
-<div class="dna-overlay" id="dna-ov-1">
-  <div class="eyebrow">Scroll storytelling · 01</div>
-  <h2>This is DNA.</h2>
-  <p>Every living thing is built from it.</p>
-</div>
-<div class="dna-overlay" id="dna-ov-2">
-  <div class="eyebrow">Zoom in · 02</div>
-  <h2>Four base pairs —<br/>A, C, T, G.</h2>
-  <p>The language of biology.</p>
-</div>
-<div class="dna-overlay" id="dna-ov-3">
-  <div class="eyebrow">Now imagine · 03</div>
-  <h2>Now imagine this on a website.</h2>
-  <p>A biotech company shows their product at the molecular level. Visitors interact with it instead of reading about it.</p>
-</div>
-<div class="dna-overlay" id="dna-ov-4">
-  <div class="eyebrow">Case study · 04</div>
-  <h2>That's what we built<br/>for <em style="color:var(--emerald)">BioLumen Labs</em>.</h2>
-  <p>A molecular visualization that replaced three pages of technical copy.</p>
-  <div class="kpi">Conversion up 280%</div>
-</div>
-<div class="dna-overlay" id="dna-ov-5" style="top:12%;transform:translate(-50%,0);max-width:640px">
-  <div class="eyebrow">The point · 05</div>
-  <h2>Any business.<br/>Any concept. <span style="color:var(--emerald);font-style:italic">Brought to life.</span></h2>
-  <p>We build 3D experiences for brands that want their websites to feel alive.</p>
-</div>
-
-<!-- Mockup browser frame — appears at scroll progress >= 75% -->
-<div id="bio-mockup" aria-hidden="true">
-  <div class="mockup-chrome">
-    <div class="mockup-dots"><span></span><span></span><span></span></div>
-    <div class="mockup-url">biolumenlabs.com<span class="path">/products/molview</span></div>
+    <div class="fine">Quote-based · Limited capacity · Reach out with your vision.</div>
   </div>
-  <div class="mockup-body">
-    <aside class="mockup-nav">
-      <div class="mockup-brand">BioLumen Labs</div>
-      <ul>
-        <li>Home</li>
-        <li>About</li>
-        <li class="active">Products</li>
-        <li>Research</li>
-        <li>Contact</li>
-      </ul>
-    </aside>
-    <main class="mockup-main">
-      <span class="molview-tag">MolView Interactive</span>
-      <h3>Human Beta-Globin</h3>
-      <p class="sub">Drag to explore the molecular structure in real time.</p>
-      <div class="mockup-viewer"></div>
-    </main>
+
+  <div class="right">
+    <div class="canvas-wrap" id="heroCanvasWrap">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+    </div>
+    <div class="label muted drag-label mono">⟶ DRAG TO EXPLORE</div>
   </div>
-</div>
+</section>
 
+<!-- ======= GLOBE ======= -->
+<section class="globe-sec">
+  <div>
+    <span class="label">GLOBAL REACH</span>
+    <h2 class="h2">We build for any market. <em>Anywhere.</em></h2>
+    <p class="body">Our 3D work has shipped to clients across industries — biotech, retail, manufacturing, SaaS. From Indianapolis to everywhere, the spin never stops.</p>
+    <div class="hand-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 11V6a2 2 0 114 0v4.5m0-.5V4.5a2 2 0 114 0V11m0-1.5V6.5a2 2 0 114 0V15a5 5 0 01-5 5h-2c-2.5 0-3.5-1-5-3l-2.5-4c-.8-1.2 0-2.8 1.5-2.5L8 11z"/></svg>
+      <span>Drag to spin the globe</span>
+    </div>
+  </div>
+
+  <div class="globe-wrap" id="globeWrap">
+    <div class="globe-rings"></div>
+    <div class="globe-rings r2"></div>
+  </div>
+</section>
+
+<!-- ======= DNA SCROLL STORY ======= -->
+<section class="dna" id="dna">
+  <div class="sticky">
+    <div id="dnaCanvasWrap" style="position:absolute;inset:0;"></div>
+
+    <div class="stage-chip">
+      <span id="chip-0" class="on">01 INTRO</span>
+      <span id="chip-1">02 BASES</span>
+      <span id="chip-2">03 INSIDE</span>
+      <span id="chip-3">04 CASE</span>
+      <span id="chip-4">05 SHIP</span>
+    </div>
+
+    <div class="progress-rail"><div class="fill" id="dnaFill"></div></div>
+
+    <div class="overlays">
+      <div class="overlay" id="ov-0">
+        <div class="kicker">Scroll to explore</div>
+        <h3>This is DNA.</h3>
+        <p>The blueprint of every living thing — coded in four letters, rendered in real time.</p>
+      </div>
+      <div class="overlay" id="ov-1">
+        <div class="kicker">Four base pairs</div>
+        <h3>A · C · T · G.</h3>
+        <p>The language of biology. Every combination tells a different story, and your product has one too.</p>
+      </div>
+      <div class="overlay" id="ov-2">
+        <div class="kicker">Inside the helix</div>
+        <h3>Now imagine this on a website.</h3>
+        <p>Your visitors don't just read about your product. They reach in. They turn it. They interact.</p>
+      </div>
+      <div class="overlay" id="ov-3">
+        <div class="kicker">Case study · BIOLUMEN LABS</div>
+        <h3>We built this for BioLumen Labs.</h3>
+        <p>A molecular visualization that replaced three pages of technical copy. Conversion rate up 280%.</p>
+      </div>
+      <div class="overlay" id="ov-4" style="top:82%;">
+        <div class="kicker">Any business · any concept</div>
+        <h3>Brought to life.</h3>
+        <p>Whatever you make, we can render it moving.</p>
+      </div>
+    </div>
+
+    <div class="mockup" id="dnaMockup">
+      <div class="chrome">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="url">biolumenlabs.com<em>/products/molview</em></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-2);letter-spacing:.15em;">SECURE</div>
+      </div>
+      <div class="body-wrap">
+        <div class="sidebar">
+          <div class="s-label">Products</div>
+          <ul>
+            <li>Overview</li>
+            <li class="on">MolView 3D</li>
+            <li>Sequencer</li>
+            <li>Assay Kits</li>
+            <li style="margin-top:16px;opacity:.4;">Documentation</li>
+            <li style="opacity:.4;">Support</li>
+          </ul>
+        </div>
+        <div class="stage" id="mockupStage">
+          <div class="page-label" id="mkLabel">PRODUCT / MOLVIEW</div>
+          <h4 class="page-title" id="mkTitle">See every strand. From every side.</h4>
+          <div class="widget" id="mockupWidget">
+            <!-- Layers that fade in/out as scroll advances -->
+            <div class="widget-layer" id="layer-helix" data-active="1">
+              <div class="widget-caption">
+                <span class="wc-tag">LIVE · THREE.JS</span>
+                <span class="wc-meta">molview_v3.glb · 4.2MB</span>
+              </div>
+              <div class="widget-hud tl">↻ rotating · click to pause</div>
+              <div class="widget-hud tr">60 FPS</div>
+            </div>
+            <div class="widget-layer" id="layer-globe">
+              <canvas id="miniGlobe"></canvas>
+              <div class="widget-caption">
+                <span class="wc-tag" style="background:rgba(0,200,255,.12);color:#6cf;border-color:rgba(0,200,255,.4);">LIVE · GLOBAL NETWORK</span>
+                <span class="wc-meta">142 nodes · 6 continents</span>
+              </div>
+              <div class="widget-hud tl">◉ 24ms avg latency</div>
+              <div class="widget-hud tr">99.98%</div>
+            </div>
+            <div class="widget-layer" id="layer-product">
+              <canvas id="miniProduct"></canvas>
+              <div class="widget-caption">
+                <span class="wc-tag" style="background:rgba(255,200,0,.1);color:#fc6;border-color:rgba(255,200,0,.4);">LIVE · PRODUCT VIEWER</span>
+                <span class="wc-meta">Z-9 Flagship · $2,499</span>
+              </div>
+              <div class="widget-hud tl">↻ drag to rotate</div>
+              <div class="widget-hud tr">ADD TO CART</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase overlays that appear alongside the pinned mockup -->
+    <div class="phase" id="phase-helix"><em>01</em><b>Molecular.</b><p>Your science, spinning live.</p></div>
+    <div class="phase" id="phase-globe"><em>02</em><b>Planetary.</b><p>Real data, real places, real time.</p></div>
+    <div class="phase" id="phase-product"><em>03</em><b>Commercial.</b><p>The product page that sells itself.</p></div>
+
+  </div>
+</section>
+
+<!-- ======= PRODUCT MOCKUP ======= -->
+<section class="product" id="product">
+  <div class="grid-bg" style="opacity:.3;"></div>
+  <div class="inner">
+    <span class="label">OBJECT · 02</span>
+    <h2 class="h2">Your product. <em>Rendered from every angle.</em></h2>
+    <p class="body" style="margin:20px auto 0;text-align:center;">Customers interact, not just watch. They spin, tilt, and examine. This is why Apple and Nike use it. Now you can too.</p>
+    <div class="product-canvas" id="productWrap"></div>
+    <div class="label muted mono">⟳ DRAG · SCROLL TO ZOOM</div>
+  </div>
+</section>
+
+<!-- ======= WHAT WE BUILD ======= -->
+<section class="build" id="build">
+  <div class="head">
+    <div>
+      <span class="label">WHAT WE BUILD</span>
+      <h2 class="h2" style="margin-top:14px;">Three shapes the<br/>web was missing.</h2>
+    </div>
+    <p>Pick one. Combine two. Or bring us something we haven't made yet — the Experimental lab is where we say yes.</p>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <div class="num">/ 001</div>
+      <div class="icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zM3 7l9 5 9-5M12 12v10"/></svg>
+      </div>
+      <h4>Product Visualizations</h4>
+      <p>Rotating 3D renders of your product. Customers see every angle before they buy — box, bottle, blade, wearable, whatever you ship.</p>
+    </div>
+    <div class="card">
+      <div class="num">/ 002</div>
+      <div class="icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12a8 8 0 1116 0 8 8 0 01-16 0zm4 0a4 4 0 018 0 4 4 0 01-8 0z"/></svg>
+      </div>
+      <h4>Logo Animations</h4>
+      <p>Your logo, alive. Intro sequences, brand reveals, motion identity — the thirty-frame handshake before everything else.</p>
+    </div>
+    <div class="card">
+      <div class="num">/ 003</div>
+      <div class="icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h10M4 18h16M18 9l3 3-3 3"/></svg>
+      </div>
+      <h4>Scroll Storytelling</h4>
+      <p>Websites where 3D scenes unfold as visitors scroll. Gallery-level quality, a fraction of the cost — like what you just scrolled through.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======= PROCESS ======= -->
+<section class="process" id="process">
+  <div class="head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap;">
+    <div>
+      <span class="label">PROCESS</span>
+      <h2 class="h2" style="margin-top:14px;">Four moves.<br/>Then you ship.</h2>
+    </div>
+    <p class="body" style="max-width:380px;">No agency ping-pong. No seven-person kickoff calls. Just the shortest distance between a question and a render.</p>
+  </div>
+
+  <div class="grid">
+    <div class="step"><div class="ghost">1</div><h5>Step One</h5><p>You reach out with what you want — a sketch, a link, or just a sentence.</p></div>
+    <div class="step"><div class="ghost">2</div><h5>Step Two</h5><p>We send you a treatment within 24 hours. Mood, motion, and cost.</p></div>
+    <div class="step"><div class="ghost">3</div><h5>Step Three</h5><p>We animate it in Blender. You get two rounds of iteration.</p></div>
+    <div class="step"><div class="ghost">4</div><h5>Step Four</h5><p>You get files that make your competitors look flat.</p></div>
+  </div>
+</section>
+
+<!-- ======= PRICING ======= -->
+<section class="pricing" id="pricing">
+  <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="inner">
+    <span class="label">PRICING</span>
+    <h2 class="h2" style="margin-top:14px;">Not a package.<br/><em>A conversation.</em></h2>
+    <p class="body" style="margin:20px auto 40px;">Every animation is custom. Every quote is tailored. Reach out. Tell us what you want. We respond within 24 hours.</p>
+    <a class="btn hi" href="/contact?plan=experimental">Start the Conversation →</a>
+    <div class="fine" style="margin-top:22px;">Typical engagements: <b style="color:var(--fg);">$800 – $4,200</b>. Everything stays on your side of the wall.</div>
+  </div>
+</section>
+
+<!-- ======= FOOTER CTA ======= -->
+<section class="foot">
+  <span class="label" style="display:inline-block;margin-bottom:16px;">TAKE THE JUMP</span>
+  <h2>Ready to move<br/><em>in 3D?</em></h2>
+  <p>Limited slots. Quote-based only. We're picky on purpose.</p>
+  <a class="btn hi" href="/contact?plan=experimental">Start the Conversation →</a>
+  <div class="meta">
+    <span><a href="/" style="color:inherit;text-decoration:none">← CLAW / CREATIVE · INDIANAPOLIS IN</a></span>
+    <span>EXPERIMENTAL · v0.4.12</span>
+    <span>© 2026 · QUOTE-BASED ONLY</span>
+  </div>
+</section>
+
+<!-- ======= THREE.JS + LOGIC ======= -->
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 <script>
-  (() => {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-    }, { threshold: 0.12 });
-    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
-  })();
-</script>
+/* ========== Helpers ========== */
+const isMobile = window.matchMedia('(max-width: 860px)').matches || /Mobi|Android|iPhone/i.test(navigator.userAgent);
 
-<!-- ============= THE ENGINE ============= -->
-<script>
-(() => {
-  if (typeof THREE === 'undefined') { console.error('THREE not loaded'); return; }
-  const hasOrbit = typeof THREE.OrbitControls !== 'undefined';
-  const hasGSAP  = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
-  console.log('[exp] THREE r' + THREE.REVISION + ' · OrbitControls=' + hasOrbit + ' · gsap=' + hasGSAP);
+function mountPlaceholder(el, text){
+  const ph = document.createElement('div');
+  ph.className = 'mobile-3d';
+  ph.innerHTML = `<div>${text}<br/><b>Interactive on desktop</b></div>`;
+  el.appendChild(ph);
+}
 
-  const canvas = document.getElementById('webgl-canvas');
+/* ========== Drag controls (light, no OrbitControls dep) ========== */
+function addDrag(domEl, getState, opts={}){
+  let dragging=false, lastX=0, lastY=0;
+  const speed = opts.speed ?? 0.008;
+  domEl.addEventListener('pointerdown', e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;domEl.setPointerCapture(e.pointerId);});
+  domEl.addEventListener('pointerup',   e=>{dragging=false;getState().released?.();});
+  domEl.addEventListener('pointerleave',()=>{dragging=false;});
+  domEl.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    const dx = e.clientX-lastX, dy=e.clientY-lastY;
+    lastX=e.clientX; lastY=e.clientY;
+    const s = getState();
+    s.dragged?.(dx*speed, dy*speed);
+  });
+  domEl.addEventListener('mouseenter',()=>getState().hover?.(true));
+  domEl.addEventListener('mouseleave',()=>getState().hover?.(false));
+}
 
-  // ---------- Manual WebGL context (with the 6-attempt fallback that fixed context-refused) ----------
-  function tryContexts(c) {
-    const attempts = [
-      { type: 'webgl2', opts: { failIfMajorPerformanceCaveat: false, powerPreference: 'low-power', antialias: false, alpha: true } },
-      { type: 'webgl',  opts: { failIfMajorPerformanceCaveat: false, powerPreference: 'low-power', antialias: false, alpha: true } },
-      { type: 'webgl2', opts: { failIfMajorPerformanceCaveat: false, antialias: false, alpha: true } },
-      { type: 'webgl',  opts: { failIfMajorPerformanceCaveat: false, antialias: false, alpha: true } },
-      { type: 'experimental-webgl', opts: { failIfMajorPerformanceCaveat: false, antialias: false } },
-      { type: 'webgl', opts: {} },
-    ];
-    for (const a of attempts) {
-      try { const gl = c.getContext(a.type, a.opts); if (gl) return { gl, type: a.type }; } catch(e){}
-    }
-    return null;
+/* ========== HERO TORUS KNOT ========== */
+(function hero(){
+  const wrap = document.getElementById('heroCanvasWrap');
+  if(!wrap) return;
+  if(isMobile){ mountPlaceholder(wrap, '3D · INTERACTIVE'); return; }
+
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(40, w/h, 0.1, 1000);
+  cam.position.set(0,0,16);
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+  renderer.setSize(w,h);
+  wrap.appendChild(renderer.domElement);
+
+  const geo = new THREE.TorusKnotGeometry(3, 0.8, 180, 24, 2, 3);
+  const wire = new THREE.WireframeGeometry(geo);
+  const line = new THREE.LineSegments(wire, new THREE.LineBasicMaterial({color:0x00ff88, transparent:true, opacity:.9}));
+  scene.add(line);
+
+  // Inner solid, very dim, for depth
+  const innerMat = new THREE.MeshBasicMaterial({color:0x00cc6a, wireframe:false, transparent:true, opacity:.06});
+  const inner = new THREE.Mesh(geo, innerMat);
+  scene.add(inner);
+
+  // Glow halo via sprite
+  const glowTex = makeGlowTexture();
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0x00ff88, transparent:true, opacity:.35, blending:THREE.AdditiveBlending, depthWrite:false}));
+  halo.scale.set(18,18,1);
+  scene.add(halo);
+
+  const state = {vx:.003, vy:.005, targetSpd:1, spd:1, hovered:false};
+  addDrag(renderer.domElement, ()=>({
+    dragged:(dx,dy)=>{ line.rotation.y+=dx*3; line.rotation.x+=dy*3; inner.rotation.copy(line.rotation); },
+    hover:h=>{ state.hovered=h; state.targetSpd = h?1.6:1; halo.material.opacity = h?.55:.35; }
+  }));
+
+  function makeGlowTexture(){
+    const c = document.createElement('canvas'); c.width=c.height=256;
+    const g = c.getContext('2d');
+    const grad = g.createRadialGradient(128,128,0,128,128,128);
+    grad.addColorStop(0,'rgba(0,255,136,0.55)');
+    grad.addColorStop(0.4,'rgba(0,255,136,0.12)');
+    grad.addColorStop(1,'rgba(0,255,136,0)');
+    g.fillStyle=grad; g.fillRect(0,0,256,256);
+    return new THREE.CanvasTexture(c);
   }
 
-  const ctxRes = tryContexts(canvas);
-  if (!ctxRes) { console.error('[exp] WebGL context refused'); return; }
-  console.log('[exp] context acquired (' + ctxRes.type + ')');
+  function loop(){
+    state.spd += (state.targetSpd-state.spd)*0.08;
+    line.rotation.y += state.vx*state.spd;
+    line.rotation.x += state.vy*state.spd;
+    inner.rotation.copy(line.rotation);
+    renderer.render(scene,cam);
+    requestAnimationFrame(loop);
+  }
+  loop();
 
-  // ---------- Renderer + scene + cameras ----------
-  const renderer = new THREE.WebGLRenderer({
-    canvas, context: ctxRes.gl,
-    antialias: false, alpha: true,
-    powerPreference: 'low-power',
-    failIfMajorPerformanceCaveat: false,
+  window.addEventListener('resize', ()=>{
+    const W=wrap.clientWidth, H=wrap.clientHeight;
+    cam.aspect=W/H; cam.updateProjectionMatrix(); renderer.setSize(W,H);
   });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-  renderer.setClearColor(0x000000, 0);
-  console.log('[exp] renderer built');
+})();
+
+/* ========== GLOBE ========== */
+(function globe(){
+  const wrap = document.getElementById('globeWrap');
+  if(!wrap) return;
+  if(isMobile){ mountPlaceholder(wrap, 'GLOBE · EARTH'); return; }
+
+  const w=wrap.clientWidth, h=wrap.clientHeight;
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(35, w/h, 0.1, 100);
+  cam.position.set(0,0,6);
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+  renderer.setSize(w,h);
+  wrap.appendChild(renderer.domElement);
+
+  // Earth procedural texture (continents as blobs) since we can't load assets offline
+  const earthTex = buildEarthTexture();
+  const earthMat = new THREE.MeshStandardMaterial({map:earthTex, roughness:.85, metalness:.1, emissive:0x002211, emissiveIntensity:.2});
+  const earth = new THREE.Mesh(new THREE.SphereGeometry(1.4, 64, 64), earthMat);
+  scene.add(earth);
+
+  // Wireframe overlay of latitude/longitude
+  const wire = new THREE.LineSegments(
+    new THREE.WireframeGeometry(new THREE.SphereGeometry(1.405, 24, 16)),
+    new THREE.LineBasicMaterial({color:0x00ff88, transparent:true, opacity:.18})
+  );
+  scene.add(wire);
+
+  // Atmospheric glow
+  const atm = new THREE.Mesh(
+    new THREE.SphereGeometry(1.55, 64, 64),
+    new THREE.ShaderMaterial({
+      transparent:true, side:THREE.BackSide, depthWrite:false,
+      uniforms:{ c:{value:0.4}, p:{value:4.0}, glowColor:{value:new THREE.Color(0x00ff88)} },
+      vertexShader:`varying vec3 vN; varying vec3 vP; void main(){vN=normalize(normalMatrix*normal);vP=(modelViewMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*vec4(vP,1.);}`,
+      fragmentShader:`uniform vec3 glowColor; uniform float c; uniform float p; varying vec3 vN; varying vec3 vP;
+        void main(){ float i = pow(c - dot(vN, normalize(-vP)), p); gl_FragColor = vec4(glowColor, i*0.9); }`
+    })
+  );
+  scene.add(atm);
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0x0a2e1a, 1.4));
+  const key = new THREE.DirectionalLight(0x00ff88, 1.2);
+  key.position.set(3,2,4);
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0xffffff, 0.35);
+  rim.position.set(-4,-2,-2);
+  scene.add(rim);
+
+  const state = {vy:0.0018, vx:0, autoY:0.0018, hovered:false, dragV:0};
+  addDrag(renderer.domElement, ()=>({
+    dragged:(dx,dy)=>{ earth.rotation.y += dx*2.5; earth.rotation.x += dy*2.5; wire.rotation.copy(earth.rotation); state.dragV = dx*2.5; state.vy=state.dragV; },
+    released:()=>{ /* decel via damping below */ },
+    hover:h=>{ state.hovered=h; }
+  }));
+
+  function loop(){
+    // damp drag velocity back toward autoY
+    state.vy += (state.autoY - state.vy) * 0.03;
+    earth.rotation.y += state.vy;
+    wire.rotation.y = earth.rotation.y;
+    renderer.render(scene, cam);
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  window.addEventListener('resize', ()=>{
+    const W=wrap.clientWidth, H=wrap.clientHeight;
+    cam.aspect=W/H; cam.updateProjectionMatrix(); renderer.setSize(W,H);
+  });
+
+  function buildEarthTexture(){
+    const W=2048, H=1024;
+    const c = document.createElement('canvas'); c.width=W; c.height=H;
+    const g = c.getContext('2d');
+    // ocean base
+    const og = g.createLinearGradient(0,0,0,H);
+    og.addColorStop(0,'#021018');
+    og.addColorStop(.5,'#042028');
+    og.addColorStop(1,'#020d14');
+    g.fillStyle=og; g.fillRect(0,0,W,H);
+
+    // subtle lat/long grid
+    g.strokeStyle='rgba(0,255,136,0.05)'; g.lineWidth=1;
+    for(let i=0;i<=24;i++){ g.beginPath(); g.moveTo(i*(W/24),0); g.lineTo(i*(W/24),H); g.stroke(); }
+    for(let i=0;i<=12;i++){ g.beginPath(); g.moveTo(0,i*(H/12)); g.lineTo(W,i*(H/12)); g.stroke(); }
+
+    // Real-world continent outlines (lat, lng pairs, clockwise).
+    // Simplified from Natural Earth 110m; enough detail to be recognizable.
+    const continents = [
+      // North America (mainland + a bit of Alaska/Central)
+      [[71,-156],[70,-141],[66,-134],[60,-140],[54,-130],[48,-125],[40,-124],[33,-117],[23,-106],[18,-94],[20,-87],[22,-91],[29,-93],[30,-83],[25,-80],[31,-81],[36,-76],[39,-74],[42,-70],[45,-67],[47,-64],[50,-60],[53,-56],[57,-62],[60,-65],[62,-78],[58,-94],[63,-95],[68,-95],[70,-120],[71,-156]],
+      // Greenland
+      [[83,-30],[80,-20],[75,-20],[70,-22],[62,-42],[65,-52],[72,-55],[78,-72],[82,-60],[83,-30]],
+      // South America
+      [[11,-72],[12,-62],[6,-50],[-1,-50],[-5,-35],[-10,-36],[-22,-40],[-33,-52],[-40,-62],[-54,-68],[-55,-70],[-50,-73],[-40,-73],[-30,-71],[-18,-71],[-4,-81],[5,-78],[11,-72]],
+      // Europe (rough)
+      [[71,24],[70,30],[66,42],[58,40],[50,40],[46,37],[40,28],[40,22],[36,24],[38,14],[41,9],[44,9],[43,5],[48,-5],[51,-6],[56,-7],[58,-4],[58,6],[64,11],[71,24]],
+      // UK + Ireland (approx — merged with Europe outline above; skip)
+      // Africa
+      [[37,-6],[35,10],[33,24],[31,32],[22,37],[12,43],[10,50],[1,42],[-10,40],[-25,35],[-35,20],[-34,18],[-26,15],[-18,12],[-6,9],[5,-2],[10,-16],[14,-17],[20,-17],[30,-12],[37,-6]],
+      // Asia (large — incl. Middle East, India, SE Asia peninsula)
+      [[77,60],[76,100],[72,140],[66,170],[60,170],[55,160],[50,143],[45,140],[43,131],[38,125],[35,129],[30,122],[22,114],[10,106],[1,103],[8,98],[13,97],[17,96],[20,93],[22,91],[22,88],[15,80],[8,77],[22,70],[25,62],[28,57],[26,52],[20,58],[15,51],[12,45],[17,42],[25,37],[36,35],[40,28],[42,42],[45,55],[50,62],[55,73],[68,80],[77,60]],
+      // Australia
+      [[-11,142],[-18,146],[-27,153],[-38,150],[-39,146],[-35,138],[-32,133],[-34,122],[-31,115],[-22,114],[-16,123],[-14,130],[-11,132],[-11,142]],
+      // Indonesia-ish (New Guinea + nearby — single blob)
+      [[-1,131],[-3,141],[-9,147],[-11,142],[-8,135],[-2,132],[-1,131]],
+      // Antarctica (band)
+      [[-65,-180],[-70,-170],[-75,-140],[-77,-100],[-72,-70],[-73,-45],[-70,-20],[-72,10],[-68,30],[-70,70],[-66,90],[-68,120],[-70,150],[-78,170],[-70,180],[-85,180],[-85,-180],[-65,-180]],
+      // Madagascar
+      [[-12,49],[-15,50],[-20,47],[-25,45],[-25,44],[-22,44],[-18,44],[-14,47],[-12,49]],
+      // Japan (approx)
+      [[45,142],[42,140],[36,136],[34,132],[31,131],[34,139],[38,141],[45,142]],
+      // UK
+      [[59,-4],[55,-6],[50,-5],[51,1],[53,1],[55,-1],[59,-4]],
+      // Iceland
+      [[67,-14],[63,-14],[63,-22],[66,-24],[67,-14]]
+    ];
+
+    // lat/lng → canvas pixel (equirectangular)
+    function toXY(lat, lng){
+      const x = (lng + 180) / 360 * W;
+      const y = (90 - lat) / 180 * H;
+      return [x,y];
+    }
+
+    // fill continents
+    g.fillStyle='#0a3d24';
+    g.shadowColor='rgba(0,255,136,0.18)'; g.shadowBlur=6;
+    continents.forEach(poly=>{
+      g.beginPath();
+      poly.forEach((p,i)=>{ const [x,y]=toXY(p[0], p[1]); i?g.lineTo(x,y):g.moveTo(x,y); });
+      g.closePath(); g.fill();
+    });
+    g.shadowBlur=0;
+
+    // coastline glow
+    g.strokeStyle='rgba(57,255,140,0.55)'; g.lineWidth=1.8;
+    continents.forEach(poly=>{
+      g.beginPath();
+      poly.forEach((p,i)=>{ const [x,y]=toXY(p[0], p[1]); i?g.lineTo(x,y):g.moveTo(x,y); });
+      g.closePath(); g.stroke();
+    });
+
+    // inner darker coastline for depth
+    g.strokeStyle='rgba(0,200,110,0.3)'; g.lineWidth=0.8;
+    continents.forEach(poly=>{
+      g.beginPath();
+      poly.forEach((p,i)=>{ const [x,y]=toXY(p[0], p[1]); i?g.lineTo(x,y):g.moveTo(x,y); });
+      g.closePath(); g.stroke();
+    });
+
+    // Major city dots (lat, lng)
+    const cities = [
+      [40.7,-74.0],  // NYC
+      [34.0,-118.2], // LA
+      [19.4,-99.1],  // Mexico City
+      [-23.5,-46.6], // São Paulo
+      [-34.6,-58.4], // Buenos Aires
+      [51.5,-0.1],   // London
+      [48.8,2.3],    // Paris
+      [52.5,13.4],   // Berlin
+      [41.0,28.9],   // Istanbul
+      [55.7,37.6],   // Moscow
+      [30.0,31.2],   // Cairo
+      [-26.2,28.0],  // Johannesburg
+      [-33.9,18.4],  // Cape Town
+      [28.6,77.2],   // Delhi
+      [19.0,72.8],   // Mumbai
+      [1.3,103.8],   // Singapore
+      [22.3,114.1],  // Hong Kong
+      [31.2,121.4],  // Shanghai
+      [35.6,139.7],  // Tokyo
+      [37.5,127.0],  // Seoul
+      [-33.8,151.2], // Sydney
+      [-37.8,144.9], // Melbourne
+      [-6.2,106.8],  // Jakarta
+      [25.2,55.2]    // Dubai
+    ];
+    cities.forEach(([lat,lng])=>{
+      const [x,y]=toXY(lat,lng);
+      const grad=g.createRadialGradient(x,y,0,x,y,5);
+      grad.addColorStop(0,'rgba(180,255,200,1)');
+      grad.addColorStop(0.3,'rgba(57,255,140,0.9)');
+      grad.addColorStop(1,'rgba(57,255,140,0)');
+      g.fillStyle=grad;
+      g.beginPath(); g.arc(x,y,5,0,Math.PI*2); g.fill();
+      g.fillStyle='#c6ffd9';
+      g.beginPath(); g.arc(x,y,1.3,0,Math.PI*2); g.fill();
+    });
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.anisotropy = 8;
+    return tex;
+  }
+})();
+
+/* ========== DNA HELIX SCROLL STORY ========== */
+(function dna(){
+  const wrap = document.getElementById('dnaCanvasWrap');
+  const section = document.getElementById('dna');
+  if(!wrap) return;
+  if(isMobile){
+    // Replace with static timeline
+    section.style.height='auto';
+    section.innerHTML = `
+      <div style="padding:80px 24px;">
+        <span class="label">SCROLL STORY · DNA</span>
+        <h2 class="h2" style="margin-top:14px;">A thread of interactive storytelling.</h2>
+        <div style="display:flex;flex-direction:column;gap:40px;margin-top:40px;">
+          <div><div class="kicker" style="color:var(--glow);font-size:11px;letter-spacing:.2em;text-transform:uppercase;">01 Intro</div><h3 style="font-family:'Playfair Display',serif;font-size:36px;margin:8px 0;">This is DNA.</h3><p style="color:var(--fg-2);">The blueprint of every living thing — coded in four letters, rendered in real time.</p></div>
+          <div><div class="kicker" style="color:var(--glow);font-size:11px;letter-spacing:.2em;text-transform:uppercase;">02 Bases</div><h3 style="font-family:'Playfair Display',serif;font-size:36px;margin:8px 0;">A · C · T · G.</h3><p style="color:var(--fg-2);">Every combination tells a different story.</p></div>
+          <div><div class="kicker" style="color:var(--glow);font-size:11px;letter-spacing:.2em;text-transform:uppercase;">03 Inside</div><h3 style="font-family:'Playfair Display',serif;font-size:36px;margin:8px 0;">Now imagine this on a website.</h3><p style="color:var(--fg-2);">Your visitors don't just read — they interact.</p></div>
+          <div><div class="kicker" style="color:var(--glow);font-size:11px;letter-spacing:.2em;text-transform:uppercase;">04 Case</div><h3 style="font-family:'Playfair Display',serif;font-size:36px;margin:8px 0;">BioLumen Labs.</h3><p style="color:var(--fg-2);">Conversion up 280%.</p></div>
+          <div class="mobile-3d" style="margin-top:16px;">DNA<br/><b>Interactive on desktop</b></div>
+        </div>
+      </div>`;
+    return;
+  }
 
   const scene = new THREE.Scene();
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  const cam = new THREE.PerspectiveCamera(45, w/h, 0.1, 200);
+  cam.position.set(0,0,42);
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(2,devicePixelRatio));
+  renderer.setSize(w,h);
+  wrap.appendChild(renderer.domElement);
 
-  // One camera per slot — lets each have independent state without collision
-  function makeCam(z) {
-    const c = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
-    c.position.set(0, 0, z);
-    return c;
+  // Ensure sizing after layout settles
+  function sizeDNA(){
+    const W = wrap.clientWidth || window.innerWidth;
+    const H = wrap.clientHeight || window.innerHeight;
+    cam.aspect = W/H; cam.updateProjectionMatrix();
+    renderer.setSize(W,H);
   }
-  const cameras = {
-    hero:    makeCam(5),
-    globe:   makeCam(3.2),
-    dna:     makeCam(20),          // starts far, scroll will drive this
-    product: makeCam(5),
-  };
+  requestAnimationFrame(sizeDNA);
 
-  // ---------- Groups ----------
-  const heroGroup = new THREE.Group();
-  const globeGroup = new THREE.Group();
-  const dnaGroup = new THREE.Group();
-  const productGroup = new THREE.Group();
+  // Build helix
+  const helixPivot = new THREE.Group();   // outer: handles world placement (into mockup)
+  scene.add(helixPivot);
+  const helix = new THREE.Group();        // inner: handles spin
+  helixPivot.add(helix);
 
-  // HERO — torus knot
-  {
-    const g = new THREE.TorusKnotGeometry(1, 0.3, 80, 16);
-    const m = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true });
-    heroGroup.add(new THREE.Mesh(g, m));
+  const baseColors = [0x00ff88, 0x00cc6a, 0x39ff14, 0x0a9e50];
+  const baseLetters = ['A','C','T','G'];
+  const N = 46;          // rungs
+  const radius = 1.6;
+  const step = 0.42;
+  const turns = 2*Math.PI/8;
+
+  const strandPts1 = [];
+  const strandPts2 = [];
+  const basePoints = []; // midpoint of each rung — camera path/targets
+  const sphereGeo = new THREE.SphereGeometry(0.18, 16, 16);
+  const strandMat = new THREE.MeshStandardMaterial({color:0x00ff88, emissive:0x00ff88, emissiveIntensity:.9, roughness:.35});
+
+  for(let i=0;i<N;i++){
+    const y = (i - N/2) * step;
+    const a = i * turns;
+    const p1 = new THREE.Vector3( Math.cos(a)*radius, y, Math.sin(a)*radius );
+    const p2 = new THREE.Vector3( Math.cos(a+Math.PI)*radius, y, Math.sin(a+Math.PI)*radius );
+    strandPts1.push(p1); strandPts2.push(p2);
+    basePoints.push(new THREE.Vector3(0, y, 0));
+
+    const s1 = new THREE.Mesh(sphereGeo, strandMat);
+    s1.position.copy(p1); helix.add(s1);
+    const s2 = new THREE.Mesh(sphereGeo, strandMat);
+    s2.position.copy(p2); helix.add(s2);
+
+    const col = baseColors[i % baseColors.length];
+    const rungMat = new THREE.MeshStandardMaterial({color:col, emissive:col, emissiveIntensity:.7, roughness:.4});
+    const rung = cylinderBetween(p1, p2, 0.065, rungMat);
+    helix.add(rung);
   }
-  scene.add(heroGroup);
 
-  // GLOBE — real Earth texture + emerald backside glow
-  {
-    const loader = new THREE.TextureLoader();
-    loader.crossOrigin = 'anonymous';
-
-    const earthGeo = new THREE.SphereGeometry(1, 64, 64);
-    const earthMat = new THREE.MeshBasicMaterial({ color: 0x1e3a5f });   // placeholder blue-ish until texture loads
-    const earth = new THREE.Mesh(earthGeo, earthMat);
-
-    // Primary texture; fallback to threejs.org sample if primary 404s
-    const primaryUrl  = 'https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg';
-    const fallbackUrl = 'https://cdn.jsdelivr.net/npm/[email protected]/assets/textures/planets/earth_day_4096.jpg';
-
-    const applyTex = (url, onFail) => {
-      loader.load(url,
-        (tex) => {
-          tex.colorSpace = THREE.SRGBColorSpace || undefined;
-          earth.material = new THREE.MeshBasicMaterial({ map: tex });
-          earth.material.needsUpdate = true;
-          console.log('[exp] earth texture loaded from ' + url);
-        },
-        undefined,
-        (err) => {
-          console.warn('[exp] earth texture failed (' + url + ')');
-          if (onFail) onFail();
-        }
-      );
-    };
-    applyTex(primaryUrl, () => applyTex(fallbackUrl));
-
-    globeGroup.add(earth);
-
-    // Emerald back-side glow
-    const glowGeo = new THREE.SphereGeometry(1.04, 32, 32);
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: 0x10b981, transparent: true, opacity: 0.18,
-      side: THREE.BackSide,
-    });
-    globeGroup.add(new THREE.Mesh(glowGeo, glowMat));
-
-    // Additional thin inner ring glow
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(1.22, 1.24, 64),
-      new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.25, side: THREE.DoubleSide })
-    );
-    globeGroup.add(ring);
-  }
-  globeGroup.visible = false;
-  scene.add(globeGroup);
-
-  // DNA — greens only, connected base pairs, backbone cylinders
-  {
-    const N = 40;
-    const spacing = 0.5;
-    const radius = 1.5;
-
-    // All strand spheres neon green
-    const strandMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
-    // Four shades of green for base pairs
-    const baseColors = [0x34d399, 0x6ee7b7, 0xa7f3d0, 0x059669];
-    const baseMats = baseColors.map((c) => new THREE.MeshBasicMaterial({ color: c }));
-    // Backbone segment material (slightly dimmer green)
-    const backboneMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.55 });
-
-    const sphereGeo = new THREE.SphereGeometry(0.15, 12, 12);
-
-    // Store prev positions to draw backbone cylinders
-    let prevS1 = null, prevS2 = null;
-
-    const UP = new THREE.Vector3(0, 1, 0);
-
-    for (let i = 0; i < N; i++) {
-      const angle = i * 0.4;
-      const y = i * spacing - (N * spacing) / 2;
-
-      const s1Pos = new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
-      const s2Pos = new THREE.Vector3(Math.cos(angle + Math.PI) * radius, y, Math.sin(angle + Math.PI) * radius);
-
-      const s1 = new THREE.Mesh(sphereGeo, strandMat);
-      s1.position.copy(s1Pos);
-      dnaGroup.add(s1);
-
-      const s2 = new THREE.Mesh(sphereGeo, strandMat);
-      s2.position.copy(s2Pos);
-      dnaGroup.add(s2);
-
-      // Base pair cylinder — connects s1Pos to s2Pos precisely
-      const distance = s1Pos.distanceTo(s2Pos);
-      const direction = new THREE.Vector3().subVectors(s2Pos, s1Pos).normalize();
-      const midpoint = new THREE.Vector3().addVectors(s1Pos, s2Pos).multiplyScalar(0.5);
-      const bpGeo = new THREE.CylinderGeometry(0.05, 0.05, distance, 8);
-      const bp = new THREE.Mesh(bpGeo, baseMats[i % 4]);
-      bp.position.copy(midpoint);
-      bp.quaternion.setFromUnitVectors(UP, direction);
-      dnaGroup.add(bp);
-
-      // Backbone segments — connect this sphere to the PREVIOUS sphere on same strand
-      if (prevS1) {
-        const d = prevS1.distanceTo(s1Pos);
-        const dir = new THREE.Vector3().subVectors(s1Pos, prevS1).normalize();
-        const mid = new THREE.Vector3().addVectors(prevS1, s1Pos).multiplyScalar(0.5);
-        const g = new THREE.CylinderGeometry(0.04, 0.04, d, 6);
-        const m = new THREE.Mesh(g, backboneMat);
-        m.position.copy(mid);
-        m.quaternion.setFromUnitVectors(UP, dir);
-        dnaGroup.add(m);
-      }
-      if (prevS2) {
-        const d = prevS2.distanceTo(s2Pos);
-        const dir = new THREE.Vector3().subVectors(s2Pos, prevS2).normalize();
-        const mid = new THREE.Vector3().addVectors(prevS2, s2Pos).multiplyScalar(0.5);
-        const g = new THREE.CylinderGeometry(0.04, 0.04, d, 6);
-        const m = new THREE.Mesh(g, backboneMat);
-        m.position.copy(mid);
-        m.quaternion.setFromUnitVectors(UP, dir);
-        dnaGroup.add(m);
-      }
-      prevS1 = s1Pos.clone();
-      prevS2 = s2Pos.clone();
+  const backboneMat = new THREE.MeshStandardMaterial({color:0x00ff88, emissive:0x00ff88, emissiveIntensity:.6, transparent:true, opacity:.75});
+  function addBackbone(pts){
+    for(let i=0;i<pts.length-1;i++){
+      helix.add(cylinderBetween(pts[i], pts[i+1], 0.06, backboneMat));
     }
   }
-  dnaGroup.visible = false;
-  scene.add(dnaGroup);
+  addBackbone(strandPts1);
+  addBackbone(strandPts2);
 
-  // PRODUCT — wireframe phone
-  {
-    const body = new THREE.BoxGeometry(1.4, 2.8, 0.18);
-    productGroup.add(new THREE.LineSegments(
-      new THREE.WireframeGeometry(body),
-      new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.85 })
-    ));
-    productGroup.add(new THREE.Mesh(body, new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.12 })));
-    const screen = new THREE.BoxGeometry(1.24, 2.5, 0.03);
-    const sMesh = new THREE.Mesh(screen, new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.18 }));
-    sMesh.position.z = 0.1;
-    productGroup.add(sMesh);
-    productGroup.add(new THREE.LineSegments(
-      new THREE.WireframeGeometry(screen),
-      new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.5 })
-    ));
-  }
-  productGroup.visible = false;
-  scene.add(productGroup);
-
-  console.log('[exp] scene · hero=' + heroGroup.children.length + ' globe=' + globeGroup.children.length + ' dna=' + dnaGroup.children.length + ' product=' + productGroup.children.length);
-
-  // ---------- OrbitControls — ONE instance per draggable slot, each bound to its own camera ----------
-  const controlsMap = {};
-  function makeControls(cam, autoSpeed) {
-    if (!hasOrbit) return null;
-    const c = new THREE.OrbitControls(cam, renderer.domElement);
-    c.enableDamping = true;
-    c.dampingFactor = 0.05;
-    c.enableZoom = false;
-    c.enablePan = false;
-    c.autoRotate = true;
-    c.autoRotateSpeed = autoSpeed;
-    c.enabled = false;
-    // Pause auto-rotate while user is actively dragging, resume 3s after release
-    let t = null;
-    c.addEventListener('start', () => { c.autoRotate = false; if (t) { clearTimeout(t); t = null; } });
-    c.addEventListener('end',   () => { if (t) clearTimeout(t); t = setTimeout(() => { c.autoRotate = true; }, 3000); });
-    return c;
-  }
-  controlsMap.hero    = makeControls(cameras.hero,    0.5);
-  controlsMap.globe   = makeControls(cameras.globe,   0.4);
-  controlsMap.product = makeControls(cameras.product, 0.7);
-  // DNA: intentionally NO OrbitControls — its camera is scroll-driven only
-
-  // ---------- Active slot switching ----------
-  let activeSlot = 'hero';
-  function setSlot(name) {
-    if (name === activeSlot) return;
-    activeSlot = name;
-    heroGroup.visible    = name === 'hero';
-    globeGroup.visible   = name === 'globe';
-    dnaGroup.visible     = name === 'dna';
-    productGroup.visible = name === 'product';
-
-    // Enable controls for the new active slot ONLY
-    Object.entries(controlsMap).forEach(([k, c]) => {
-      if (!c) return;
-      c.enabled = (k === name);
-      c.autoRotate = c.enabled;
-    });
-    canvas.classList.toggle('interactive', name === 'hero' || name === 'globe' || name === 'product');
-    console.log('[exp] slot → ' + name);
-  }
-  // Enable hero on boot
-  if (controlsMap.hero) { controlsMap.hero.enabled = true; controlsMap.hero.autoRotate = true; }
-  canvas.classList.add('interactive');
-
-  // ---------- Narrative overlay tracking ----------
-  const ovs = [
-    document.getElementById('dna-ov-1'),
-    document.getElementById('dna-ov-2'),
-    document.getElementById('dna-ov-3'),
-    document.getElementById('dna-ov-4'),
-    document.getElementById('dna-ov-5'),
-  ];
-  const mockup = document.getElementById('bio-mockup');
-
-  function updateNarrative(p) {
-    // p in [0, 1]
-    // 0..0.15 → ov1,  0.15..0.35 → ov2,  0.35..0.55 → ov3,
-    // 0.55..0.75 → ov4,  0.75..1 → ov5 + mockup
-    const idx =
-      p < 0.15 ? 0 :
-      p < 0.35 ? 1 :
-      p < 0.55 ? 2 :
-      p < 0.75 ? 3 : 4;
-    ovs.forEach((el, i) => { if (el) el.classList.toggle('in', i === idx); });
-    if (mockup) mockup.classList.toggle('show', p >= 0.75);
+  function cylinderBetween(a,b,r,mat){
+    const dir = new THREE.Vector3().subVectors(b,a);
+    const len = dir.length();
+    const cyl = new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,10,1,true), mat);
+    cyl.position.copy(a).add(b).multiplyScalar(0.5);
+    cyl.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
+    return cyl;
   }
 
-  // ---------- ScrollTriggers ----------
-  if (hasGSAP) {
-    gsap.registerPlugin(ScrollTrigger);
+  // ===== 3D ARROWS pointing at specific bases =====
+  // Each arrow is a group: shaft (cylinder) + head (cone) + optional label plane.
+  // They ORBIT with the helix so they keep pointing at their bases.
+  function makeArrow(color, label){
+    const g = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:1.2, roughness:.3, transparent:true, opacity:0});
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035, 1.4, 10), mat);
+    shaft.rotation.z = Math.PI/2;
+    shaft.position.x = -0.7;
+    g.add(shaft);
+    const head = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.36, 16), mat);
+    head.rotation.z = -Math.PI/2;
+    head.position.x = 0.18;
+    g.add(head);
+    // Label plane (tiny canvas texture with letter)
+    if(label){
+      const cv = document.createElement('canvas'); cv.width=cv.height=128;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = 'rgba(5,10,14,0.92)';
+      ctx.beginPath(); ctx.arc(64,64,56,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#'+color.toString(16).padStart(6,'0');
+      ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(64,64,56,0,Math.PI*2); ctx.stroke();
+      ctx.fillStyle = '#'+color.toString(16).padStart(6,'0');
+      ctx.font = 'bold 72px Space Grotesk, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(label, 64, 70);
+      const tex = new THREE.CanvasTexture(cv);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, opacity:0, depthTest:false}));
+      sprite.scale.set(0.55,0.55,1);
+      sprite.position.set(-1.55, 0, 0);
+      g.add(sprite);
+      g.userData.sprite = sprite;
+    }
+    g.userData.mat = mat;
+    return g;
+  }
+  // Pick 4 bases along the helix to label (spaced out)
+  const arrowIndices = [Math.floor(N*0.22), Math.floor(N*0.42), Math.floor(N*0.60), Math.floor(N*0.78)];
+  const arrows = arrowIndices.map((idx,i)=>{
+    const a = makeArrow(baseColors[i], baseLetters[i]);
+    const angle = idx * turns;                        // helix angle at that y
+    const y = (idx - N/2) * step;
+    // Anchor the arrow at the OUTSIDE of the strand, pointing inward toward axis.
+    // Position: 3 units out on the same azimuth as strand1 at this rung.
+    a.position.set(Math.cos(angle)*3.2, y, Math.sin(angle)*3.2);
+    // Rotate arrow so +X (its pointing axis) faces the central axis
+    a.rotation.y = -angle + Math.PI; // flip to point toward center
+    helix.add(a); // attached to spinning group so they orbit with it
+    a.userData.yPos = y;
+    a.userData.angle = angle;
+    return a;
+  });
 
-    ScrollTrigger.create({ trigger: '#hero-section',    start: 'top 80%', end: 'bottom 20%',
-      onEnter: () => setSlot('hero'), onEnterBack: () => setSlot('hero') });
-    ScrollTrigger.create({ trigger: '#globe-section',   start: 'top 60%', end: 'bottom 40%',
-      onEnter: () => setSlot('globe'), onEnterBack: () => setSlot('globe') });
-    ScrollTrigger.create({ trigger: '#product-section', start: 'top 60%', end: 'bottom 40%',
-      onEnter: () => setSlot('product'), onEnterBack: () => setSlot('product') });
+  // Lights
+  scene.add(new THREE.AmbientLight(0x102018, 1.1));
+  const pl = new THREE.PointLight(0x00ff88, 3, 40);
+  pl.position.set(0,0,6); scene.add(pl);
+  const pl2 = new THREE.PointLight(0x39ff14, 1.6, 40);
+  pl2.position.set(0,0,-6); scene.add(pl2);
 
-    // DNA pin + scrub — drives dnaCam.position.z over the 300vh section
-    ScrollTrigger.create({
-      trigger: '#dna-section',
-      start: 'top top',
-      end: 'bottom top',
-      pin: true,
-      scrub: 1,
-      anticipatePin: 1,
-      onEnter:     () => setSlot('dna'),
-      onEnterBack: () => setSlot('dna'),
-      onLeave:     () => { setSlot('product'); hideAllNarrative(); },
-      onLeaveBack: () => { setSlot('globe');   hideAllNarrative(); },
-      onUpdate: (self) => {
-        if (activeSlot !== 'dna') return;
-        const p = self.progress;
-        // camera Z: 20 (far) → -5 (inside, around p=0.6) → -15 (past, p=1)
-        const cam = cameras.dna;
-        let z;
-        if (p < 0.6) z = 20 - (25 * (p / 0.6));
-        else         z = -5 - ((p - 0.6) / 0.4) * 10;
-        cam.position.set(0, 0, z);
-        cam.lookAt(0, 0, 0);
-        updateNarrative(p);
-      },
-    });
-    console.log('[exp] ScrollTriggers live');
+  // Scroll wiring
+  let scrollProg = 0;
+  const overlays = [0,1,2,3,4].map(i=>document.getElementById('ov-'+i));
+  const chips = [0,1,2,3,4].map(i=>document.getElementById('chip-'+i));
+  const fill = document.getElementById('dnaFill');
+  const mockup = document.getElementById('dnaMockup');
+  const mockupWidget = mockup.querySelector('.widget');
+
+  // Animation state
+  const camPos = new THREE.Vector3(0,0,42);
+  const camLook = new THREE.Vector3(0,0,0);
+  const targetPos = new THREE.Vector3();
+  const targetLook = new THREE.Vector3();
+  let targetPivotPos = new THREE.Vector3(0,0,0);
+  let targetPivotScale = 1;
+  let helixCanvasVisible = true;
+
+  function lerp(a,b,t){ return a + (b-a)*Math.min(Math.max(t,0),1); }
+  function smooth(a,b,t){ t=Math.min(Math.max(t,0),1); t=t*t*(3-2*t); return a+(b-a)*t; }
+
+  // Pick the base index we should "look at" for a given scroll progress in a stage.
+  function baseAt(frac, from, to){
+    const i = Math.round(lerp(from, to, frac));
+    return basePoints[i] || basePoints[0];
   }
 
-  function hideAllNarrative() {
-    ovs.forEach((el) => el && el.classList.remove('in'));
-    if (mockup) mockup.classList.remove('show');
-  }
+  function onScroll(){
+    const rect = section.getBoundingClientRect();
+    const total = section.clientHeight - window.innerHeight;
+    const past = Math.min(Math.max(-rect.top, 0), total);
+    scrollProg = total>0 ? past/total : 0;
+    const pFull = scrollProg;
+    // Compress the old helix journey into the first 55% of scroll.
+    // After 0.55, the mockup is pinned and widget content cycles.
+    const p = Math.min(pFull / 0.55, 1.0);
+    // Phase progress (0..1) across the pinned-mockup range [0.55..1.0]
+    const pPhase = pFull <= 0.55 ? 0 : (pFull - 0.55) / 0.45;
 
-  // ---------- Animate ----------
-  function animate() {
-    requestAnimationFrame(animate);
-    const activeControls = controlsMap[activeSlot];
-    if (activeControls && activeControls.enabled) {
-      activeControls.update();
+    // ====== CAMERA STAGES ======
+    // 0.00 - 0.18 : overview (far back, see whole helix)
+    // 0.18 - 0.38 : pull in toward top bases, tilt slightly; arrow 0 (A) highlighted
+    // 0.38 - 0.58 : glide down through midsection; arrows 1 (C) then 2 (T)
+    // 0.58 - 0.75 : enter INSIDE the helix — camera on central axis moving down; arrow 3 (G)
+    // 0.75 - 0.90 : pull back and orbit, helix begins drifting toward mockup
+    // 0.90 - 1.00 : helix is framed INSIDE the mockup widget (world-space mapped)
+    let px=0, py=0, pz=42;
+    let lx=0, ly=0, lz=0;
+
+    if(p < 0.18){
+      const t = p/0.18;
+      pz = lerp(46, 22, t);
+      py = 0; px = 0;
+      ly = 0;
+    } else if(p < 0.38){
+      const t = (p-0.18)/0.20;
+      const look = baseAt(t, arrowIndices[0]+1, arrowIndices[1]-1);
+      pz = lerp(22, 6, t);
+      px = lerp(0, 2.2, t);
+      py = lerp(0, look.y + 0.5, t);
+      ly = look.y;
+    } else if(p < 0.58){
+      const t = (p-0.38)/0.20;
+      const look = baseAt(t, arrowIndices[1], arrowIndices[2]);
+      pz = lerp(6, 3.6, t);
+      px = lerp(2.2, -2.2, t);
+      py = lerp(0, look.y, t);     // helix y grows downward positive? Actually basePoints.y increases from -N/2*step upward; we want to glide from upper to lower ( smaller y to larger y ).
+      ly = look.y;
+    } else if(p < 0.75){
+      // INSIDE the helix — camera on central axis, traveling down toward bottom bases.
+      const t = (p-0.58)/0.17;
+      const startY = basePoints[arrowIndices[2]].y;
+      const endY = basePoints[arrowIndices[3]].y;
+      pz = 0.0;  // on axis
+      px = 0.0;
+      py = lerp(startY, endY + 1.2, t);
+      const look = basePoints[arrowIndices[3]];
+      ly = look.y;
+      // slight wobble so it doesn't feel static
+      px += Math.sin(t*Math.PI*2)*0.25;
     } else {
-      // Subtle drift when no controls (DNA section)
-      if (activeSlot === 'dna') dnaGroup.rotation.y += 0.004;
+      // pull back to frame the whole helix front-and-center; mockup fades in BEHIND it; then helix minimizes into widget
+      const t = (p-0.75)/0.25;
+      pz = lerp(0, 22, t);
+      px = lerp(0, 0, t);
+      py = lerp(basePoints[arrowIndices[3]].y, 0, t);
+      ly = lerp(basePoints[arrowIndices[3]].y, 0, t);
     }
-    const cam = cameras[activeSlot] || cameras.hero;
-    renderer.render(scene, cam);
+
+    // smooth the camera each frame (done in render loop) — just set targets
+    targetPos.set(px,py,pz);
+    targetLook.set(lx,ly,lz);
+
+    // ====== HELIX PIVOT INTO MOCKUP (world-space from widget DOM rect) ======
+    // Mockup appears at 0.80 BEHIND helix; helix starts shrinking into widget at 0.90.
+    if(p > 0.90){
+      const ease = smooth(0, 1, (p-0.90)/0.10);
+      const wr = mockupWidget.getBoundingClientRect();
+      const W = renderer.domElement.clientWidth;
+      const H = renderer.domElement.clientHeight;
+      const ndcX = ((wr.left + wr.width/2) / W) * 2 - 1;
+      const ndcY = -(((wr.top + wr.height/2) / H) * 2 - 1);
+      const worldDepth = 0;
+      const v = new THREE.Vector3(ndcX, ndcY, 0.5);
+      v.unproject(cam);
+      const dir = v.sub(cam.position).normalize();
+      const tPlane = (worldDepth - cam.position.z) / dir.z;
+      const worldPt = cam.position.clone().add(dir.multiplyScalar(tPlane));
+      targetPivotPos.set(worldPt.x * ease, worldPt.y * ease, worldDepth);
+      const vFov = cam.fov * Math.PI/180;
+      const worldPerPx = (2 * Math.tan(vFov/2) * Math.abs(cam.position.z - worldDepth)) / H;
+      const targetWorldH = wr.height * worldPerPx * 0.72;
+      const helixNaturalH = N*step;
+      targetPivotScale = lerp(1, targetWorldH/helixNaturalH, ease);
+    } else {
+      targetPivotPos.set(0,0,0);
+      targetPivotScale = 1;
+    }
+
+    // ====== ARROWS fade in/out tied to stages ======
+    // A is shown while ~0.18-0.38, C while 0.38-0.48, T while 0.48-0.58, G while 0.58-0.75, all fade by 0.80
+    const arrowVis = [
+      (p>0.18 && p<0.40) ? 1 : 0,
+      (p>0.36 && p<0.52) ? 1 : 0,
+      (p>0.48 && p<0.62) ? 1 : 0,
+      (p>0.60 && p<0.78) ? 1 : 0,
+    ];
+    arrows.forEach((a,i)=>{
+      a.userData.targetOpacity = arrowVis[i];
+    });
+
+    // overlays (only during helix journey, hide once pinned)
+    const which = p<0.18 ? 0 : p<0.55 ? 1 : p<0.78 ? 2 : p<0.93 ? 3 : 4;
+    overlays.forEach((el,i)=> {
+      const show = pFull < 0.52 && i === which;
+      el.classList.toggle('on', show);
+    });
+    chips.forEach((el,i)=> el.classList.toggle('on', i===which && pFull < 0.55));
+
+    fill.style.height = (pFull*100).toFixed(1)+'%';
+    // Mockup fades in at 0.80 of local p (≈ 0.44 of total scroll) — behind the helix.
+    mockup.classList.toggle('on', p>0.80);
+
+    // ====== WIDGET CONTENT CYCLING (pinned-mockup phases) ======
+    // Phase 0: helix (pPhase 0.00–0.40)
+    // Phase 1: globe (pPhase 0.40–0.70)
+    // Phase 2: product (pPhase 0.70–1.00)
+    let phaseIdx = 0;
+    if(pPhase > 0.40) phaseIdx = 1;
+    if(pPhase > 0.72) phaseIdx = 2;
+
+    // Swap widget layers
+    const layers = ['layer-helix','layer-globe','layer-product'];
+    layers.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if(el) el.setAttribute('data-active', i === phaseIdx ? '1' : '0');
+    });
+    // Swap page label & title
+    const labels = [
+      ['PRODUCT / MOLVIEW', 'See every strand. From every side.'],
+      ['ANALYTICS / LIVE', 'Every node, every request, globally.'],
+      ['STORE / Z-9', 'Rotate it. Spin it. Then check out.'],
+    ];
+    const mkLabel = document.getElementById('mkLabel');
+    const mkTitle = document.getElementById('mkTitle');
+    if(mkLabel && mkTitle){
+      mkLabel.textContent = labels[phaseIdx][0];
+      mkTitle.textContent = labels[phaseIdx][1];
+    }
+    // Phase-side text overlays
+    const phases = ['phase-helix','phase-globe','phase-product'];
+    phases.forEach((id, i) => {
+      const el = document.getElementById(id);
+      // Only show phase text once the mockup is visible
+      if(el) el.classList.toggle('on', pFull > 0.55 && i === phaseIdx);
+    });
+
+    // When helix phase ends, hide the big helix (fade it out in canvas)
+    // We do this via a flag used in the render loop.
+    helixCanvasVisible = (phaseIdx === 0);
   }
-  animate();
-  console.log('[exp] animation loop started');
 
-  // ---------- Resize ----------
-  window.addEventListener('resize', () => {
-    Object.values(cameras).forEach((c) => { c.aspect = window.innerWidth / window.innerHeight; c.updateProjectionMatrix(); });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    if (hasGSAP) ScrollTrigger.refresh();
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  function loop(){
+    // Spin helix (slowed at end when inside mockup)
+    const p = scrollProg;
+    const spinRate = p > 0.90 ? 0.012 : p > 0.75 ? 0.006 : 0.004;
+    helix.rotation.y += spinRate;
+
+    // Smooth camera toward target
+    camPos.lerp(targetPos, 0.12);
+    camLook.lerp(targetLook, 0.12);
+    cam.position.copy(camPos);
+    cam.lookAt(camLook);
+
+    // Smooth pivot position & scale
+    helixPivot.position.lerp(targetPivotPos, 0.14);
+    const curScale = helixPivot.scale.x;
+    const newScale = curScale + (targetPivotScale - curScale)*0.14;
+    helixPivot.scale.setScalar(newScale);
+
+    // Fade the big helix canvas when moving to globe/product phases
+    const cv = renderer.domElement;
+    const targetOpacity = helixCanvasVisible ? 1 : 0;
+    const curOp = parseFloat(cv.style.opacity || '1');
+    const nextOp = curOp + (targetOpacity - curOp) * 0.08;
+    cv.style.opacity = nextOp.toFixed(3);
+    cv.style.pointerEvents = nextOp < 0.05 ? 'none' : '';
+
+    // Arrow opacity fade
+    arrows.forEach(a=>{
+      const target = a.userData.targetOpacity ?? 0;
+      const cur = a.userData.mat.opacity;
+      const next = cur + (target - cur)*0.08;
+      a.userData.mat.opacity = next;
+      if(a.userData.sprite) a.userData.sprite.material.opacity = next;
+    });
+
+    renderer.render(scene, cam);
+    requestAnimationFrame(loop);
+  }
+  sizeDNA();
+  setTimeout(sizeDNA, 100);
+  setTimeout(()=>{ sizeDNA(); onScroll(); }, 500);
+  loop();
+
+  window.addEventListener('resize', ()=>{ sizeDNA(); onScroll(); });
+  window.addEventListener('load', sizeDNA);
+})();
+
+/* ========== MINI GLOBE (inside pinned mockup) ========== */
+(function miniGlobe(){
+  const cv = document.getElementById('miniGlobe');
+  if(!cv || isMobile) return;
+  const layer = document.getElementById('layer-globe');
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+  cam.position.set(0,0,4.2);
+  const renderer = new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(2,devicePixelRatio));
+
+  function size(){
+    const r = cv.getBoundingClientRect();
+    if(r.width<2) return;
+    cam.aspect = r.width/r.height; cam.updateProjectionMatrix();
+    renderer.setSize(r.width, r.height, false);
+  }
+  const ro = new ResizeObserver(size); ro.observe(cv);
+  size();
+
+  // Reuse earth texture builder if available on window; otherwise build simple one.
+  const tex = (window.__earthTex instanceof THREE.Texture) ? window.__earthTex : buildMiniEarth();
+  const earth = new THREE.Mesh(new THREE.SphereGeometry(1.15, 48, 48),
+    new THREE.MeshStandardMaterial({map: tex, roughness:.85, emissive:0x002211, emissiveIntensity:.25}));
+  scene.add(earth);
+  // Atmosphere
+  const atm = new THREE.Mesh(new THREE.SphereGeometry(1.28, 48, 48),
+    new THREE.ShaderMaterial({
+      transparent:true, side:THREE.BackSide, depthWrite:false,
+      uniforms:{ c:{value:.35}, p:{value:4.2}, glowColor:{value:new THREE.Color(0x00ff88)}},
+      vertexShader:`varying vec3 vN; varying vec3 vP; void main(){vN=normalize(normalMatrix*normal);vP=(modelViewMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*vec4(vP,1.);}`,
+      fragmentShader:`uniform vec3 glowColor; uniform float c; uniform float p; varying vec3 vN; varying vec3 vP;
+        void main(){ float i = pow(c - dot(vN, normalize(-vP)), p); gl_FragColor = vec4(glowColor, i*0.8); }`
+    }));
+  scene.add(atm);
+  scene.add(new THREE.AmbientLight(0x0a2e1a, 1.4));
+  const key = new THREE.DirectionalLight(0x00ff88, 1.2);
+  key.position.set(3,2,4); scene.add(key);
+
+  // Arcs between random hubs
+  const hubs = [
+    [40.7,-74.0],[51.5,-0.1],[35.6,139.7],[-33.9,151.2],[1.3,103.8],[-23.5,-46.6],[55.7,37.6],[-26.2,28.0],[28.6,77.2],[37.5,127.0]
+  ];
+  function ll2v3(lat,lng,r=1.17){
+    const φ=(90-lat)*Math.PI/180, θ=(lng+180)*Math.PI/180;
+    return new THREE.Vector3(-r*Math.sin(φ)*Math.cos(θ), r*Math.cos(φ), r*Math.sin(φ)*Math.sin(θ));
+  }
+  const arcGroup = new THREE.Group(); scene.add(arcGroup);
+  function makeArc(a,b){
+    const va=ll2v3(...a), vb=ll2v3(...b);
+    const mid = va.clone().add(vb).multiplyScalar(0.5).normalize().multiplyScalar(1.17 + va.distanceTo(vb)*0.35);
+    const curve = new THREE.QuadraticBezierCurve3(va, mid, vb);
+    const pts = curve.getPoints(40);
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    const mat = new THREE.LineBasicMaterial({color:0x00ff88, transparent:true, opacity:.8});
+    const line = new THREE.Line(geo, mat);
+    line.userData.life = 0;
+    line.userData.totalLife = 60 + Math.random()*40;
+    return line;
+  }
+  function spawnArc(){
+    const a = hubs[Math.floor(Math.random()*hubs.length)];
+    let b = hubs[Math.floor(Math.random()*hubs.length)];
+    while(b===a) b = hubs[Math.floor(Math.random()*hubs.length)];
+    const arc = makeArc(a,b);
+    arcGroup.add(arc);
+    setTimeout(spawnArc, 400 + Math.random()*700);
+  }
+  spawnArc();
+
+  // Hub dots
+  hubs.forEach(h=>{
+    const pos = ll2v3(h[0], h[1], 1.16);
+    const s = new THREE.Mesh(new THREE.SphereGeometry(0.018,12,12),
+      new THREE.MeshBasicMaterial({color:0x39ff14}));
+    s.position.copy(pos);
+    scene.add(s);
   });
 
-  // ---------- Context loss (dynamic toast, never static) ----------
-  canvas.addEventListener('webglcontextlost', (e) => {
-    e.preventDefault();
-    console.warn('[exp] webglcontextlost');
-    if (!document.querySelector('.webgl-toast')) {
-      const t = document.createElement('div');
-      t.className = 'webgl-toast';
-      t.textContent = '3D rendering paused — scroll to resume';
-      document.body.appendChild(t);
+  function loop(){
+    earth.rotation.y += 0.0018;
+    // age arcs
+    for(let i=arcGroup.children.length-1;i>=0;i--){
+      const a = arcGroup.children[i];
+      a.userData.life++;
+      const l = a.userData.life, t = a.userData.totalLife;
+      a.material.opacity = l < t*0.3 ? (l/(t*0.3))*0.9 : (1 - (l-t*0.3)/(t*0.7))*0.9;
+      if(l > t){ arcGroup.remove(a); a.geometry.dispose(); a.material.dispose(); }
     }
+    renderer.render(scene, cam);
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  function buildMiniEarth(){
+    const W=1024, H=512, c=document.createElement('canvas'); c.width=W; c.height=H;
+    const g=c.getContext('2d');
+    g.fillStyle='#021018'; g.fillRect(0,0,W,H);
+    // approx continents (latlng)
+    const polys = [
+      [[71,-156],[60,-140],[40,-124],[18,-94],[22,-91],[29,-93],[30,-83],[25,-80],[36,-76],[45,-67],[50,-60],[62,-78],[68,-95],[71,-120],[71,-156]],
+      [[11,-72],[6,-50],[-10,-36],[-33,-52],[-54,-68],[-40,-73],[-18,-71],[-4,-81],[11,-72]],
+      [[71,24],[66,42],[50,40],[40,22],[36,24],[38,14],[44,9],[48,-5],[58,-4],[64,11],[71,24]],
+      [[37,-6],[33,24],[12,43],[1,42],[-25,35],[-34,18],[-6,9],[14,-17],[30,-12],[37,-6]],
+      [[77,60],[72,140],[60,170],[50,143],[38,125],[22,114],[1,103],[17,96],[22,88],[15,80],[25,62],[20,58],[17,42],[36,35],[42,42],[55,73],[77,60]],
+      [[-11,142],[-27,153],[-38,150],[-35,138],[-32,133],[-34,122],[-22,114],[-16,123],[-11,132],[-11,142]],
+      [[-65,-180],[-70,-140],[-72,-70],[-70,-20],[-68,30],[-70,70],[-68,120],[-70,150],[-78,170],[-85,180],[-85,-180],[-65,-180]]
+    ];
+    function toXY(lat,lng){ return [(lng+180)/360*W, (90-lat)/180*H]; }
+    g.fillStyle='#0a3d24';
+    polys.forEach(p=>{ g.beginPath(); p.forEach((pt,i)=>{const [x,y]=toXY(pt[0],pt[1]); i?g.lineTo(x,y):g.moveTo(x,y);}); g.closePath(); g.fill();});
+    g.strokeStyle='rgba(57,255,140,0.5)'; g.lineWidth=1.5;
+    polys.forEach(p=>{ g.beginPath(); p.forEach((pt,i)=>{const [x,y]=toXY(pt[0],pt[1]); i?g.lineTo(x,y):g.moveTo(x,y);}); g.closePath(); g.stroke();});
+    return new THREE.CanvasTexture(c);
+  }
+})();
+
+/* ========== MINI PRODUCT (inside pinned mockup) ========== */
+(function miniProduct(){
+  const cv = document.getElementById('miniProduct');
+  if(!cv || isMobile) return;
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+  cam.position.set(2.4, 1.6, 4.2);
+  cam.lookAt(0,0,0);
+  const renderer = new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(2,devicePixelRatio));
+
+  function size(){
+    const r = cv.getBoundingClientRect();
+    if(r.width<2) return;
+    cam.aspect = r.width/r.height; cam.updateProjectionMatrix();
+    renderer.setSize(r.width, r.height, false);
+  }
+  const ro = new ResizeObserver(size); ro.observe(cv);
+  size();
+
+  // Stylized "headphones" product — two earcups joined by a band
+  const prod = new THREE.Group(); scene.add(prod);
+  const bandMat = new THREE.MeshStandardMaterial({color:0x0c1a14, metalness:.6, roughness:.4, emissive:0x00ff88, emissiveIntensity:.1});
+  const cupMat = new THREE.MeshStandardMaterial({color:0x0a1410, metalness:.8, roughness:.25, emissive:0x00ff88, emissiveIntensity:.15});
+  const ringMat = new THREE.MeshStandardMaterial({color:0x00ff88, emissive:0x00ff88, emissiveIntensity:1.2, roughness:.2});
+
+  // Headband (torus section)
+  const band = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.08, 16, 64, Math.PI), bandMat);
+  band.rotation.z = Math.PI;
+  band.position.y = 0.2;
+  prod.add(band);
+  // Earcups
+  for(const sx of [-1, 1]){
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.25, 32), cupMat);
+    cup.rotation.z = Math.PI/2;
+    cup.position.set(sx * 1.0, -0.55, 0);
+    prod.add(cup);
+    // Glow ring on cup face
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.02, 8, 48), ringMat);
+    ring.rotation.y = Math.PI/2;
+    ring.position.set(sx * 1.13, -0.55, 0);
+    prod.add(ring);
+    // Small logo dot in center
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), ringMat);
+    dot.position.set(sx * 1.13, -0.55, 0);
+    prod.add(dot);
+  }
+  // Wireframe overlay for signature look
+  const wire = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.TorusGeometry(1.0, 0.08, 10, 48, Math.PI)),
+    new THREE.LineBasicMaterial({color:0x00ff88, transparent:true, opacity:.5})
+  );
+  wire.rotation.z = Math.PI;
+  wire.position.y = 0.2;
+  prod.add(wire);
+
+  scene.add(new THREE.AmbientLight(0x102018, 1.2));
+  const pl = new THREE.PointLight(0x00ff88, 3, 20); pl.position.set(3,2,4); scene.add(pl);
+  const pl2 = new THREE.PointLight(0x39ff14, 1.2, 20); pl2.position.set(-3,-1,-2); scene.add(pl2);
+
+  // Auto-rotate + drag
+  let autoSpd = 0.008, manualY = 0, manualX = 0, vel = autoSpd;
+  let isDrag = false, lastX = 0, lastY = 0;
+  cv.addEventListener('pointerdown', e => { isDrag = true; lastX = e.clientX; lastY = e.clientY; cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener('pointermove', e => {
+    if(!isDrag) return;
+    const dx = (e.clientX - lastX)/150;
+    const dy = (e.clientY - lastY)/150;
+    prod.rotation.y += dx*2;
+    prod.rotation.x = Math.max(-0.6, Math.min(0.6, prod.rotation.x + dy*2));
+    vel = dx*2;
+    lastX = e.clientX; lastY = e.clientY;
   });
-  canvas.addEventListener('webglcontextrestored', () => {
-    console.info('[exp] webglcontextrestored');
-    const t = document.querySelector('.webgl-toast');
-    if (t) t.remove();
+  cv.addEventListener('pointerup', () => { isDrag = false; });
+  cv.addEventListener('pointerleave', () => { isDrag = false; });
+
+  function loop(){
+    vel += (autoSpd - vel)*0.03;
+    prod.rotation.y += vel;
+    renderer.render(scene, cam);
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+/* ========== PRODUCT LAPTOP ========== */
+(function product(){
+  const wrap = document.getElementById('productWrap');
+  if(!wrap) return;
+  if(isMobile){ mountPlaceholder(wrap, 'PRODUCT · 3D'); return; }
+
+  const w=wrap.clientWidth, h=wrap.clientHeight;
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(38, w/h, .1, 100);
+  cam.position.set(3.5, 2.2, 6);
+  cam.lookAt(0,0,0);
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(2,devicePixelRatio));
+  renderer.setSize(w,h);
+  wrap.appendChild(renderer.domElement);
+
+  const laptop = new THREE.Group();
+  scene.add(laptop);
+
+  // Build a wireframe laptop: base (rounded slab) + screen (tilted slab)
+  function wireBox(w_,h_,d_,color=0x00ff88,opacity=1){
+    const g = new THREE.BoxGeometry(w_,h_,d_);
+    const wireG = new THREE.EdgesGeometry(g);
+    return new THREE.LineSegments(wireG, new THREE.LineBasicMaterial({color, transparent:true, opacity}));
+  }
+
+  const base = wireBox(4.2, 0.2, 3.0);
+  laptop.add(base);
+  const fill = new THREE.Mesh(new THREE.BoxGeometry(4.2,0.2,3.0), new THREE.MeshBasicMaterial({color:0x001a0f, transparent:true, opacity:.35}));
+  laptop.add(fill);
+
+  // Keyboard dots grid
+  const keyMat = new THREE.MeshBasicMaterial({color:0x00ff88, transparent:true, opacity:.55});
+  for(let i=0;i<14;i++){
+    for(let j=0;j<5;j++){
+      const k = new THREE.Mesh(new THREE.BoxGeometry(0.18,0.04,0.18), keyMat);
+      k.position.set(-1.8 + i*0.28, 0.12, -0.8 + j*0.28);
+      laptop.add(k);
+    }
+  }
+  // Trackpad
+  const tp = wireBox(1.4, 0.02, 0.9, 0x00ff88, .7);
+  tp.position.set(0,0.11,0.9);
+  laptop.add(tp);
+
+  // Screen
+  const screenGroup = new THREE.Group();
+  const screen = wireBox(4.2, 2.6, 0.15);
+  screenGroup.add(screen);
+  const screenFill = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 2.4), new THREE.MeshBasicMaterial({color:0x001a0f, transparent:true, opacity:.75}));
+  screenFill.position.z = 0.08;
+  screenGroup.add(screenFill);
+  // UI lines
+  for(let i=0;i<6;i++){
+    const line = new THREE.Mesh(new THREE.PlaneGeometry(Math.random()*2.4+0.4, 0.06), new THREE.MeshBasicMaterial({color:0x00ff88, transparent:true, opacity:.55 - i*0.05}));
+    line.position.set(-1 + Math.random()*0.5, 0.8 - i*0.3, 0.09);
+    screenGroup.add(line);
+  }
+  screenGroup.position.set(0, 1.3, -1.45);
+  screenGroup.rotation.x = -0.22;
+  laptop.add(screenGroup);
+
+  // initial tilt
+  laptop.rotation.y = -0.4;
+
+  const state = {vx:0, vy:0.006, target:1, spd:1, hovered:false};
+  addDrag(renderer.domElement, ()=>({
+    dragged:(dx,dy)=>{ laptop.rotation.y+=dx*2.5; laptop.rotation.x+=dy*2.5; },
+    hover:h=>{ state.hovered=h; state.target=h?1.7:1; }
+  }));
+
+  function loop(){
+    state.spd += (state.target-state.spd)*0.08;
+    laptop.rotation.y += state.vy*state.spd;
+    renderer.render(scene, cam);
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  window.addEventListener('resize', ()=>{
+    const W=wrap.clientWidth, H=wrap.clientHeight;
+    cam.aspect=W/H; cam.updateProjectionMatrix(); renderer.setSize(W,H);
   });
 })();
 </script>
