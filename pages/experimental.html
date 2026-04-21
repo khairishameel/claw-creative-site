@@ -10,7 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
 
-  <!-- LIBS (load order: three → OrbitControls → gsap → ScrollTrigger) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/[email protected]/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -41,7 +40,6 @@
     }
     h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 500; letter-spacing: -0.02em; }
 
-    /* The single fixed canvas — proven pattern from /experimental-test */
     #webgl-canvas {
       position: fixed; top: 0; left: 0;
       width: 100vw; height: 100vh;
@@ -50,18 +48,14 @@
     }
     #webgl-canvas.interactive { pointer-events: auto; cursor: grab; }
     #webgl-canvas.interactive:active { cursor: grabbing; }
-
-    /* Content layer sits above the canvas */
     .page-content { position: relative; z-index: 2; }
 
-    /* NAV */
     nav.exp-nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       padding: 22px 48px;
       display: flex; align-items: center; justify-content: space-between;
       background: rgba(13,17,23,0.65);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--line);
     }
     .exp-nav-logo { display: inline-flex; align-items: center; gap: 12px; font-family: 'Playfair Display', serif; font-style: italic; color: var(--ink); text-decoration: none; font-size: 1.2rem; }
@@ -74,15 +68,10 @@
     .exp-nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 40px var(--em-glow); }
     @media (max-width: 900px) { .exp-nav-links { display: none; } nav.exp-nav { padding: 18px 24px; } }
 
-    section {
-      min-height: 100vh;
-      padding: 140px 48px;
-      display: flex; align-items: center;
-      position: relative;
-    }
+    section { min-height: 100vh; padding: 140px 48px; display: flex; align-items: center; position: relative; }
     section .container { max-width: 1280px; margin: 0 auto; width: 100%; }
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; width: 100%; }
-    .spacer { min-height: 60vh; width: 100%; } /* transparent space that lets canvas scene show through */
+    .spacer { min-height: 60vh; width: 100%; }
     @media (max-width: 900px) {
       .split { grid-template-columns: 1fr; gap: 32px; text-align: center; }
       section { padding: 100px 24px; min-height: auto; }
@@ -104,23 +93,156 @@
     h2 .em { color: var(--emerald); font-style: italic; }
     .muted { color: var(--ink-soft); }
 
-    /* DNA pin section — tall so ScrollTrigger has room to scrub */
-    .dna-pin-section { position: relative; min-height: 100vh; padding: 0; }
-    .dna-pin-inner { height: 100vh; display: grid; place-items: center; padding: 48px 32px; }
+    /* ============ DNA section — 300vh tall, canvas pins while scrolling ============ */
+    #dna-section {
+      height: 300vh;
+      position: relative;
+      padding: 0;
+    }
+
+    /* ============ Narrative overlays — fixed on viewport, fade at scroll points ============ */
     .dna-overlay {
-      position: relative; z-index: 3; max-width: 560px; text-align: center;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      max-width: 560px; width: 90vw;
+      text-align: center;
       background: rgba(13,17,23,0.78);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid var(--line-em); border-radius: 20px;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--line-em);
+      border-radius: 20px;
       padding: 36px 28px;
       box-shadow: 0 40px 80px -30px rgba(0,0,0,0.8), 0 0 60px rgba(16,185,129,0.08);
-      opacity: 0; transition: opacity 0.5s var(--ease);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s var(--ease);
     }
     .dna-overlay.in { opacity: 1; }
-    .dna-overlay h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); margin-bottom: 14px; line-height: 1.15; }
-    .dna-overlay p { color: var(--ink-soft); font-size: 1rem; line-height: 1.55; margin-top: 10px; }
-    .dna-overlay .example { display: inline-block; margin-top: 18px; padding: 6px 14px; background: rgba(16,185,129,0.1); border: 1px solid var(--line-em); border-radius: 999px; color: var(--emerald); font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+    .dna-overlay .eyebrow { margin-bottom: 10px; }
+    .dna-overlay h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); margin-bottom: 12px; line-height: 1.15; }
+    .dna-overlay p { color: var(--ink-soft); font-size: 1rem; line-height: 1.55; }
+    .dna-overlay .kpi {
+      display: inline-block; margin-top: 14px;
+      padding: 6px 14px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid var(--line-em);
+      border-radius: 999px;
+      color: var(--emerald);
+      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700;
+    }
+
+    /* ============ Mockup browser frame shown at scroll >= 75% ============ */
+    #bio-mockup {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.96);
+      width: 88vw; max-width: 1040px;
+      height: 70vh; max-height: 640px;
+      background: rgba(13, 17, 23, 0.92);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      box-shadow: 0 60px 120px -30px rgba(0,0,0,0.8), 0 0 80px rgba(16,185,129,0.08);
+      overflow: hidden;
+      z-index: 2;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+      backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    }
+    #bio-mockup.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .mockup-chrome {
+      height: 38px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 14px;
+      background: rgba(22, 27, 34, 0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .mockup-dots { display: flex; gap: 6px; }
+    .mockup-dots span { width: 11px; height: 11px; border-radius: 50%; }
+    .mockup-dots span:nth-child(1) { background: #ef4444; }
+    .mockup-dots span:nth-child(2) { background: #facc15; }
+    .mockup-dots span:nth-child(3) { background: #22c55e; }
+    .mockup-url {
+      flex: 1;
+      margin-left: 14px;
+      padding: 5px 14px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      color: var(--ink-soft);
+      font-size: 0.76rem;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      letter-spacing: 0.01em;
+    }
+    .mockup-url .path { color: var(--emerald); }
+    .mockup-body {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      height: calc(100% - 38px);
+    }
+    .mockup-nav {
+      padding: 20px 16px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      font-size: 0.82rem;
+    }
+    .mockup-brand {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: var(--emerald);
+      font-size: 1rem;
+      margin-bottom: 18px;
+      letter-spacing: 0.01em;
+    }
+    .mockup-nav ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .mockup-nav li { color: var(--ink-soft); padding: 6px 10px; border-radius: 6px; }
+    .mockup-nav li.active { background: rgba(16, 185, 129, 0.12); color: var(--emerald); }
+    .mockup-main {
+      position: relative;
+      padding: 24px 32px;
+    }
+    .mockup-main .molview-tag {
+      display: inline-block;
+      font-size: 0.64rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--emerald);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .mockup-main h3 {
+      font-size: 1.3rem;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .mockup-main .sub {
+      font-size: 0.84rem;
+      color: var(--ink-soft);
+    }
+    .mockup-viewer {
+      position: absolute;
+      top: 86px; left: 32px; right: 32px; bottom: 24px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 8px;
+      background: rgba(13, 17, 23, 0.4);
+    }
+    .mockup-viewer::after {
+      content: 'live molecular viewer';
+      position: absolute; bottom: 10px; left: 14px;
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      font-weight: 600;
+    }
+    @media (max-width: 720px) {
+      #bio-mockup { height: 70vh; width: 94vw; }
+      .mockup-body { grid-template-columns: 1fr; }
+      .mockup-nav { display: none; }
+    }
 
     .process-list { max-width: 620px; margin: 40px auto 0; list-style: none; counter-reset: pstep; }
     .process-list li { counter-increment: pstep; padding: 22px 0 22px 64px; border-bottom: 1px solid var(--line); position: relative; font-size: 1.15rem; color: var(--ink); text-align: left; }
@@ -128,31 +250,24 @@
     .process-list li::before { content: counter(pstep, decimal-leading-zero); position: absolute; left: 0; top: 22px; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.4rem; color: var(--emerald); }
 
     .no-price-card { max-width: 780px; margin: 0 auto; padding: 64px 48px; background: linear-gradient(135deg, var(--bg-card), var(--bg-elev)); border: 1px solid var(--em-dim); border-radius: 20px; text-align: center; box-shadow: 0 0 80px rgba(16,185,129,0.08); }
-
     .cta-final { min-height: 70vh; padding: 140px 48px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .cta-final h2 { font-size: clamp(3rem, 7vw, 6rem); font-weight: 500; line-height: 1.05; margin-bottom: 44px; letter-spacing: -0.03em; }
 
     .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
     .reveal.in { opacity: 1; transform: translateY(0); }
 
-    /* Fallback toast — ONLY created dynamically via JS on webglcontextlost.
-       Not in the static DOM. */
     .webgl-toast {
       position: fixed; bottom: 24px; left: 50%;
       transform: translateX(-50%);
       padding: 14px 22px;
-      background: rgba(13,17,23,0.92);
-      border: 1px solid var(--line-em);
-      border-radius: 10px;
-      color: var(--emerald);
-      font-size: 0.78rem; letter-spacing: 0.08em;
-      z-index: 500;
+      background: rgba(13,17,23,0.92); border: 1px solid var(--line-em);
+      border-radius: 10px; color: var(--emerald);
+      font-size: 0.78rem; letter-spacing: 0.08em; z-index: 500;
     }
   </style>
 </head>
 <body>
 
-<!-- ONE canvas. Same pattern as experimental-test, verified working. -->
 <canvas id="webgl-canvas"></canvas>
 
 <nav class="exp-nav">
@@ -169,7 +284,7 @@
 
 <div class="page-content">
 
-  <!-- HERO (hero torus knot renders behind the text) -->
+  <!-- HERO -->
   <section class="hero-section" id="hero-section">
     <div class="eyebrow reveal">Experimental · 3D Animation</div>
     <h1 class="reveal">3D animation,<br/><span class="em">made accessible</span>.</h1>
@@ -191,7 +306,7 @@
       <div class="split">
         <div class="reveal">
           <div class="spacer" aria-hidden="true"></div>
-          <div class="hint" style="display:block;text-align:center;margin-top:8px">Drag to spin</div>
+          <div class="hint" style="display:block;text-align:center;margin-top:8px">Drag to spin · real Earth</div>
         </div>
         <div class="reveal">
           <div class="eyebrow">Interactive</div>
@@ -205,21 +320,8 @@
     </div>
   </section>
 
-  <!-- DNA scroll zoom (pinned) -->
-  <section class="dna-pin-section" id="dna-section">
-    <div class="dna-pin-inner">
-      <div class="dna-overlay" id="dna-overlay">
-        <div class="eyebrow">Scroll storytelling</div>
-        <h2>Example: biotech<br/>product page.</h2>
-        <p>Scroll to zoom into the molecule.</p>
-        <p>
-          This is exactly the kind of interaction we build into client sites — scroll moments that
-          turn a flat page into a living one.
-        </p>
-        <div class="example">Example use · biotech product page</div>
-      </div>
-    </div>
-  </section>
+  <!-- DNA section — 300vh tall, canvas pins while user scrolls through -->
+  <section id="dna-section"></section>
 
   <!-- PRODUCT -->
   <section id="product-section">
@@ -242,7 +344,7 @@
     </div>
   </section>
 
-  <!-- PROCESS (no 3D) -->
+  <!-- PROCESS -->
   <section id="process" style="min-height:auto">
     <div class="container" style="text-align:center">
       <div class="reveal">
@@ -258,7 +360,6 @@
     </div>
   </section>
 
-  <!-- NO PRICING -->
   <section style="min-height:auto">
     <div class="container">
       <div class="no-price-card reveal">
@@ -285,154 +386,310 @@
 
 </div>
 
-<!-- Scroll reveals -->
+<!-- DNA narrative overlays — fixed on viewport, toggled by scroll progress -->
+<div class="dna-overlay" id="dna-ov-1">
+  <div class="eyebrow">Scroll storytelling · 01</div>
+  <h2>This is DNA.</h2>
+  <p>Every living thing is built from it.</p>
+</div>
+<div class="dna-overlay" id="dna-ov-2">
+  <div class="eyebrow">Zoom in · 02</div>
+  <h2>Four base pairs —<br/>A, C, T, G.</h2>
+  <p>The language of biology.</p>
+</div>
+<div class="dna-overlay" id="dna-ov-3">
+  <div class="eyebrow">Now imagine · 03</div>
+  <h2>Now imagine this on a website.</h2>
+  <p>A biotech company shows their product at the molecular level. Visitors interact with it instead of reading about it.</p>
+</div>
+<div class="dna-overlay" id="dna-ov-4">
+  <div class="eyebrow">Case study · 04</div>
+  <h2>That's what we built<br/>for <em style="color:var(--emerald)">BioLumen Labs</em>.</h2>
+  <p>A molecular visualization that replaced three pages of technical copy.</p>
+  <div class="kpi">Conversion up 280%</div>
+</div>
+<div class="dna-overlay" id="dna-ov-5" style="top:12%;transform:translate(-50%,0);max-width:640px">
+  <div class="eyebrow">The point · 05</div>
+  <h2>Any business.<br/>Any concept. <span style="color:var(--emerald);font-style:italic">Brought to life.</span></h2>
+  <p>We build 3D experiences for brands that want their websites to feel alive.</p>
+</div>
+
+<!-- Mockup browser frame — appears at scroll progress >= 75% -->
+<div id="bio-mockup" aria-hidden="true">
+  <div class="mockup-chrome">
+    <div class="mockup-dots"><span></span><span></span><span></span></div>
+    <div class="mockup-url">biolumenlabs.com<span class="path">/products/molview</span></div>
+  </div>
+  <div class="mockup-body">
+    <aside class="mockup-nav">
+      <div class="mockup-brand">BioLumen Labs</div>
+      <ul>
+        <li>Home</li>
+        <li>About</li>
+        <li class="active">Products</li>
+        <li>Research</li>
+        <li>Contact</li>
+      </ul>
+    </aside>
+    <main class="mockup-main">
+      <span class="molview-tag">MolView Interactive</span>
+      <h3>Human Beta-Globin</h3>
+      <p class="sub">Drag to explore the molecular structure in real time.</p>
+      <div class="mockup-viewer"></div>
+    </main>
+  </div>
+</div>
+
 <script>
   (() => {
     const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (!e.isIntersecting) return;
-        e.target.classList.add('in');
-        io.unobserve(e.target);
-      });
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
   })();
 </script>
 
-<!-- THE ENGINE — built up from the proven test foundation -->
+<!-- ============= THE ENGINE ============= -->
 <script>
-// ============================================================================
-// Foundation (same code as /experimental-test, proven to work):
-//   - canvas, scene, camera, renderer, mesh, animate loop
-// Features layered on top:
-//   - multiple groups (hero / globe / dna / product) in the same scene
-//   - GSAP ScrollTrigger to swap active group and drive DNA scroll zoom
-//   - OrbitControls on globe + product
-// ============================================================================
-
 (() => {
-  // Basic sanity
   if (typeof THREE === 'undefined') { console.error('THREE not loaded'); return; }
   const hasOrbit = typeof THREE.OrbitControls !== 'undefined';
   const hasGSAP  = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
-  console.log('[exp] libs · THREE r' + THREE.REVISION + ' · OrbitControls=' + hasOrbit + ' · gsap=' + hasGSAP);
+  console.log('[exp] THREE r' + THREE.REVISION + ' · OrbitControls=' + hasOrbit + ' · gsap=' + hasGSAP);
 
-  // ----- Foundation (proven) -----
   const canvas = document.getElementById('webgl-canvas');
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false, alpha: true });
+
+  // ---------- Manual WebGL context (with the 6-attempt fallback that fixed context-refused) ----------
+  function tryContexts(c) {
+    const attempts = [
+      { type: 'webgl2', opts: { failIfMajorPerformanceCaveat: false, powerPreference: 'low-power', antialias: false, alpha: true } },
+      { type: 'webgl',  opts: { failIfMajorPerformanceCaveat: false, powerPreference: 'low-power', antialias: false, alpha: true } },
+      { type: 'webgl2', opts: { failIfMajorPerformanceCaveat: false, antialias: false, alpha: true } },
+      { type: 'webgl',  opts: { failIfMajorPerformanceCaveat: false, antialias: false, alpha: true } },
+      { type: 'experimental-webgl', opts: { failIfMajorPerformanceCaveat: false, antialias: false } },
+      { type: 'webgl', opts: {} },
+    ];
+    for (const a of attempts) {
+      try { const gl = c.getContext(a.type, a.opts); if (gl) return { gl, type: a.type }; } catch(e){}
+    }
+    return null;
+  }
+
+  const ctxRes = tryContexts(canvas);
+  if (!ctxRes) { console.error('[exp] WebGL context refused'); return; }
+  console.log('[exp] context acquired (' + ctxRes.type + ')');
+
+  // ---------- Renderer + scene + cameras ----------
+  const renderer = new THREE.WebGLRenderer({
+    canvas, context: ctxRes.gl,
+    antialias: false, alpha: true,
+    powerPreference: 'low-power',
+    failIfMajorPerformanceCaveat: false,
+  });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.setClearColor(0x000000, 0);
-  camera.position.set(0, 0, 5);
-  console.log('[exp] canvas + renderer + camera initialized');
+  console.log('[exp] renderer built');
 
-  // ----- Four groups, all at origin, toggled .visible per section -----
+  const scene = new THREE.Scene();
 
-  // HERO — torus knot (same as /experimental-test, just made a group)
+  // One camera per slot — lets each have independent state without collision
+  function makeCam(z) {
+    const c = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+    c.position.set(0, 0, z);
+    return c;
+  }
+  const cameras = {
+    hero:    makeCam(5),
+    globe:   makeCam(3.2),
+    dna:     makeCam(20),          // starts far, scroll will drive this
+    product: makeCam(5),
+  };
+
+  // ---------- Groups ----------
   const heroGroup = new THREE.Group();
+  const globeGroup = new THREE.Group();
+  const dnaGroup = new THREE.Group();
+  const productGroup = new THREE.Group();
+
+  // HERO — torus knot
   {
-    const g = new THREE.TorusKnotGeometry(1, 0.3, 64, 8);
+    const g = new THREE.TorusKnotGeometry(1, 0.3, 80, 16);
     const m = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true });
     heroGroup.add(new THREE.Mesh(g, m));
   }
   scene.add(heroGroup);
 
-  // GLOBE — wireframe sphere + landmass blobs
-  const globeGroup = new THREE.Group();
+  // GLOBE — real Earth texture + emerald backside glow
   {
-    const g = new THREE.SphereGeometry(1, 32, 32);
-    const m = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.8 });
-    globeGroup.add(new THREE.Mesh(g, m));
-    const fg = new THREE.SphereGeometry(0.98, 24, 24);
-    const fm = new THREE.MeshBasicMaterial({ color: 0x0d1117, transparent: true, opacity: 0.85 });
-    globeGroup.add(new THREE.Mesh(fg, fm));
-    const landMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
-    [
-      { lat: 40, lon: -95, s: 0.32 },
-      { lat: 0,  lon: -55, s: 0.24 },
-      { lat: 15, lon:  20, s: 0.34 },
-      { lat: 50, lon:  80, s: 0.38 },
-      { lat: -22, lon: 135, s: 0.18 },
-    ].forEach(({lat, lon, s}) => {
-      const phi = (90 - lat) * Math.PI / 180;
-      const theta = (lon + 180) * Math.PI / 180;
-      const patch = new THREE.Mesh(new THREE.CircleGeometry(s, 14), landMat);
-      patch.position.setFromSphericalCoords(1.01, phi, theta);
-      patch.lookAt(0,0,0); patch.rotateY(Math.PI);
-      globeGroup.add(patch);
+    const loader = new THREE.TextureLoader();
+    loader.crossOrigin = 'anonymous';
+
+    const earthGeo = new THREE.SphereGeometry(1, 64, 64);
+    const earthMat = new THREE.MeshBasicMaterial({ color: 0x1e3a5f });   // placeholder blue-ish until texture loads
+    const earth = new THREE.Mesh(earthGeo, earthMat);
+
+    // Primary texture; fallback to threejs.org sample if primary 404s
+    const primaryUrl  = 'https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg';
+    const fallbackUrl = 'https://cdn.jsdelivr.net/npm/[email protected]/assets/textures/planets/earth_day_4096.jpg';
+
+    const applyTex = (url, onFail) => {
+      loader.load(url,
+        (tex) => {
+          tex.colorSpace = THREE.SRGBColorSpace || undefined;
+          earth.material = new THREE.MeshBasicMaterial({ map: tex });
+          earth.material.needsUpdate = true;
+          console.log('[exp] earth texture loaded from ' + url);
+        },
+        undefined,
+        (err) => {
+          console.warn('[exp] earth texture failed (' + url + ')');
+          if (onFail) onFail();
+        }
+      );
+    };
+    applyTex(primaryUrl, () => applyTex(fallbackUrl));
+
+    globeGroup.add(earth);
+
+    // Emerald back-side glow
+    const glowGeo = new THREE.SphereGeometry(1.04, 32, 32);
+    const glowMat = new THREE.MeshBasicMaterial({
+      color: 0x10b981, transparent: true, opacity: 0.18,
+      side: THREE.BackSide,
     });
+    globeGroup.add(new THREE.Mesh(glowGeo, glowMat));
+
+    // Additional thin inner ring glow
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(1.22, 1.24, 64),
+      new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.25, side: THREE.DoubleSide })
+    );
+    globeGroup.add(ring);
   }
   globeGroup.visible = false;
   scene.add(globeGroup);
 
-  // DNA — 40 base pairs, colorful
-  const dnaGroup = new THREE.Group();
+  // DNA — greens only, connected base pairs, backbone cylinders
   {
-    const s1Mat = new THREE.MeshBasicMaterial({ color: new THREE.Color('hsl(240, 80%, 65%)') });
-    const s2Mat = new THREE.MeshBasicMaterial({ color: new THREE.Color('hsl(320, 80%, 65%)') });
-    const pairMats = [0xff4444, 0xffdd44, 0x44ff88, 0x4488ff].map(c => new THREE.MeshBasicMaterial({ color: c }));
-    const rungOverlayMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 });
-    const sphGeo = new THREE.SphereGeometry(0.15, 10, 10);
-    const rungGeo = new THREE.CylinderGeometry(0.05, 0.05, 3, 6);
-    const N = 40, spacing = 0.5, radius = 1.5;
+    const N = 40;
+    const spacing = 0.5;
+    const radius = 1.5;
+
+    // All strand spheres neon green
+    const strandMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
+    // Four shades of green for base pairs
+    const baseColors = [0x34d399, 0x6ee7b7, 0xa7f3d0, 0x059669];
+    const baseMats = baseColors.map((c) => new THREE.MeshBasicMaterial({ color: c }));
+    // Backbone segment material (slightly dimmer green)
+    const backboneMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.55 });
+
+    const sphereGeo = new THREE.SphereGeometry(0.15, 12, 12);
+
+    // Store prev positions to draw backbone cylinders
+    let prevS1 = null, prevS2 = null;
+
+    const UP = new THREE.Vector3(0, 1, 0);
+
     for (let i = 0; i < N; i++) {
       const angle = i * 0.4;
       const y = i * spacing - (N * spacing) / 2;
-      const s1 = new THREE.Mesh(sphGeo, s1Mat);
-      s1.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
-      const s2 = new THREE.Mesh(sphGeo, s2Mat);
-      s2.position.set(Math.cos(angle + Math.PI) * radius, y, Math.sin(angle + Math.PI) * radius);
-      const rung = new THREE.Mesh(rungGeo, pairMats[i % 4]);
-      rung.position.set(0, y, 0); rung.rotation.z = Math.PI / 2; rung.rotation.y = angle;
-      rung.scale.y = (radius * 2) / 3;
-      const overlay = new THREE.Mesh(rungGeo, rungOverlayMat);
-      overlay.position.set(0, y, 0); overlay.rotation.z = Math.PI / 2; overlay.rotation.y = angle;
-      overlay.scale.set(0.38, (radius * 2) / 3, 0.38);
-      dnaGroup.add(s1); dnaGroup.add(s2); dnaGroup.add(rung); dnaGroup.add(overlay);
+
+      const s1Pos = new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+      const s2Pos = new THREE.Vector3(Math.cos(angle + Math.PI) * radius, y, Math.sin(angle + Math.PI) * radius);
+
+      const s1 = new THREE.Mesh(sphereGeo, strandMat);
+      s1.position.copy(s1Pos);
+      dnaGroup.add(s1);
+
+      const s2 = new THREE.Mesh(sphereGeo, strandMat);
+      s2.position.copy(s2Pos);
+      dnaGroup.add(s2);
+
+      // Base pair cylinder — connects s1Pos to s2Pos precisely
+      const distance = s1Pos.distanceTo(s2Pos);
+      const direction = new THREE.Vector3().subVectors(s2Pos, s1Pos).normalize();
+      const midpoint = new THREE.Vector3().addVectors(s1Pos, s2Pos).multiplyScalar(0.5);
+      const bpGeo = new THREE.CylinderGeometry(0.05, 0.05, distance, 8);
+      const bp = new THREE.Mesh(bpGeo, baseMats[i % 4]);
+      bp.position.copy(midpoint);
+      bp.quaternion.setFromUnitVectors(UP, direction);
+      dnaGroup.add(bp);
+
+      // Backbone segments — connect this sphere to the PREVIOUS sphere on same strand
+      if (prevS1) {
+        const d = prevS1.distanceTo(s1Pos);
+        const dir = new THREE.Vector3().subVectors(s1Pos, prevS1).normalize();
+        const mid = new THREE.Vector3().addVectors(prevS1, s1Pos).multiplyScalar(0.5);
+        const g = new THREE.CylinderGeometry(0.04, 0.04, d, 6);
+        const m = new THREE.Mesh(g, backboneMat);
+        m.position.copy(mid);
+        m.quaternion.setFromUnitVectors(UP, dir);
+        dnaGroup.add(m);
+      }
+      if (prevS2) {
+        const d = prevS2.distanceTo(s2Pos);
+        const dir = new THREE.Vector3().subVectors(s2Pos, prevS2).normalize();
+        const mid = new THREE.Vector3().addVectors(prevS2, s2Pos).multiplyScalar(0.5);
+        const g = new THREE.CylinderGeometry(0.04, 0.04, d, 6);
+        const m = new THREE.Mesh(g, backboneMat);
+        m.position.copy(mid);
+        m.quaternion.setFromUnitVectors(UP, dir);
+        dnaGroup.add(m);
+      }
+      prevS1 = s1Pos.clone();
+      prevS2 = s2Pos.clone();
     }
   }
   dnaGroup.visible = false;
   scene.add(dnaGroup);
 
   // PRODUCT — wireframe phone
-  const productGroup = new THREE.Group();
   {
     const body = new THREE.BoxGeometry(1.4, 2.8, 0.18);
-    const bw = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.85 });
-    const bf = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.12 });
-    productGroup.add(new THREE.LineSegments(new THREE.WireframeGeometry(body), bw));
-    productGroup.add(new THREE.Mesh(body, bf));
+    productGroup.add(new THREE.LineSegments(
+      new THREE.WireframeGeometry(body),
+      new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.85 })
+    ));
+    productGroup.add(new THREE.Mesh(body, new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.12 })));
     const screen = new THREE.BoxGeometry(1.24, 2.5, 0.03);
-    const sw = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.5 });
-    const sf = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.18 });
-    const sMesh = new THREE.Mesh(screen, sf); sMesh.position.z = 0.1;
+    const sMesh = new THREE.Mesh(screen, new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.18 }));
+    sMesh.position.z = 0.1;
     productGroup.add(sMesh);
-    productGroup.add(new THREE.LineSegments(new THREE.WireframeGeometry(screen), sw));
+    productGroup.add(new THREE.LineSegments(
+      new THREE.WireframeGeometry(screen),
+      new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.5 })
+    ));
   }
   productGroup.visible = false;
   scene.add(productGroup);
 
-  console.log('[exp] all groups built · hero=' + heroGroup.children.length + ' · globe=' + globeGroup.children.length + ' · dna=' + dnaGroup.children.length + ' · product=' + productGroup.children.length);
+  console.log('[exp] scene · hero=' + heroGroup.children.length + ' globe=' + globeGroup.children.length + ' dna=' + dnaGroup.children.length + ' product=' + productGroup.children.length);
 
-  // ----- OrbitControls (shared, attached to camera) -----
-  let controls = null;
-  if (hasOrbit) {
-    controls = new THREE.OrbitControls(camera, canvas);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.enablePan = false;
-    controls.enableZoom = false;
-    controls.autoRotate = false;
-    controls.enabled = false;
-    console.log('[exp] OrbitControls attached');
+  // ---------- OrbitControls — ONE instance per draggable slot, each bound to its own camera ----------
+  const controlsMap = {};
+  function makeControls(cam, autoSpeed) {
+    if (!hasOrbit) return null;
+    const c = new THREE.OrbitControls(cam, renderer.domElement);
+    c.enableDamping = true;
+    c.dampingFactor = 0.05;
+    c.enableZoom = false;
+    c.enablePan = false;
+    c.autoRotate = true;
+    c.autoRotateSpeed = autoSpeed;
+    c.enabled = false;
+    // Pause auto-rotate while user is actively dragging, resume 3s after release
+    let t = null;
+    c.addEventListener('start', () => { c.autoRotate = false; if (t) { clearTimeout(t); t = null; } });
+    c.addEventListener('end',   () => { if (t) clearTimeout(t); t = setTimeout(() => { c.autoRotate = true; }, 3000); });
+    return c;
   }
+  controlsMap.hero    = makeControls(cameras.hero,    0.5);
+  controlsMap.globe   = makeControls(cameras.globe,   0.4);
+  controlsMap.product = makeControls(cameras.product, 0.7);
+  // DNA: intentionally NO OrbitControls — its camera is scroll-driven only
 
-  // ----- Camera position targets per slot (used by ScrollTrigger) -----
-  const CAM_DEFAULT_Z = 5;
-
-  // ----- Active slot tracking -----
+  // ---------- Active slot switching ----------
   let activeSlot = 'hero';
   function setSlot(name) {
     if (name === activeSlot) return;
@@ -441,23 +698,44 @@
     globeGroup.visible   = name === 'globe';
     dnaGroup.visible     = name === 'dna';
     productGroup.visible = name === 'product';
-    // Reset camera for non-DNA slots (DNA section controls camera Z via ScrollTrigger scrub)
-    if (name !== 'dna') {
-      camera.position.set(0, 0, CAM_DEFAULT_Z);
-      camera.lookAt(0, 0, 0);
-    }
-    // OrbitControls: enable only on globe + product
-    if (controls) {
-      controls.enabled = (name === 'globe' || name === 'product');
-      controls.autoRotate = controls.enabled;
-      controls.autoRotateSpeed = name === 'globe' ? 0.6 : 0.8;
-      controls.reset && null; // no-op; just a note that we don't want to reset and fight our camera.set
-    }
-    canvas.classList.toggle('interactive', name === 'globe' || name === 'product');
+
+    // Enable controls for the new active slot ONLY
+    Object.entries(controlsMap).forEach(([k, c]) => {
+      if (!c) return;
+      c.enabled = (k === name);
+      c.autoRotate = c.enabled;
+    });
+    canvas.classList.toggle('interactive', name === 'hero' || name === 'globe' || name === 'product');
     console.log('[exp] slot → ' + name);
   }
+  // Enable hero on boot
+  if (controlsMap.hero) { controlsMap.hero.enabled = true; controlsMap.hero.autoRotate = true; }
+  canvas.classList.add('interactive');
 
-  // ----- ScrollTriggers -----
+  // ---------- Narrative overlay tracking ----------
+  const ovs = [
+    document.getElementById('dna-ov-1'),
+    document.getElementById('dna-ov-2'),
+    document.getElementById('dna-ov-3'),
+    document.getElementById('dna-ov-4'),
+    document.getElementById('dna-ov-5'),
+  ];
+  const mockup = document.getElementById('bio-mockup');
+
+  function updateNarrative(p) {
+    // p in [0, 1]
+    // 0..0.15 → ov1,  0.15..0.35 → ov2,  0.35..0.55 → ov3,
+    // 0.55..0.75 → ov4,  0.75..1 → ov5 + mockup
+    const idx =
+      p < 0.15 ? 0 :
+      p < 0.35 ? 1 :
+      p < 0.55 ? 2 :
+      p < 0.75 ? 3 : 4;
+    ovs.forEach((el, i) => { if (el) el.classList.toggle('in', i === idx); });
+    if (mockup) mockup.classList.toggle('show', p >= 0.75);
+  }
+
+  // ---------- ScrollTriggers ----------
   if (hasGSAP) {
     gsap.registerPlugin(ScrollTrigger);
 
@@ -468,58 +746,63 @@
     ScrollTrigger.create({ trigger: '#product-section', start: 'top 60%', end: 'bottom 40%',
       onEnter: () => setSlot('product'), onEnterBack: () => setSlot('product') });
 
-    // DNA pin + scrub
+    // DNA pin + scrub — drives dnaCam.position.z over the 300vh section
     ScrollTrigger.create({
       trigger: '#dna-section',
       start: 'top top',
-      end: '+=300%',
+      end: 'bottom top',
       pin: true,
       scrub: 1,
+      anticipatePin: 1,
       onEnter:     () => setSlot('dna'),
       onEnterBack: () => setSlot('dna'),
-      onLeave:     () => setSlot('product'),
-      onLeaveBack: () => setSlot('globe'),
+      onLeave:     () => { setSlot('product'); hideAllNarrative(); },
+      onLeaveBack: () => { setSlot('globe');   hideAllNarrative(); },
       onUpdate: (self) => {
         if (activeSlot !== 'dna') return;
         const p = self.progress;
-        // 0 → 0.6 : z goes 20 → -2 (zooming in)
-        // 0.6 → 1 : z goes -2 → -15 (passing through)
-        const z = (p < 0.6)
-          ? 20 - (22 * (p / 0.6))
-          : -2 - ((p - 0.6) / 0.4) * 13;
-        camera.position.z = z;
-        camera.position.x = 0; camera.position.y = 0;
-        camera.lookAt(0, 0, 0);
-        const overlay = document.getElementById('dna-overlay');
-        if (overlay) overlay.classList.toggle('in', p > 0.25 && p < 0.85);
+        // camera Z: 20 (far) → -5 (inside, around p=0.6) → -15 (past, p=1)
+        const cam = cameras.dna;
+        let z;
+        if (p < 0.6) z = 20 - (25 * (p / 0.6));
+        else         z = -5 - ((p - 0.6) / 0.4) * 10;
+        cam.position.set(0, 0, z);
+        cam.lookAt(0, 0, 0);
+        updateNarrative(p);
       },
     });
-    console.log('[exp] ScrollTriggers registered');
+    console.log('[exp] ScrollTriggers live');
   }
 
-  // ----- Animate (same RAF pattern as /experimental-test) -----
+  function hideAllNarrative() {
+    ovs.forEach((el) => el && el.classList.remove('in'));
+    if (mockup) mockup.classList.remove('show');
+  }
+
+  // ---------- Animate ----------
   function animate() {
     requestAnimationFrame(animate);
-    // per-group auto-spin
-    if (activeSlot === 'hero')    { heroGroup.rotation.x += 0.005; heroGroup.rotation.y += 0.005; }
-    if (activeSlot === 'globe')   { if (!controls || !controls.enabled) globeGroup.rotation.y += 0.003; }
-    if (activeSlot === 'dna')     { dnaGroup.rotation.y += 0.004; }
-    if (activeSlot === 'product') { if (!controls || !controls.enabled) productGroup.rotation.y += 0.005; }
-    if (controls && controls.enabled) controls.update();
-    renderer.render(scene, camera);
+    const activeControls = controlsMap[activeSlot];
+    if (activeControls && activeControls.enabled) {
+      activeControls.update();
+    } else {
+      // Subtle drift when no controls (DNA section)
+      if (activeSlot === 'dna') dnaGroup.rotation.y += 0.004;
+    }
+    const cam = cameras[activeSlot] || cameras.hero;
+    renderer.render(scene, cam);
   }
   animate();
   console.log('[exp] animation loop started');
 
-  // ----- Resize -----
+  // ---------- Resize ----------
   window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    Object.values(cameras).forEach((c) => { c.aspect = window.innerWidth / window.innerHeight; c.updateProjectionMatrix(); });
     renderer.setSize(window.innerWidth, window.innerHeight);
     if (hasGSAP) ScrollTrigger.refresh();
   });
 
-  // ----- WebGL context loss: inject toast dynamically, remove when restored -----
+  // ---------- Context loss (dynamic toast, never static) ----------
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
     console.warn('[exp] webglcontextlost');
