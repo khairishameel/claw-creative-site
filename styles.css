@@ -60,20 +60,21 @@ p  { font-size: 1.02rem; color: var(--ink-soft); }
 ================================================================ */
 .nav {
   position: fixed; inset: 0 0 auto 0; z-index: 100;
-  padding: 22px 48px;
+  padding: 22px clamp(20px, 3vw, 48px);
   display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
   transition: padding 0.35s var(--ease), background 0.35s var(--ease),
               backdrop-filter 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
 .nav.scrolled {
-  padding: 12px 48px;
+  padding: 12px clamp(20px, 3vw, 48px);
   background: rgba(253, 251, 247, 0.78);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   box-shadow: 0 2px 24px rgba(36, 15, 14, 0.06);
   border-bottom: 1px solid var(--line);
 }
-.nav-logo { display: inline-flex; align-items: center; gap: 10px; }
+.nav-logo { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .nav-logo img {
   height: 54px; width: auto;
   transition: height 0.25s var(--ease), filter 0.3s var(--ease);
@@ -83,16 +84,17 @@ p  { font-size: 1.02rem; color: var(--ink-soft); }
 .nav-logo:hover img { filter: drop-shadow(0 2px 18px var(--fire-glow)); }
 
 .nav-links {
-  display: flex; gap: 34px; list-style: none;
+  display: flex; gap: clamp(14px, 1.6vw, 34px); list-style: none;
   position: absolute; left: 50%; top: 50%;
   transform: translate(-50%, -50%);
 }
 .nav-links a {
   position: relative;
-  font-size: 0.82rem; font-weight: 600;
+  font-size: clamp(0.72rem, 0.9vw, 0.82rem); font-weight: 600;
   letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--ink-soft);
   padding: 6px 2px;
+  white-space: nowrap;
   transition: color 0.25s;
 }
 .nav-links a::after {
@@ -106,10 +108,11 @@ p  { font-size: 1.02rem; color: var(--ink-soft); }
 
 .nav-cta {
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 11px 22px; border-radius: 999px;
+  padding: 11px clamp(16px, 1.6vw, 22px); border-radius: 999px;
   background: var(--fire); color: var(--white);
-  font-size: 0.8rem; font-weight: 700;
+  font-size: clamp(0.72rem, 0.88vw, 0.8rem); font-weight: 700;
   letter-spacing: 0.1em; text-transform: uppercase;
+  white-space: nowrap; flex-shrink: 0;
   box-shadow: 0 0 22px var(--fire-glow);
   animation: ctaPulse 3.4s ease-in-out infinite;
   transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease);
@@ -122,8 +125,11 @@ p  { font-size: 1.02rem; color: var(--ink-soft); }
 
 .hamburger {
   display: none;
+  width: 44px; height: 44px;
+  align-items: center; justify-content: center;
   flex-direction: column; gap: 5px;
-  padding: 8px; cursor: pointer;
+  background: transparent; border: 0; padding: 0;
+  cursor: pointer; flex-shrink: 0;
 }
 .hamburger span {
   display: block; width: 24px; height: 2px;
@@ -136,23 +142,41 @@ p  { font-size: 1.02rem; color: var(--ink-soft); }
   background: rgba(253, 251, 247, 0.98);
   backdrop-filter: blur(24px);
   z-index: 99;
-  padding: 96px 48px 48px;
-  flex-direction: column; gap: 28px;
+  padding: 96px 32px 48px;
+  flex-direction: column; gap: 24px;
   opacity: 0; pointer-events: none;
+  overflow-y: auto;
   transition: opacity 0.3s var(--ease);
 }
 .mobile-menu.open { opacity: 1; pointer-events: auto; }
 .mobile-menu a {
   font-family: var(--font-display);
-  font-size: 1.8rem; font-weight: 700;
+  font-size: clamp(1.4rem, 5.5vw, 1.9rem); font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--ink);
 }
 .mobile-menu a:hover { color: var(--fire); }
+.mobile-menu a[href="/contact"] {
+  margin-top: auto;
+  align-self: center;
+  padding: 16px 44px; border-radius: 999px;
+  background: var(--fire); color: var(--white);
+  font-size: 1rem; letter-spacing: 0.14em; text-transform: uppercase;
+  box-shadow: 0 0 24px var(--fire-glow);
+}
+.mobile-menu a[href="/contact"]:hover { color: var(--white); background: #ff6140; }
+.mobile-menu-close {
+  position: absolute; top: 18px; right: 18px;
+  width: 44px; height: 44px;
+  background: transparent; border: 0; padding: 0;
+  color: var(--ink); font-size: 2.2rem; line-height: 1;
+  cursor: pointer;
+}
+.mobile-menu-close:hover { color: var(--fire); }
 
-@media (max-width: 900px) {
-  .nav { padding: 16px 24px; }
-  .nav.scrolled { padding: 10px 24px; }
+@media (max-width: 1023px) {
+  .nav { padding: 16px clamp(16px, 3vw, 24px); }
+  .nav.scrolled { padding: 10px clamp(16px, 3vw, 24px); }
   .nav-links { display: none; }
   .nav-cta { display: none; }
   .hamburger { display: flex; }
