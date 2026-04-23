@@ -110,6 +110,7 @@ p  { font-size: 1.02rem; color: var(--ink-soft); }
 .nav-cta {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 11px 22px; border-radius: 999px;
+  white-space: nowrap; flex-shrink: 0;
   background: var(--fire); color: var(--white);
   font-size: 0.8rem; font-weight: 700;
   letter-spacing: 0.1em; text-transform: uppercase;
