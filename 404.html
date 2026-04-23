@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page not found — Claw Creative</title>
+  <meta name="description" content="The page you're looking for doesn't exist. Head back home or see our work." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/png" href="/claw-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .nf-wrap {
+      min-height: calc(100vh - 96px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 140px 24px 96px;
+      text-align: center;
+    }
+    .nf-inner { max-width: 720px; width: 100%; }
+
+    .nf-code {
+      font-family: 'Playfair Display', 'Space Grotesk', serif;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--fire);
+      font-size: clamp(84px, 18vw, 160px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      text-shadow: 0 6px 40px var(--fire-glow);
+      margin-bottom: 8px;
+    }
+
+    .nf-visual {
+      width: 180px;
+      height: 180px;
+      margin: 12px auto 32px;
+      display: grid;
+      place-items: center;
+      transform-origin: 50% 85%;
+      animation: nfWobble 3s ease-in-out infinite;
+      filter: drop-shadow(0 18px 30px rgba(36, 15, 14, 0.18))
+              drop-shadow(0 0 40px var(--fire-soft));
+    }
+    .nf-visual img { width: 100%; height: auto; }
+
+    @keyframes nfWobble {
+      0%, 100% { transform: rotate(-6deg); }
+      50%      { transform: rotate(6deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .nf-visual { animation: none; }
+    }
+
+    .nf-headline {
+      font-family: 'Playfair Display', 'Space Grotesk', serif;
+      font-weight: 500;
+      font-style: italic;
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      line-height: 1.12;
+      margin-bottom: 18px;
+    }
+
+    .nf-sub {
+      font-size: 1.08rem;
+      color: var(--ink-soft);
+      max-width: 520px;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+    }
+
+    .nf-cta-row {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 640px) {
+      .nf-wrap { padding: 120px 20px 72px; }
+      .nf-visual { width: 140px; height: 140px; margin-bottom: 24px; }
+      .nf-sub { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo" aria-label="Claw Creative home"><img src="/claw-wordmark.png?v=4" alt="Claw Creative" /></a>
+  <ul class="nav-links">
+    <li><a href="/websites">Websites</a></li>
+    <li><a href="/ai-agents">AI Agents</a></li>
+    <li><a href="/socials">Socials</a></li>
+    <li><a href="/marketing">Marketing</a></li>
+    <li><a href="/domains">Domains</a></li>
+    <li><a href="/work">Work</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/experimental" class="nav-exp">Experimental</a></li>
+  </ul>
+  <a href="/contact" class="nav-cta">Let's Talk</a>
+  <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
+</nav>
+<div class="mobile-menu">
+  <a href="/">Home</a><a href="/websites">Websites</a><a href="/ai-agents">AI Agents</a>
+  <a href="/socials">Socials</a><a href="/marketing">Marketing</a><a href="/domains">Domains</a>
+  <a href="/work">Work</a><a href="/process">Process</a><a href="/about">About</a>
+  <a href="/experimental" class="nav-exp">Experimental</a><a href="/contact">Contact</a>
+</div>
+
+<main class="nf-wrap">
+  <div class="nf-inner">
+    <div class="nf-code" aria-hidden="true">404</div>
+    <div class="nf-visual" aria-hidden="true">
+      <img src="/claw-icon.png" alt="" loading="eager" />
+    </div>
+    <h1 class="nf-headline">Oops, we've hit a rock in the sand.</h1>
+    <p class="nf-sub">The page you're looking for doesn't exist. It might have moved, been deleted, or never existed in the first place.</p>
+    <div class="nf-cta-row">
+      <a href="/" class="btn btn-primary">Take Me Home</a>
+      <a href="/work" class="btn btn-ghost">See Our Work</a>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="/claw-wordmark.png?v=4" alt="Claw Creative" />
+      <p>The digital side of your business, done. Websites, AI agents, domain hunting, and social media for Indianapolis small businesses.</p>
+    </div>
+    <div class="footer-col"><h4>Services</h4><ul><li><a href="/websites">Websites</a></li><li><a href="/ai-agents">AI Agents</a></li><li><a href="/socials">Social Media</a></li><li><a href="/marketing">Marketing</a></li><li><a href="/domains">Domains</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="/work">Work</a></li><li><a href="/process">Process</a></li><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="mailto:support@clawcreative.net">support@clawcreative.net</a></li><li><a href="https://wa.me/13176571684">WhatsApp</a></li><li>Indianapolis, IN</li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>&copy; 2026 Claw Creative. All rights reserved.</span><span>Built in Indianapolis.</span></div>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
