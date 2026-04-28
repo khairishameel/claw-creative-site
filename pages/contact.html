@@ -40,7 +40,7 @@
 <section>
   <div class="container grid-2">
     <div class="reveal-left">
-      <form id="contact-form" class="form glass" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/?sent=1" style="padding:36px">
+      <form id="contact-form" class="form glass" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/thanks" style="padding:36px">
         <input type="hidden" name="form-name" value="contact" />
         <p class="hp" style="position:absolute;left:-9999px;top:-9999px" aria-hidden="true">
           <label>Don't fill this out if you're human: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
@@ -61,11 +61,6 @@
         <label><span>What's the workflow eating your team's time?</span><textarea name="notes" placeholder="Describe the work you'd like to automate. Tools involved, rough volume, who currently does it. The more specific, the faster we can scope."></textarea></label>
         <button type="submit" class="btn-magnetic" data-magnet="0.25" style="width:100%;justify-content:center"><span id="contact-submit-label">Send It</span><span class="arrow">→</span></button>
       </form>
-      <div id="contact-success" class="glass" style="display:none;padding:36px;margin-top:18px;text-align:center">
-        <div class="section-eyebrow" style="color:var(--prism-1)">Sent</div>
-        <h3 class="mt-8" style="font-size:1.4rem">Thanks. We've got it.</h3>
-        <p class="muted mt-8">We reply within a few hours during business hours. If it's urgent, ping us on WhatsApp.</p>
-      </div>
     </div>
 
     <div class="reveal-right">
@@ -109,14 +104,8 @@
       if (sel) [...sel.options].forEach(o => { if (o.value === s) sel.value = o.value; });
     }
 
-    // If we just landed back from a successful submit (?sent=1), show success
-    if (new URLSearchParams(location.search).get('sent') === '1') {
-      showSuccess();
-      // Clean the URL
-      history.replaceState(null, '', location.pathname);
-    }
-
-    // AJAX submit so the user stays on the page
+    // AJAX submit. On success, navigate to /thanks. On any failure, fall back
+    // to a native form submit which Netlify will redirect to /thanks anyway.
     const form = document.getElementById('contact-form');
     if (!form) return;
     form.addEventListener('submit', async (e) => {
@@ -126,34 +115,23 @@
       if (label) label.textContent = 'Sending...';
       if (btn) btn.disabled = true;
 
-      const data = new FormData(form);
-      const params = new URLSearchParams();
-      for (const [k, v] of data) params.append(k, v);
+      const body = new URLSearchParams(new FormData(form)).toString();
 
       try {
         const r = await fetch('/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: params.toString(),
+          body,
         });
         if (!r.ok) throw new Error('Netlify returned ' + r.status);
-        showSuccess();
+        window.location.href = '/thanks';
       } catch (err) {
-        // Fallback: native form submit. The .submit() method bypasses event
-        // listeners, so this won't loop. Netlify accepts it and redirects to
-        // action="/?sent=1"; the bootstrap above shows the success card.
+        // form.submit() bypasses listeners, no loop. Netlify processes the
+        // submission and redirects to action="/thanks".
         console.warn('AJAX submit failed, falling back to native:', err);
         form.submit();
       }
     });
-
-    function showSuccess() {
-      const f = document.getElementById('contact-form');
-      const ok = document.getElementById('contact-success');
-      if (f) f.style.display = 'none';
-      if (ok) ok.style.display = 'block';
-      window.scrollTo({ top: ok ? ok.offsetTop - 120 : 0, behavior: 'smooth' });
-    }
   });
 </script>
 </body>
