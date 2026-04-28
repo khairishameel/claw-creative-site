@@ -136,11 +136,14 @@
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: params.toString(),
         });
-        if (!r.ok) throw new Error('submit failed');
+        if (!r.ok) throw new Error('Netlify returned ' + r.status);
         showSuccess();
       } catch (err) {
-        if (label) label.textContent = "Couldn't send. Try email instead.";
-        if (btn) btn.disabled = false;
+        // Fallback: native form submit. The .submit() method bypasses event
+        // listeners, so this won't loop. Netlify accepts it and redirects to
+        // action="/?sent=1"; the bootstrap above shows the success card.
+        console.warn('AJAX submit failed, falling back to native:', err);
+        form.submit();
       }
     });
 

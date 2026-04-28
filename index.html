@@ -13,6 +13,24 @@
 </head>
 <body>
 
+<!-- Static form template for Netlify Forms detection. Hidden from users.
+     Mirrors the live form on /contact so Netlify always registers "contact"
+     at build time, regardless of which page the user submits from. -->
+<form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden aria-hidden="true">
+  <input type="text"  name="name" />
+  <input type="text"  name="business" />
+  <input type="email" name="email" />
+  <input type="tel"   name="phone" />
+  <select name="service">
+    <option value="workflows"></option>
+    <option value="ai-agents"></option>
+    <option value="integration"></option>
+    <option value="discovery"></option>
+    <option value="other"></option>
+  </select>
+  <textarea name="notes"></textarea>
+</form>
+
 <nav class="nav">
   <a href="/" class="nav-logo" aria-label="Claw Creative home"><img src="/claw-wordmark.png?v=4" alt="Claw Creative" /></a>
   <ul class="nav-links">
