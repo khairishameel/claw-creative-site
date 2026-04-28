@@ -14,9 +14,10 @@
 <body>
 
 <!-- Static form template for Netlify Forms detection. Hidden from users.
-     Mirrors the live form on /contact so Netlify always registers "contact"
-     at build time, regardless of which page the user submits from. -->
-<form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden aria-hidden="true">
+     Uses the bare `netlify` attribute that Netlify's UI recommends. Mirrors
+     the live form on /contact so the "contact" form is always registered at
+     build time, regardless of which page the user submits from. -->
+<form name="contact" method="POST" netlify netlify-honeypot="bot-field" hidden>
   <input type="text"  name="name" />
   <input type="text"  name="business" />
   <input type="email" name="email" />
