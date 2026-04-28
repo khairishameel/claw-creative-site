@@ -2653,3 +2653,76 @@ body.cursor-hot .cursor-dot {
   .aurora-bg .aurora-blob { animation: none !important; }
   body::after { display: none; }
 }
+
+/* =================================================================
+   v3.1 — Hero typography fix
+   The .display-1 .line wrappers use overflow:hidden for the slide-up
+   reveal. Combined with the original line-height of 0.96 that clipped
+   descenders ('p', 'g', 'y') and made big headlines bleed at the
+   bottom on tall pages. Also clamp scales were aggressive on wide
+   viewports. Fix both: looser line-height, descender padding with
+   compensating negative margin so visual spacing stays tight, and a
+   smaller max font-size so headlines don't fight short windows.
+================================================================= */
+
+:root {
+  --display-1: clamp(2.6rem, 7.2vw, 6.4rem);
+  --display-2: clamp(2rem, 5.4vw, 4.4rem);
+}
+
+.display-1 {
+  line-height: 1.06;
+  padding-bottom: 0.05em;        /* outer breathing room */
+}
+.display-1 .line {
+  display: block;
+  overflow: hidden;
+  padding-top: 0.06em;
+  padding-bottom: 0.20em;        /* room for descenders */
+  margin-top: -0.06em;
+  margin-bottom: -0.18em;        /* keep visual spacing tight */
+}
+.display-1 .line > span {
+  display: inline-block;
+  transform: translateY(120%);
+  transition: transform 1.1s var(--ease-out);
+}
+.in .display-1 .line > span,
+.display-1.in .line > span {
+  transform: translateY(0);
+}
+
+.display-2 {
+  line-height: 1.06;
+  padding-bottom: 0.04em;
+}
+
+/* Hero spacing scales with viewport — was a fixed 120px which cramped short windows */
+.hero.hero-v2 { min-height: 100svh; }
+.hero-v2 .hero-content {
+  padding-top: clamp(96px, 13vh, 140px);
+  padding-bottom: clamp(40px, 6vh, 80px);
+}
+
+/* On small/short screens, scale even tighter and let the hero grow with content */
+@media (max-width: 720px) {
+  :root {
+    --display-1: clamp(2.2rem, 9vw, 4.4rem);
+    --display-2: clamp(1.8rem, 7vw, 3.2rem);
+  }
+  .hero.hero-v2 { min-height: auto; padding: 0 24px; }
+  .hero-v2 .hero-content {
+    padding-top: clamp(110px, 18vh, 160px);
+    padding-bottom: 60px;
+  }
+  .hero-v2 .hero-eyebrow { font-size: 0.72rem; padding: 6px 14px; }
+  .hero-v2 .hero-sub { font-size: 1rem; margin: 24px auto 28px; }
+}
+@media (max-height: 720px) and (min-width: 721px) {
+  :root {
+    --display-1: clamp(2.4rem, 5.5vw, 4.6rem);
+  }
+  .hero-v2 .hero-content {
+    padding-top: clamp(88px, 11vh, 120px);
+  }
+}
