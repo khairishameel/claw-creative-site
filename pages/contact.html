@@ -40,7 +40,11 @@
 <section>
   <div class="container grid-2">
     <div class="reveal-left">
-      <form class="form glass" action="https://formspree.io/f/contact" method="POST" style="padding:36px">
+      <form id="contact-form" class="form glass" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/?sent=1" style="padding:36px">
+        <input type="hidden" name="form-name" value="contact" />
+        <p class="hp" style="position:absolute;left:-9999px;top:-9999px" aria-hidden="true">
+          <label>Don't fill this out if you're human: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+        </p>
         <label><span>Your name</span><input type="text" name="name" required placeholder="Shameel Khairi" /></label>
         <label><span>Business name</span><input type="text" name="business" required placeholder="Acme Operations" /></label>
         <label><span>Email</span><input type="email" name="email" required placeholder="name@email.com" /></label>
@@ -51,13 +55,17 @@
             <option value="ai-agents">Custom AI Agent</option>
             <option value="integration">Legacy System Integration</option>
             <option value="discovery">Discovery (not sure yet)</option>
-            <option value="experimental">Experimental · 3D / motion</option>
             <option value="other">Other</option>
           </select>
         </label>
         <label><span>What's the workflow eating your team's time?</span><textarea name="notes" placeholder="Describe the work you'd like to automate. Tools involved, rough volume, who currently does it. The more specific, the faster we can scope."></textarea></label>
-        <button type="submit" class="btn-magnetic" data-magnet="0.25" style="width:100%;justify-content:center"><span>Send It</span><span class="arrow">→</span></button>
+        <button type="submit" class="btn-magnetic" data-magnet="0.25" style="width:100%;justify-content:center"><span id="contact-submit-label">Send It</span><span class="arrow">→</span></button>
       </form>
+      <div id="contact-success" class="glass" style="display:none;padding:36px;margin-top:18px;text-align:center">
+        <div class="section-eyebrow" style="color:var(--prism-1)">Sent</div>
+        <h3 class="mt-8" style="font-size:1.4rem">Thanks. We've got it.</h3>
+        <p class="muted mt-8">We reply within a few hours during business hours. If it's urgent, ping us on WhatsApp.</p>
+      </div>
     </div>
 
     <div class="reveal-right">
@@ -94,11 +102,55 @@
 <script src="/app.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    // Prefill service from ?service= query param
     const s = new URLSearchParams(location.search).get('service');
-    if (!s) return;
-    const sel = document.querySelector('select[name=service]');
-    if (!sel) return;
-    [...sel.options].forEach(o => { if (o.value === s) sel.value = o.value; });
+    if (s) {
+      const sel = document.querySelector('select[name=service]');
+      if (sel) [...sel.options].forEach(o => { if (o.value === s) sel.value = o.value; });
+    }
+
+    // If we just landed back from a successful submit (?sent=1), show success
+    if (new URLSearchParams(location.search).get('sent') === '1') {
+      showSuccess();
+      // Clean the URL
+      history.replaceState(null, '', location.pathname);
+    }
+
+    // AJAX submit so the user stays on the page
+    const form = document.getElementById('contact-form');
+    if (!form) return;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector('button[type=submit]');
+      const label = document.getElementById('contact-submit-label');
+      if (label) label.textContent = 'Sending...';
+      if (btn) btn.disabled = true;
+
+      const data = new FormData(form);
+      const params = new URLSearchParams();
+      for (const [k, v] of data) params.append(k, v);
+
+      try {
+        const r = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString(),
+        });
+        if (!r.ok) throw new Error('submit failed');
+        showSuccess();
+      } catch (err) {
+        if (label) label.textContent = "Couldn't send. Try email instead.";
+        if (btn) btn.disabled = false;
+      }
+    });
+
+    function showSuccess() {
+      const f = document.getElementById('contact-form');
+      const ok = document.getElementById('contact-success');
+      if (f) f.style.display = 'none';
+      if (ok) ok.style.display = 'block';
+      window.scrollTo({ top: ok ? ok.offsetTop - 120 : 0, behavior: 'smooth' });
+    }
   });
 </script>
 </body>
