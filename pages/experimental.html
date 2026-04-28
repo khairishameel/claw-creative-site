@@ -275,6 +275,69 @@
     .process .grid{grid-template-columns:1fr;}
     .foot h2{font-size:52px;}
   }
+
+  /* ================= MOBILE GATE =================
+     On screens under 860px we hide the entire experimental page and show
+     a single polished "desktop only" overlay instead. The 3D showcase
+     needs a real pointer + scroll-wheel + viewport to shine. */
+  .desktop-gate{display:none;}
+  @media (max-width:860px){
+    body > *:not(.desktop-gate){display:none !important;}
+    .desktop-gate{
+      display:flex; position:fixed; inset:0;
+      flex-direction:column; align-items:center; justify-content:center;
+      padding:40px 28px;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%, #0d1f17 0%, #050a0e 70%);
+      color:var(--fg); text-align:center; z-index:9999;
+      overflow:hidden;
+    }
+  }
+  .desktop-gate::before{
+    content:""; position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(0,255,136,.06) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,255,136,.06) 1px,transparent 1px);
+    background-size:48px 48px; opacity:.45;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+    -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+  }
+  .desktop-gate-icon{
+    width:88px; height:88px; border-radius:50%;
+    background:radial-gradient(circle at center, rgba(0,255,136,.3), transparent 65%);
+    display:grid; place-items:center; margin-bottom:28px; position:relative; z-index:1;
+  }
+  .desktop-gate-icon::before{
+    content:""; position:absolute; inset:0; border-radius:50%;
+    border:1px dashed rgba(0,255,136,.45);
+    animation:spin 14s linear infinite;
+  }
+  .desktop-gate-icon svg{width:40px;height:40px;color:var(--glow);position:relative;z-index:2;}
+  .desktop-gate .label{margin-bottom:14px; position:relative; z-index:1;}
+  .desktop-gate h1{
+    font-family:'Playfair Display',serif; font-weight:500;
+    font-size:clamp(32px,9vw,48px); line-height:1.05; letter-spacing:-.02em;
+    color:var(--fg); margin:0 0 18px; position:relative; z-index:1; max-width:520px;
+  }
+  .desktop-gate h1 em{color:var(--glow); font-style:italic;}
+  .desktop-gate p{
+    font-family:'Inter',sans-serif; font-size:15px;
+    color:var(--fg-2); line-height:1.65; max-width:420px;
+    margin:0 0 32px; position:relative; z-index:1;
+  }
+  .desktop-gate a.back{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:14px 26px; border-radius:999px;
+    background:transparent; color:var(--glow);
+    border:1px solid var(--glow); font-size:13px; letter-spacing:.04em;
+    text-decoration:none; font-weight:600; position:relative; z-index:1;
+    transition:all .25s;
+  }
+  .desktop-gate a.back:hover{background:rgba(0,255,136,.08); box-shadow:0 0 16px rgba(0,255,136,.25);}
+  .desktop-gate .meta{
+    position:absolute; bottom:24px; left:0; right:0; z-index:1;
+    font-family:'JetBrains Mono',monospace; font-size:10px;
+    letter-spacing:.2em; color:var(--fg-2); opacity:.55;
+  }
 </style>
 </head>
 <body>
@@ -288,11 +351,9 @@
   </a>
   <ul>
     <li><a href="/">Home</a></li>
-    <li><a href="/websites">Websites</a></li>
+    <li><a href="/workflows">Workflows</a></li>
     <li><a href="/ai-agents">AI Agents</a></li>
-    <li><a href="/socials">Socials</a></li>
-    <li><a href="/marketing">Marketing</a></li>
-    <li><a href="/domains">Domains</a></li>
+    <li><a href="/integration">Integration</a></li>
     <li><a href="/work">Work</a></li>
     <li><a href="/about">About</a></li>
     <li><a href="#" class="active">Experimental</a></li>
