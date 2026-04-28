@@ -2726,3 +2726,21 @@ body.cursor-hot .cursor-dot {
     padding-top: clamp(88px, 11vh, 120px);
   }
 }
+
+/* Hero tagline — sits between the display-1 hook and the sub copy.
+   Half-step smaller than display-2, italic-ish weight, drawn from the
+   ink-soft palette so it reads as a follow-up line not a competing H2. */
+.hero-tagline {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 18px auto 0;
+  max-width: 760px;
+}
+.hero-tagline .prism-text { font-weight: 700; }
+@media (max-width: 720px) {
+  .hero-tagline { font-size: clamp(1.2rem, 5vw, 1.8rem); margin-top: 14px; }
+}
