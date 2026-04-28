@@ -18,13 +18,12 @@
   <ul class="nav-links">
     <li><a href="/workflows">Workflows</a></li><li><a href="/ai-agents">AI Agents</a></li>
     <li><a href="/integration">Integration</a></li><li><a href="/work">Work</a></li><li><a href="/about">About</a></li>
-    <li><a href="/experimental" class="nav-exp">Experimental</a></li>
   </ul>
   <a href="/contact" class="nav-cta">Let's Talk</a>
   <div class="hamburger"><span></span><span></span><span></span></div>
 </nav>
 <div class="mobile-menu">
-  <a href="/">Home</a><a href="/workflows">Workflows</a><a href="/ai-agents">AI Agents</a><a href="/integration">Integration</a><a href="/work">Work</a><a href="/process">Process</a><a href="/about">About</a><a href="/experimental" class="nav-exp">Experimental</a><a href="/contact">Contact</a>
+  <a href="/">Home</a><a href="/workflows">Workflows</a><a href="/ai-agents">AI Agents</a><a href="/integration">Integration</a><a href="/work">Work</a><a href="/process">Process</a><a href="/about">About</a><a href="/contact">Contact</a>
 </div>
 
 <section class="hero hero-v2" data-ring-particles>
@@ -74,18 +73,119 @@
 </section>
 
 <!-- MODELS -->
-<section style="background:var(--white)">
+<section>
   <div class="container">
     <div class="text-center mb-16 reveal">
       <div class="section-eyebrow">Powered by</div>
-      <h2 class="display-2">Frontier models. <span class="prism-text">Picked per job</span>.</h2>
-      <p class="muted mt-8" style="max-width:640px;margin-left:auto;margin-right:auto">We don't lock you to one provider. We pick the right model for the task and route through the right SDK.</p>
+      <h2 class="display-2">Any frontier model. <span class="prism-text">Picked per job</span>.</h2>
+      <p class="muted mt-8" style="max-width:680px;margin-left:auto;margin-right:auto">We don't lock you to one provider. Pick whichever model fits the task, the budget, the latency, the privacy posture. We route through the right SDK and design so models are swappable when better ones ship.</p>
     </div>
-    <div class="feature-grid">
-      <div class="glass tilt-3d reveal" style="padding:32px"><h3>Claude</h3><p class="mt-8">Best for long context, careful reasoning, document analysis, and multi-step tool use. Our default for production agents.</p></div>
-      <div class="glass tilt-3d reveal" data-delay="80" style="padding:32px"><h3>Gemini Ultra</h3><p class="mt-8">Best for multimodal work, code-heavy tasks, and pulling from Google services. Strong on cost-efficiency at scale.</p></div>
-      <div class="glass tilt-3d reveal" data-delay="160" style="padding:32px"><h3>GPT-5 / 4.5</h3><p class="mt-8">Best for general-purpose tasks, broad ecosystem support, and where OpenAI's tool ecosystem is already in use.</p></div>
+
+    <div class="models-grid">
+      <div class="model-card reveal" data-delay="0">
+        <div class="model-icon"><img src="/assets/icons/claude.svg" alt="" /></div>
+        <div class="model-vendor">Anthropic</div>
+        <div class="model-name">Claude</div>
+        <div class="model-desc">Long context, careful reasoning, doc analysis. Our default for production agents.</div>
+        <div class="model-demo">
+          <div class="demo-q">Read this 80-page MSA. Find every termination clause.</div>
+          <div class="demo-a">Found 4. Two require 90-day cure, one for-cause only, one auto-renews unless 60-day notice. Page refs attached.</div>
+        </div>
+      </div>
+
+      <div class="model-card reveal" data-delay="40">
+        <div class="model-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <defs>
+              <linearGradient id="gem-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#EA4335"/>
+                <stop offset="35%" stop-color="#FBBC04"/>
+                <stop offset="65%" stop-color="#34A853"/>
+                <stop offset="100%" stop-color="#4285F4"/>
+              </linearGradient>
+            </defs>
+            <path d="M12 2 C12.6 7.5 16.5 11.4 22 12 C16.5 12.6 12.6 16.5 12 22 C11.4 16.5 7.5 12.6 2 12 C7.5 11.4 11.4 7.5 12 2 Z" fill="url(#gem-grad)"/>
+          </svg>
+        </div>
+        <div class="model-vendor">Google DeepMind</div>
+        <div class="model-name">Gemini</div>
+        <div class="model-desc">Multimodal, code-heavy work, deep Google ecosystem integration.</div>
+        <div class="model-demo">
+          <div class="demo-q">What's wrong in this dashboard screenshot?</div>
+          <div class="demo-a">Q3 churn jumped to 3.2% (was 2.8%). MRR dip aligns with SMB cohort losing the Acme contract. Flagged 2 anomalies.</div>
+        </div>
+      </div>
+
+      <div class="model-card placeholder reveal" data-delay="80">
+        <div class="model-icon">GPT</div>
+        <div class="model-vendor">OpenAI</div>
+        <div class="model-name">GPT-5</div>
+        <div class="model-desc">General-purpose, broad tooling, where OpenAI's ecosystem already lives.</div>
+        <div class="model-demo">
+          <div class="demo-q">Draft a refund email and issue the Stripe credit.</div>
+          <div class="demo-a">Email drafted, tone-matched to prior thread. Stripe credit issued: $128.40. Both queued for your approval.</div>
+        </div>
+      </div>
+
+      <div class="model-card reveal" data-delay="120">
+        <div class="model-icon"><img src="/assets/icons/grok.svg" alt="" style="filter:invert(1)" /></div>
+        <div class="model-vendor">xAI</div>
+        <div class="model-name">Grok</div>
+        <div class="model-desc">Real-time web context, X integration, fewer guardrails for research.</div>
+        <div class="model-demo">
+          <div class="demo-q">Spot price for H100 GPUs right now?</div>
+          <div class="demo-a">$2.18/hr averaged across 4 providers (last 5 min). Trending down 6% this week. Lambda lowest at $1.99.</div>
+        </div>
+      </div>
+
+      <div class="model-card placeholder reveal" data-delay="160">
+        <div class="model-icon">DS</div>
+        <div class="model-vendor">DeepSeek</div>
+        <div class="model-name">DeepSeek V3</div>
+        <div class="model-desc">Strong reasoning at a fraction of the cost. Self-hostable.</div>
+        <div class="model-demo">
+          <div class="demo-q">Route A saves 12% but adds 3 days. When does A win on $8k orders?</div>
+          <div class="demo-a">A wins when carry cost &lt; 8% of order value. Threshold: orders above $24k inventory cost OR low-margin SKUs.</div>
+        </div>
+      </div>
+
+      <div class="model-card placeholder reveal" data-delay="200">
+        <div class="model-icon">LL</div>
+        <div class="model-vendor">Meta</div>
+        <div class="model-name">Llama</div>
+        <div class="model-desc">Open weights. Run on your own infra when data can't leave.</div>
+        <div class="model-demo">
+          <div class="demo-q">Process these patient records. Cannot leave premises.</div>
+          <div class="demo-a">Running on local GPU. 1,420 records de-identified, structured to FHIR. Output written to /secure/staging.</div>
+        </div>
+      </div>
+
+      <div class="model-card placeholder reveal" data-delay="240">
+        <div class="model-icon">MS</div>
+        <div class="model-vendor">Mistral</div>
+        <div class="model-name">Mistral Large</div>
+        <div class="model-desc">European hosting, strong at code, cost-efficient at scale.</div>
+        <div class="model-demo">
+          <div class="demo-q">Write a Playwright scraper for invoices behind login.</div>
+          <div class="demo-a">Done. Auth flow, MFA fallback, retry on stale session. 200 lines, EU-hosted run, GDPR audit log enabled.</div>
+        </div>
+      </div>
+
+      <div class="model-card placeholder reveal" data-delay="280">
+        <div class="model-icon">QW</div>
+        <div class="model-vendor">Alibaba</div>
+        <div class="model-name">Qwen</div>
+        <div class="model-desc">Open weights, strong multilingual, competitive on benchmarks.</div>
+        <div class="model-demo">
+          <div class="demo-q">Translate this Mandarin complaint. Draft a reply.</div>
+          <div class="demo-a">Customer flags shipping delay on order #18. Reply drafted in Mandarin + English. Refund offered, escalation flagged.</div>
+        </div>
+      </div>
     </div>
+
+    <p class="muted text-center mt-16" style="max-width:560px;margin-left:auto;margin-right:auto;font-size:0.95rem">
+      Want a model not listed here? We'll wire it in. New ones ship every few weeks and we keep up.
+    </p>
   </div>
 </section>
 
@@ -152,11 +252,10 @@
   </div>
 </section>
 
-<section style="background:var(--ink); color:var(--cream); text-align:center; position:relative; overflow:hidden">
-  <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 30%, rgba(126,140,255,0.18), transparent 50%), radial-gradient(circle at 70% 70%, rgba(247,76,48,0.18), transparent 50%);"></div>
+<section class="cta-panel">
   <div class="container-sm reveal" style="position:relative">
-    <h2 class="display-2" style="color:var(--cream)">Hire the agent. <span class="prism-text">Skip the headcount</span>.</h2>
-    <p style="color:rgba(242,213,196,0.75);font-size:1.1rem;margin:16px auto 32px;max-width:560px">You focus on running the business. The agent handles the cognitive grunt work.</p>
+    <h2 class="display-2">Hire the agent. <span class="prism-text">Skip the headcount</span>.</h2>
+    <p style="color:var(--ink-soft);font-size:1.1rem;margin:16px auto 32px;max-width:560px">You focus on running the business. The agent handles the cognitive grunt work.</p>
     <a href="/contact?service=ai-agents" class="btn-magnetic" data-magnet="0.3"><span>Start a Discovery</span><span class="arrow">→</span></a>
   </div>
 </section>

@@ -245,25 +245,50 @@
     aurora.className = 'aurora-bg';
     aurora.innerHTML = '<div class="aurora-blob"></div>';
     document.body.prepend(aurora);
-    const cursor = document.createElement('div');
-    cursor.className = 'cursor-aura';
-    document.body.prepend(cursor);
   }
 
-  /* --- Cursor-tracked spotlight --- */
+  /* --- Dual-layer cursor follower (orb + dot, rAF lerp, GPU-only) --- */
   function initCursorAura() {
     if (window.matchMedia('(pointer: coarse)').matches) return;
-    let raf = 0, x = 0, y = 0;
-    window.addEventListener('mousemove', (e) => {
-      x = (e.clientX / window.innerWidth) * 100;
-      y = (e.clientY / window.innerHeight) * 100;
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        document.documentElement.style.setProperty('--cx', x + '%');
-        document.documentElement.style.setProperty('--cy', y + '%');
-        raf = 0;
-      });
-    }, { passive: true });
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const orb = document.createElement('div'); orb.className = 'cursor-orb';
+    const dot = document.createElement('div'); dot.className = 'cursor-dot';
+    document.body.appendChild(orb);
+    document.body.appendChild(dot);
+
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    let lx = mx, ly = my;
+    let active = false;
+
+    const onMove = (e) => {
+      mx = e.clientX; my = e.clientY;
+      if (!active) {
+        active = true;
+        document.body.classList.add('cursor-active');
+        // snap orb on first move so it doesn't fly in
+        lx = mx; ly = my;
+      }
+      const target = e.target;
+      const isHot = target.closest && target.closest('a, button, .btn, .btn-magnetic, .btn-glass, .service-card, .glass, .model-card, [data-magnet]');
+      document.body.classList.toggle('cursor-hot', !!isHot);
+    };
+    window.addEventListener('mousemove', onMove, { passive: true });
+    window.addEventListener('mouseleave', () => {
+      active = false;
+      document.body.classList.remove('cursor-active', 'cursor-hot');
+    });
+
+    const tick = () => {
+      // ease orb toward cursor (lerp)
+      lx += (mx - lx) * 0.14;
+      ly += (my - ly) * 0.14;
+      orb.style.transform = `translate3d(${lx}px, ${ly}px, 0)`;
+      // dot pinned to actual cursor
+      dot.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   /* --- Magnetic buttons (cursor-tracked transform) --- */
@@ -371,8 +396,9 @@
     });
   }
 
-  /* --- Ring particles (canvas) for the hero --- */
+  /* --- Ring particles (canvas) — perf-tuned, warm only --- */
   function initRingParticles() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const hosts = document.querySelectorAll('[data-ring-particles]');
     hosts.forEach((host) => {
       const canvas = document.createElement('canvas');
@@ -381,19 +407,22 @@
       host.style.position = host.style.position || 'relative';
       host.appendChild(canvas);
 
-      const ctx = canvas.getContext('2d');
-      let w, h, dpr, t = 0, raf = 0;
-      const colors = ['#ff7a59','#ffb86b','#6dd3c7','#7e8cff','#c884ff','#ff7ac8'];
-      const RINGS = 5;
-      const PARTICLES_PER_RING = 60;
-      const dotsState = [];
+      const ctx = canvas.getContext('2d', { alpha: true });
+      let w, h, dpr, t = 0, raf = 0, visible = true;
+      // Warm palette only
+      const colors = ['#f74c30', '#ff7a59', '#ffb86b', '#ff8a3d', '#f7c560'];
+      const RINGS = 3;
+      const PARTICLES_PER_RING = 24;
+      const isMobile = window.matchMedia('(max-width: 720px)').matches;
+      const finalRings = isMobile ? 2 : RINGS;
+      const finalPerRing = isMobile ? 14 : PARTICLES_PER_RING;
 
       const resize = () => {
         const rect = host.getBoundingClientRect();
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        dpr = Math.min(window.devicePixelRatio || 1, 1.5);
         w = rect.width; h = rect.height;
-        canvas.width  = w * dpr;
-        canvas.height = h * dpr;
+        canvas.width  = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
         canvas.style.width = w + 'px';
         canvas.style.height = h + 'px';
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -401,79 +430,81 @@
       resize();
       window.addEventListener('resize', resize);
 
-      // Particles on rings
       const particles = [];
-      for (let r = 0; r < RINGS; r++) {
-        for (let i = 0; i < PARTICLES_PER_RING; i++) {
+      for (let r = 0; r < finalRings; r++) {
+        for (let i = 0; i < finalPerRing; i++) {
           particles.push({
             ring: r,
-            angle: (i / PARTICLES_PER_RING) * Math.PI * 2,
-            speed: (0.0006 + r * 0.00018) * (r % 2 ? 1 : -1),
-            size: 1.2 + Math.random() * 1.6,
-            colorA: colors[(r * 2) % colors.length],
-            colorB: colors[(r * 2 + 3) % colors.length],
+            angle: (i / finalPerRing) * Math.PI * 2,
+            speed: (0.0005 + r * 0.00015) * (r % 2 ? 1 : -1),
+            size: 1.4 + Math.random() * 1.2,
+            color: colors[(r * 2 + i) % colors.length],
             phase: Math.random() * Math.PI * 2,
           });
         }
       }
 
       const draw = () => {
+        if (!visible) { raf = 0; return; }
         ctx.clearRect(0, 0, w, h);
         const cx = w / 2;
         const cy = h * 0.55;
         const baseR = Math.min(w, h) * 0.18;
+        const ringStep = Math.min(w, h) * 0.075;
 
-        // Draw soft ring strokes
-        for (let r = 0; r < RINGS; r++) {
-          const radius = baseR + r * (Math.min(w, h) * 0.07);
-          const grad = ctx.createConicGradient(t * 0.0004 * (r + 1), cx, cy);
-          grad.addColorStop(0,   colors[r % colors.length] + '00');
-          grad.addColorStop(0.25, colors[r % colors.length] + '60');
-          grad.addColorStop(0.5,  colors[(r + 2) % colors.length] + '90');
-          grad.addColorStop(0.75, colors[(r + 4) % colors.length] + '60');
-          grad.addColorStop(1,   colors[r % colors.length] + '00');
-          ctx.strokeStyle = grad;
-          ctx.lineWidth = 1.2;
-          ctx.globalAlpha = 0.5;
+        // Simple ring strokes (no conic gradient — much cheaper)
+        ctx.lineWidth = 1;
+        for (let r = 0; r < finalRings; r++) {
+          ctx.strokeStyle = 'rgba(247, 76, 48, ' + (0.18 - r * 0.04) + ')';
           ctx.beginPath();
-          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+          ctx.arc(cx, cy, baseR + r * ringStep, 0, Math.PI * 2);
           ctx.stroke();
         }
 
-        // Draw orbiting particles
-        particles.forEach((p) => {
+        // Particles — solid circles with shadowBlur for glow (fast)
+        ctx.shadowBlur = 12;
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
           p.angle += p.speed;
-          const radius = baseR + p.ring * (Math.min(w, h) * 0.07);
+          const radius = baseR + p.ring * ringStep;
           const x = cx + Math.cos(p.angle) * radius;
           const y = cy + Math.sin(p.angle) * radius;
-          const pulse = 0.6 + Math.sin(t * 0.001 + p.phase) * 0.4;
-          ctx.globalAlpha = 0.55 + pulse * 0.35;
-          const grd = ctx.createRadialGradient(x, y, 0, x, y, p.size * 8);
-          grd.addColorStop(0, p.colorA);
-          grd.addColorStop(0.4, p.colorB + 'aa');
-          grd.addColorStop(1, p.colorB + '00');
-          ctx.fillStyle = grd;
+          const pulse = 0.7 + Math.sin(t * 0.001 + p.phase) * 0.3;
+          ctx.shadowColor = p.color;
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = pulse;
           ctx.beginPath();
-          ctx.arc(x, y, p.size * 5, 0, Math.PI * 2);
+          ctx.arc(x, y, p.size, 0, Math.PI * 2);
           ctx.fill();
-        });
+        }
 
+        ctx.shadowBlur = 0;
         ctx.globalAlpha = 1;
         t += 16;
         raf = requestAnimationFrame(draw);
       };
-      draw();
 
-      // Pause when offscreen
+      const start = () => { if (!raf && visible) raf = requestAnimationFrame(draw); };
+      const stop  = () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } };
+
+      // Pause when scrolled offscreen
       if ('IntersectionObserver' in window) {
         const io = new IntersectionObserver((entries) => {
           entries.forEach((e) => {
-            if (e.isIntersecting && !raf) draw();
-            else if (!e.isIntersecting && raf) { cancelAnimationFrame(raf); raf = 0; }
+            visible = e.isIntersecting;
+            if (visible) start(); else stop();
           });
         }, { threshold: 0 });
         io.observe(host);
       }
+
+      // Pause when tab hidden
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stop();
+        else start();
+      });
+
+      start();
     });
   }
 

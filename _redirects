@@ -8,8 +8,6 @@
 /process           /pages/process.html           200
 /about             /pages/about.html             200
 /contact           /pages/contact.html           200
-/experimental      /pages/experimental.html      200
-/experimental-test /pages/experimental-test.html 200
 
 # Trailing-slash variants
 /workflows/         /pages/workflows.html         200
@@ -19,18 +17,19 @@
 /process/           /pages/process.html           200
 /about/             /pages/about.html             200
 /contact/           /pages/contact.html           200
-/experimental/      /pages/experimental.html      200
-/experimental-test/ /pages/experimental-test.html 200
 
-# Retired services — redirect to the closest replacement (or home)
-/websites          /                              301
-/websites/         /                              301
-/socials           /                              301
-/socials/          /                              301
-/marketing         /                              301
-/marketing/        /                              301
-/domains           /                              301
-/domains/          /                              301
+# Retired routes — 301 to home
+/websites           /                              301
+/websites/          /                              301
+/socials            /                              301
+/socials/           /                              301
+/marketing          /                              301
+/marketing/         /                              301
+/domains            /                              301
+/domains/           /                              301
+/experimental       /                              301
+/experimental/      /                              301
+/experimental-test  /                              301
+/experimental-test/ /                              301
 
-# 404 fallback → home (optional)
-# /*               /index.html                    404
+# 404 fallback handled by 404.html (Netlify default)
